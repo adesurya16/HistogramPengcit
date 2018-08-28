@@ -48,124 +48,49 @@ public class RecyclerPhoto extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         switch (posisi) {
             case 0:
-                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.a1998);
-                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Foto tahun ke : 1998");
-                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("belum masuk TK");
+                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.fari_smp);
+                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Fari");
+                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("SMP");
                 break;
             case 1:
-                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.b2000);
-                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Foto tahun ke : 2000");
-                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("udah masuk TK, sedang latihan haji");
+                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.fari_sma);
+                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Fari");
+                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("SMA");
                 break;
             case 2:
-                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.c2009);
-                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Foto tahun ke : 2009");
-                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("Pagelaran SMP");
+                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.fari_kuliah);
+                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Fari");
+                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("Kuliah");
                 break;
             case 3:
-                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.d2010);
-                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Foto tahun ke : 2010");
-                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("SMA kelas 1");
+                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.ade_smp);
+                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Ade");
+                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("SMP");
                 break;
             case 4:
-                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.e2011);
-                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Foto tahun ke : 2011");
-                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("panitia diesnatalis SMA kelas 2");
+                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.ade_sma);
+                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Ade");
+                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("SMA");
                 break;
             case 5:
-                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.f2013);
-                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Foto tahun ke : 2013");
-                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("baru lulus SMA");
+                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.ade_kuliah);
+                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Ade");
+                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("Kuliah");
                 break;
             case 6:
-                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.g2013);
-                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Foto tahun ke : 2013");
-                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("awal masuk kuliah");
+                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.kemal_smp);
+                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Kemal");
+                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("SMP");
                 break;
             case 7:
-                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.h2014);
-                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Foto tahun ke : 2014");
-                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("di kosan");
+                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.kemal_sma);
+                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Kemal");
+                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("SMA");
                 break;
             case 8:
-                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.i2015);
-                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Foto tahun ke : 2015");
-                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("di kampus semarang");
-                break;
-            case 9:
-                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.j2015);
-                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Foto tahun ke : 2015");
-                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("awal hijrah ke bandung");
-                break;
-            case 10:
-                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.k2016);
-                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Foto tahun ke : 2016");
-                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("depan labtek v");
-                break;
-            case 11:
-                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.l2016);
-                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Foto tahun ke : 2016");
-                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("di mihrab salman");
-                break;
-            case 12:
-                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.a1998);
-                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Foto tahun ke : 1998 (Grayscale)");
-                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("belum masuk TK");
-                break;
-            case 13:
-                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.b2000);
-                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Foto tahun ke : 2000 (Grayscale)");
-                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("udah masuk TK, sedang latihan haji");
-                break;
-            case 14:
-                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.c2009);
-                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Foto tahun ke : 2009 (Grayscale)");
-                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("Pagelaran SMP");
-                break;
-            case 15:
-                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.d2010);
-                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Foto tahun ke : 2010 (Grayscale)");
-                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("SMA kelas 1");
-                break;
-            case 16:
-                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.e2011);
-                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Foto tahun ke : 2011 (Grayscale)");
-                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("panitia diesnatalis SMA kelas 2");
-                break;
-            case 17:
-                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.f2013);
-                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Foto tahun ke : 2013 (Grayscale)");
-                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("baru lulus SMA");
-                break;
-            case 18:
-                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.g2013);
-                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Foto tahun ke : 2013 (Grayscale)");
-                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("awal masuk kuliah");
-                break;
-            case 19:
-                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.h2014);
-                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Foto tahun ke : 2014 (Grayscale)");
-                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("di kosan");
-                break;
-            case 20:
-                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.i2015);
-                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Foto tahun ke : 2015 (Grayscale)");
-                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("di kampus semarang");
-                break;
-            case 21:
-                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.j2015);
-                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Foto tahun ke : 2015 (Grayscale)");
-                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("awal hijrah ke bandung");
-                break;
-            case 22:
-                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.k2016);
-                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Foto tahun ke : 2016 (Grayscale)");
-                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("depan labtek v");
-                break;
-            case 23:
-                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.l2016);
-                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Foto tahun ke : 2016 (Grayscale)");
-                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("di mihrab salman");
+                viewHolderArticle1.mImageViewKu.setImageResource(R.drawable.kemal_kuliah);
+                viewHolderArticle1.mTextViewTeksJudulBerita.setText("Kemal");
+                viewHolderArticle1.mTextViewTeksKeteranganBerita.setText("Kuliah");
                 break;
         }
 
@@ -192,7 +117,7 @@ public class RecyclerPhoto extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public int getItemCount() {
-        return 24;
+        return 9;
     }
 
     //JIKA CONTAINER DI KLIK

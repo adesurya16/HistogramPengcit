@@ -6,18 +6,6 @@
     android:background="@color/bluesky0"
     android:orientation="vertical">
 
-    <Button
-        android:id="@+id/btnRgbHistogram"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="All histogram photo in grayscale"/>
-
-    <Button
-        android:id="@+id/btnGrayscaleHistogram"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="All histogram photo in RGB"/>
-
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_numbers"
         android:layout_width="match_parent"
