@@ -6,6 +6,12 @@
     android:background="@color/bluesky0"
     android:orientation="vertical">
 
+    <Button
+        android:id="@+id/btnPickImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ambil foto dari galeri"/>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_numbers"
         android:layout_width="match_parent"
