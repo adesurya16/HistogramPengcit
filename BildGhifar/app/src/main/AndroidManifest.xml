@@ -15,8 +15,7 @@
         <activity
             android:name=".tugas1Histogram.LandingPageHistogram"
             android:configChanges="orientation"
-            android:screenOrientation="portrait">
-        </activity>
+            android:screenOrientation="portrait"></activity>
         <activity android:name=".tugas1Histogram.MpChartPageHistogram" />
         <activity android:name=".tugas1Histogram.PickImageActivity" />
         <activity android:name=".FirstPage">
@@ -26,6 +25,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".tugas2carigarismuka.LandingPageTugas2"></activity>
     </application>
 
 </manifest>

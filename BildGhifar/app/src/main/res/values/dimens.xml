@@ -16,6 +16,7 @@
     <dimen name="half_big_text_size">35sp</dimen>
     <dimen name="big_text_size">60sp</dimen>
 
+    <dimen name="marginleftright">30dp</dimen>
 
     <dimen name="ukuran_2dp">2dp</dimen>
     <dimen name="ukuran_3dp">3dp</dimen>
