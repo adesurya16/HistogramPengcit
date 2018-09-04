@@ -1,4 +1,4 @@
-package com.alhudaghifari.bildghifar;
+package com.alhudaghifari.bildghifar.tugas1Histogram;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -8,10 +8,12 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import com.alhudaghifari.bildghifar.Constant;
+import com.alhudaghifari.bildghifar.R;
+
+public class LandingPageHistogram extends AppCompatActivity {
 
 
     RecyclerView mRecyclerView;
@@ -36,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         btnPickImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, PickImageActivity.class);
+                Intent intent = new Intent(LandingPageHistogram.this, PickImageActivity.class);
                 startActivity(intent);
             }
         });
@@ -58,74 +60,74 @@ public class MainActivity extends AppCompatActivity {
 
                     switch (posisi) {
                         case 0:
-                            Intent intentdetil = new Intent(MainActivity.this, MpChartPageHistogram.class);
+                            Intent intentdetil = new Intent(LandingPageHistogram.this, MpChartPageHistogram.class);
                             intentdetil.putExtra(Constant.imageTitle, Constant.a);
                             intentdetil.putExtra(Constant.jenisGambar, Constant.rgb);
 
-                            MainActivity.this.startActivity(intentdetil);
+                            LandingPageHistogram.this.startActivity(intentdetil);
                             break;
 
                         case 1:
-                            Intent intentdetil1 = new Intent(MainActivity.this, MpChartPageHistogram.class);
+                            Intent intentdetil1 = new Intent(LandingPageHistogram.this, MpChartPageHistogram.class);
                             intentdetil1.putExtra(Constant.imageTitle, Constant.b);
                             intentdetil1.putExtra(Constant.jenisGambar, Constant.rgb);
 
-                            MainActivity.this.startActivity(intentdetil1);
+                            LandingPageHistogram.this.startActivity(intentdetil1);
                             break;
 
                         case 2:
-                            Intent intentdetil2 = new Intent(MainActivity.this, MpChartPageHistogram.class);
+                            Intent intentdetil2 = new Intent(LandingPageHistogram.this, MpChartPageHistogram.class);
                             intentdetil2.putExtra(Constant.imageTitle, Constant.c);
                             intentdetil2.putExtra(Constant.jenisGambar, Constant.rgb);
 
-                            MainActivity.this.startActivity(intentdetil2);
+                            LandingPageHistogram.this.startActivity(intentdetil2);
                             break;
 
                         case 3:
-                            Intent intentdetil3 = new Intent(MainActivity.this, MpChartPageHistogram.class);
+                            Intent intentdetil3 = new Intent(LandingPageHistogram.this, MpChartPageHistogram.class);
                             intentdetil3.putExtra(Constant.imageTitle, Constant.d);
                             intentdetil3.putExtra(Constant.jenisGambar, Constant.rgb);
 
-                            MainActivity.this.startActivity(intentdetil3);
+                            LandingPageHistogram.this.startActivity(intentdetil3);
                             break;
 
                         case 4:
-                            Intent intentdetil4 = new Intent(MainActivity.this, MpChartPageHistogram.class);
+                            Intent intentdetil4 = new Intent(LandingPageHistogram.this, MpChartPageHistogram.class);
                             intentdetil4.putExtra(Constant.imageTitle, Constant.e);
                             intentdetil4.putExtra(Constant.jenisGambar, Constant.rgb);
 
-                            MainActivity.this.startActivity(intentdetil4);
+                            LandingPageHistogram.this.startActivity(intentdetil4);
                             break;
 
                         case 5:
-                            Intent intentdetil5 = new Intent(MainActivity.this, MpChartPageHistogram.class);
+                            Intent intentdetil5 = new Intent(LandingPageHistogram.this, MpChartPageHistogram.class);
                             intentdetil5.putExtra(Constant.imageTitle, Constant.f);
                             intentdetil5.putExtra(Constant.jenisGambar, Constant.rgb);
 
-                            MainActivity.this.startActivity(intentdetil5);
+                            LandingPageHistogram.this.startActivity(intentdetil5);
                             break;
 
                         case 6:
-                            Intent intentdetil6 = new Intent(MainActivity.this, MpChartPageHistogram.class);
+                            Intent intentdetil6 = new Intent(LandingPageHistogram.this, MpChartPageHistogram.class);
                             intentdetil6.putExtra(Constant.imageTitle, Constant.g);
                             intentdetil6.putExtra(Constant.jenisGambar, Constant.rgb);
 
-                            MainActivity.this.startActivity(intentdetil6);
+                            LandingPageHistogram.this.startActivity(intentdetil6);
                             break;
 
                         case 7:
-                            Intent intentdetil7 = new Intent(MainActivity.this, MpChartPageHistogram.class);
+                            Intent intentdetil7 = new Intent(LandingPageHistogram.this, MpChartPageHistogram.class);
                             intentdetil7.putExtra(Constant.imageTitle, Constant.h);
                             intentdetil7.putExtra(Constant.jenisGambar, Constant.rgb);
 
-                            MainActivity.this.startActivity(intentdetil7);
+                            LandingPageHistogram.this.startActivity(intentdetil7);
                             break;
                         case 8:
-                            Intent intentdetil8 = new Intent(MainActivity.this, MpChartPageHistogram.class);
+                            Intent intentdetil8 = new Intent(LandingPageHistogram.this, MpChartPageHistogram.class);
                             intentdetil8.putExtra(Constant.imageTitle, Constant.i);
                             intentdetil8.putExtra(Constant.jenisGambar, Constant.rgb);
 
-                            MainActivity.this.startActivity(intentdetil8);
+                            LandingPageHistogram.this.startActivity(intentdetil8);
                             break;
                     }
 
@@ -138,10 +140,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void inisialisasiTampilan() {
-        final LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(MainActivity.this);
+        final LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(LandingPageHistogram.this);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerPhoto = new RecyclerPhoto(MainActivity.this);
+        mRecyclerPhoto = new RecyclerPhoto(LandingPageHistogram.this);
         mRecyclerPhoto.setOnArtikelClickListener(mOnArtikelClickListener);
         mRecyclerView.setAdapter(mRecyclerPhoto);
     }

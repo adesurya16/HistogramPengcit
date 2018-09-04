@@ -1,4 +1,4 @@
-package com.alhudaghifari.bildghifar;
+package com.alhudaghifari.bildghifar.tugas1Histogram;
 
 import android.content.Context;
 import android.os.Handler;
@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.alhudaghifari.bildghifar.R;
 
 /**
  * Created by Alhudaghifari on 8/29/2017.

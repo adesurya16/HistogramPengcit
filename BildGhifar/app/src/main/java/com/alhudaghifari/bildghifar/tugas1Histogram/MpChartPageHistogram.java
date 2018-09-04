@@ -1,41 +1,24 @@
-package com.alhudaghifari.bildghifar;
+package com.alhudaghifari.bildghifar.tugas1Histogram;
 
-import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.alhudaghifari.bildghifar.Constant;
+import com.alhudaghifari.bildghifar.R;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PickImageActivity extends AppCompatActivity {
-
-    private static final String TAG = PickImageActivity.class.getSimpleName();
-
-    private static final int PICK_IMAGE = 23;
-
-    private Uri imageUri;
+public class MpChartPageHistogram extends AppCompatActivity {
 
     private static final int COLOR_BOUNDARIES = 256;
 
@@ -55,7 +38,7 @@ public class PickImageActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pick_image);
+        setContentView(R.layout.activity_mp_chart_page_histogram);
 
         imageView = (ImageView) findViewById(R.id.iv_photo);
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
@@ -65,71 +48,44 @@ public class PickImageActivity extends AppCompatActivity {
         grayChart = (BarChart) findViewById(R.id.gray_chart);
         tvTitle = (TextView) findViewById(R.id.first_title);
 
-
-    }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        PickImageActivity.this.getMenuInflater().inflate(R.menu.menu_pick_image, menu);
-        return super.onCreateOptionsMenu(menu);
+        String judul = getIntent().getStringExtra(Constant.imageTitle);
+        setImageResource(judul);
+        analyzeBitmap();
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_ambil_gambar:
-                openGallery();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE && resultCode == RESULT_OK ) {
-            imageUri = data.getData();
-
-            Log.d(TAG,"imageUri : " + imageUri);
-
-            try {
-                InputStream imageStream = getContentResolver().openInputStream(imageUri);
-                Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-
-                selectedImage = getResizedBitmap(selectedImage, 400);// 400 is for example, replace with desired size
-
-                imageView.setImageBitmap(selectedImage);
-
-                analyzeBitmap();
-            } catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(PickImageActivity.this, "foto ga ada gan", Toast.LENGTH_SHORT).show();
-            }
+    private void setImageResource(String img) {
+        switch (img){
+            case "a" :
+                imageView.setImageResource(R.drawable.fari_smp);
+                break;
+            case "b" :
+                imageView.setImageResource(R.drawable.fari_sma);
+                break;
+            case "c" :
+                imageView.setImageResource(R.drawable.fari_kuliah);
+                break;
+            case "d" :
+                imageView.setImageResource(R.drawable.ade_smp);
+                break;
+            case "e" :
+                imageView.setImageResource(R.drawable.ade_sma);
+                break;
+            case "f" :
+                imageView.setImageResource(R.drawable.ade_kuliah);
+                break;
+            case "g" :
+                imageView.setImageResource(R.drawable.kemal_smp);
+                break;
+            case "h" :
+                imageView.setImageResource(R.drawable.kemal_sma);
+                break;
+            case "i" :
+                imageView.setImageResource(R.drawable.kemal_kuliah);
+                break;
         }
     }
-
-    public Bitmap getResizedBitmap(Bitmap image, int maxSize) {
-        int width = image.getWidth();
-        int height = image.getHeight();
-
-        float bitmapRatio = (float)width / (float) height;
-        if (bitmapRatio > 1) {
-            width = maxSize;
-            height = (int) (width / bitmapRatio);
-        } else {
-            height = maxSize;
-            width = (int) (height * bitmapRatio);
-        }
-        return Bitmap.createScaledBitmap(image, width, height, true);
-    }
-
-    private void openGallery() {
-        Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(gallery, PICK_IMAGE);
-    }
-
+    
     private void analyzeBitmap() {
-        progressBar.setVisibility(View.VISIBLE);
         BitmapDrawable bd = (BitmapDrawable) imageView.getDrawable();
         int height = bd.getBitmap().getHeight();
         int width = bd.getBitmap().getWidth();
@@ -146,7 +102,6 @@ public class PickImageActivity extends AppCompatActivity {
                 grayPixel[gray]++;
             }
         }
-        progressBar.setVisibility(View.GONE);
         visualizeHistogram();
     }
 
@@ -188,5 +143,4 @@ public class PickImageActivity extends AppCompatActivity {
         blueChart.invalidate();
         grayChart.invalidate();
     }
-
 }
