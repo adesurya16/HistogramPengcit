@@ -34,35 +34,56 @@
             android:layout_gravity="center_horizontal"/>
 
         <ImageView
+            android:id="@+id/iv_photo_grayscale"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_launcher"
+            android:layout_gravity="center_horizontal"/>
+
+        <TextView
+            android:id="@+id/tvThreshold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="0"
+            android:textSize="16sp" />
+
+        <SeekBar
+            android:id="@+id/seekBarThreshold"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="@dimen/ukuran_10dp"
+            android:max="255"
+            android:progress="0" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onCLickAnalyzeBitmap"
+            android:text="Analyze" />
+
+        <TextView
+            android:id="@+id/titleFotoResult"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Hasil Gambar dan Histogram"
+            android:textAlignment="center" />
+
+        <ImageView
             android:id="@+id/iv_photo_hasil"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@mipmap/ic_launcher"
             android:layout_gravity="center_horizontal"/>
 
-        <SeekBar
-            android:id="@+id/seekBarThreshold"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:progress="0"
-            android:max="255"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:layout_marginTop="@dimen/ukuran_10dp"/>
-
-        <TextView
-            android:id="@+id/tvThreshold"
+        <ImageView
+            android:id="@+id/iv_photo_hasil_grayscale"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0"
-            android:textSize="16sp"
-            android:layout_gravity="center"/>
-
-        <Button
-            android:onClick="onCLickAnalyzeBitmap"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Analyze"/>
+            android:src="@mipmap/ic_launcher"
+            android:layout_gravity="center_horizontal"/>
 
         <com.github.mikephil.charting.charts.BarChart
             android:id="@+id/red_chart"

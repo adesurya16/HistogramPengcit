@@ -40,6 +40,10 @@ public class LandingPageTugas2 extends AppCompatActivity {
 
     private ImageView imageView;
     private ImageView iv_photo_hasil;
+
+    private ImageView imageViewGrayscale;
+    private ImageView iv_photo_hasil_grayscale;
+
     private int[] redPixel = new int[MAX_COLOR];
     private int[] greenPixel = new int[MAX_COLOR];
     private int[] bluePixel = new int[MAX_COLOR];
@@ -49,6 +53,22 @@ public class LandingPageTugas2 extends AppCompatActivity {
     private int[] greenPixelHasil = new int[MAX_COLOR];
     private int[] bluePixelHasil = new int[MAX_COLOR];
     private int[] grayPixelHasil = new int[MAX_COLOR];
+
+    private int[] redPixelCumulative = new int[MAX_COLOR];
+    private int[] greenPixelCumulative = new int[MAX_COLOR];
+    private int[] bluePixelCumulative = new int[MAX_COLOR];
+    private int[] grayPixelCumulative = new int[MAX_COLOR];
+
+    private int[] redPixelCumulativeHasil = new int[MAX_COLOR];
+    private int[] greenPixelCumulativeHasil = new int[MAX_COLOR];
+    private int[] bluePixelCumulativeHasil = new int[MAX_COLOR];
+    private int[] grayPixelCumulativeHasil = new int[MAX_COLOR];
+
+    private  int[] redPixelChange = new int[MAX_COLOR];
+    private  int[] greenPixelChange = new int[MAX_COLOR];
+    private  int[] bluePixelChange = new int[MAX_COLOR];
+    private  int[] grayPixelChange = new int[MAX_COLOR];
+
 
     private BarChart redChart;
     private BarChart greenChart;
@@ -72,7 +92,11 @@ public class LandingPageTugas2 extends AppCompatActivity {
         setContentView(R.layout.activity_landing_page_tugas2);
 
         imageView = (ImageView) findViewById(R.id.iv_photo);
-        iv_photo_hasil = (ImageView) findViewById(R.id.iv_photo_hasil); 
+        iv_photo_hasil = (ImageView) findViewById(R.id.iv_photo_hasil);
+
+        imageViewGrayscale = (ImageView) findViewById(R.id.iv_photo_grayscale);
+        iv_photo_hasil_grayscale = (ImageView) findViewById(R.id.iv_photo_hasil_grayscale);
+
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
 
         redChart = (BarChart) findViewById(R.id.red_chart);
@@ -149,8 +173,19 @@ public class LandingPageTugas2 extends AppCompatActivity {
     }
 
     public void onCLickAnalyzeBitmap(View view) {
+        initChangePixel();
         bitmapAnalyzerUsingThreshold();
-        setBitmapNewVal();
+//        setBitmapNewVal();
+        setBitmapNewValEqualization();
+    }
+
+    protected void initChangePixel(){
+        for (int i = 0;i < MAX_COLOR; ++i) {
+            redPixelChange[i] = -1;
+            greenPixelChange[i] = -1;
+            bluePixelChange[i] = -1;
+            greenPixelChange[i] = -1;
+        }
     }
 
     public Bitmap getResizedBitmap(Bitmap image, int maxSize) {
@@ -203,11 +238,115 @@ public class LandingPageTugas2 extends AppCompatActivity {
         for (int i = 0; i < threshold; ++i) {
             newVal = (MAX_COLOR - 1) / threshold * i % 256;
             redPixelHasil[newVal] = redPixel[i];
-            greenPixel[newVal] = greenPixel[i];
-            bluePixel[newVal] = bluePixel[i];
-            grayPixel[newVal] = grayPixel[i];
+            greenPixelHasil[newVal] = greenPixel[i];
+            bluePixelHasil[newVal] = bluePixel[i];
+            grayPixelHasil[newVal] = grayPixel[i];
         }
-        histogramThresholdVisualizer();
+        // Equalization from threshold result
+        equalizationPixel();
+//        histogramThresholdVisualizer();
+        histogramEqualizationVisualizer();
+    }
+
+    private void equalizationPixel(){
+        BitmapDrawable bd = (BitmapDrawable) imageView.getDrawable();
+        int height = bd.getBitmap().getHeight();
+        int width = bd.getBitmap().getWidth();
+        // Red Pixel Equalization
+        int cumulative = 0;
+        int min = 0;
+        for (int i = 0; i < MAX_COLOR; ++i){
+            if (redPixelHasil[i] > 0 ){
+                if (min == 0){
+                    min = redPixelHasil[i];
+                }
+                cumulative += redPixelHasil[i];
+                redPixelCumulative[i] = cumulative;
+            }else{
+                redPixelCumulative[i] = redPixelHasil[i];
+            }
+        }
+        // Cumulative distribution function for Red Pixel
+        for (int i = 0; i < MAX_COLOR; ++i){
+            if (redPixelCumulative[i] > 0){
+                int hv = Math.round( ((float)(redPixelCumulative[i] - min) / (float)((height * width) - min)) * (float)(MAX_COLOR - 1));
+//                Log.d(TAG,"hv : " + hv + ", pixel : " + redPixelCumulative[i] + ", height x width : " + height * width);
+//                Log.d(TAG," (redPixelCumulative[i] - min) : " + (redPixelCumulative[i] - min) + " (height * width) - min) " + ((height * width) - min));
+//                Log.d(TAG,"(redPixelCumulative[i] - min)/((height * width) - min) * (MAX_COLOR - 1)" + ((float)(redPixelCumulative[i] - min)/(float)((height * width) - min)));
+                redPixelCumulativeHasil[hv] = redPixelHasil[i];
+                redPixelChange[i] = hv;
+            }
+        }
+
+        // Green Pixel Equalization
+        cumulative = 0;
+        min = 0;
+        for (int i = 0; i < MAX_COLOR; ++i){
+            if (greenPixelHasil[i] > 0 ){
+                if (min == 0){
+                    min = greenPixelHasil[i];
+                }
+                cumulative += greenPixelHasil[i];
+                greenPixelCumulative[i] = cumulative;
+            }else{
+                greenPixelCumulative[i] = greenPixelHasil[i];
+            }
+        }
+        // Cumulative distribution function for Green Pixel
+        for (int i = 0; i < MAX_COLOR; ++i){
+            if (greenPixelCumulative[i] > 0){
+                int hv = Math.round( ((float)(greenPixelCumulative[i] - min) / (float)((height * width) - min)) * (float)(MAX_COLOR - 1));
+                greenPixelCumulativeHasil[hv] = greenPixelHasil[i];
+                greenPixelChange[i] = hv;
+            }
+        }
+
+        // Blue Pixel Equalization
+        cumulative = 0;
+        min = 0;
+        for (int i = 0; i < MAX_COLOR; ++i){
+            if (bluePixelHasil[i] > 0 ){
+                if (min == 0){
+                    min = bluePixelHasil[i];
+                }
+                cumulative += bluePixelHasil[i];
+                bluePixelCumulative[i] = cumulative;
+            }else{
+                bluePixelCumulative[i] = bluePixelHasil[i];
+            }
+        }
+        // Cumulative distribution function for Green Pixel
+        for (int i = 0; i < MAX_COLOR; ++i){
+            if (bluePixelCumulative[i] > 0){
+//                int hv = Math.round((bluePixelCumulative[i] - min)/(height * width - min) * (MAX_COLOR - 1));
+                int hv = Math.round( ((float)(bluePixelCumulative[i] - min) / (float)((height * width) - min)) * (float)(MAX_COLOR - 1));
+                bluePixelCumulativeHasil[hv] = bluePixelHasil[i];
+                bluePixelChange[i] = hv;
+            }
+        }
+
+        // Grayscale Pixel Equalization
+        cumulative = 0;
+        min = 0;
+        for (int i = 0; i < MAX_COLOR; ++i){
+            if (grayPixelHasil[i] > 0 ){
+                if (min == 0){
+                    min = grayPixelHasil[i];
+                }
+                cumulative += grayPixelHasil[i];
+                grayPixelCumulative[i] = cumulative;
+            }else{
+                grayPixelCumulative[i] = grayPixelHasil[i];
+            }
+        }
+        // Cumulative distribution function for Grayscale Pixel
+        for (int i = 0; i < MAX_COLOR; ++i){
+            if (grayPixelCumulative[i] > 0){
+                int hv = Math.round( ((float)(grayPixelCumulative[i] - min) / (float)((height * width) - min)) * (float)(MAX_COLOR - 1));
+                grayPixelCumulativeHasil[hv] = grayPixelHasil[i];
+                grayPixelChange[i] = hv;
+            }
+        }
     }
 
     private void setBitmapNewVal() {
@@ -237,6 +376,90 @@ public class LandingPageTugas2 extends AppCompatActivity {
             }
         }
         iv_photo_hasil.setImageBitmap(output);
+    }
+
+    private void setBitmapNewValEqualization() {
+
+        BitmapDrawable bd = (BitmapDrawable) imageView.getDrawable();
+        int height = bd.getBitmap().getHeight();
+        int width = bd.getBitmap().getWidth();
+
+        int threshold = seekBarThreshold.getProgress();
+        final Bitmap output = bd.getBitmap().copy(Bitmap.Config.RGB_565, true);
+
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j) {
+                int pixel = bd.getBitmap().getPixel(j, i);
+                int red = Color.red(pixel);
+                int green = Color.green(pixel);
+                int blue = Color.blue(pixel);
+
+                double redHasil = red;
+                if (redPixelChange[red] > -1){
+                    redHasil = (double) redPixelChange[red];
+                }
+
+                double greenHasil = green;
+                if (greenPixelChange[green] > -1){
+                    greenHasil = (double) greenPixelChange[green];
+                }
+
+                double blueHasil = blue;
+                if (bluePixelChange[blue] > -1){
+                    blueHasil = (double) bluePixelChange[blue];
+                }
+
+//                double redHasil = (MAX_COLOR - 1) / threshold * red % MAX_COLOR;
+//                double greenHasil = (MAX_COLOR - 1) / threshold * green % MAX_COLOR;
+//                double blueHasil = (MAX_COLOR - 1) / threshold * blue % MAX_COLOR;
+
+                int newPixel = Color.rgb(
+                        (int)redHasil,
+                        (int)greenHasil,
+                        (int)blueHasil);
+                output.setPixel(j, i, newPixel);
+            }
+        }
+        iv_photo_hasil.setImageBitmap(output);
+    }
+
+    private void histogramEqualizationVisualizer(){
+        List<BarEntry> redEntries = new ArrayList<>();
+        List<BarEntry> greenEntries = new ArrayList<>();
+        List<BarEntry> blueEntries = new ArrayList<>();
+        List<BarEntry> grayEntries = new ArrayList<>();
+
+        for (int i = 0; i < MAX_COLOR; ++i) {
+            redEntries.add(new BarEntry(i, redPixelCumulativeHasil[i]));
+            greenEntries.add(new BarEntry(i, greenPixelCumulativeHasil[i]));
+            blueEntries.add(new BarEntry(i, bluePixelCumulativeHasil[i]));
+            grayEntries.add(new BarEntry(i, grayPixelCumulativeHasil[i]));
+        }
+
+        BarDataSet redDataSet = new BarDataSet(redEntries, "Red");
+        BarDataSet greenDataSet = new BarDataSet(greenEntries, "Green");
+        BarDataSet blueDataSet = new BarDataSet(blueEntries, "Blue");
+        BarDataSet grayDataSet = new BarDataSet(grayEntries, "Gray");
+
+        redDataSet.setColor(Color.RED);
+        greenDataSet.setColor(Color.GREEN);
+        blueDataSet.setColor(Color.BLUE);
+        grayDataSet.setColor(Color.GRAY);
+
+        BarData redData = new BarData(redDataSet);
+        BarData greenData = new BarData(greenDataSet);
+        BarData blueData = new BarData(blueDataSet);
+        BarData grayData = new BarData(grayDataSet);
+
+        redChartHasil.setData(redData);
+        greenChartHasil.setData(greenData);
+        blueChartHasil.setData(blueData);
+        grayChartHasil.setData(grayData);
+
+        redChartHasil.invalidate();
+        greenChartHasil.invalidate();
+        blueChartHasil.invalidate();
+        grayChartHasil.invalidate();
     }
 
     private void histogramThresholdVisualizer() {
