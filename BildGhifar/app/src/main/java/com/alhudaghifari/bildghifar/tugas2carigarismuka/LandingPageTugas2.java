@@ -41,7 +41,7 @@ public class LandingPageTugas2 extends AppCompatActivity {
     private ImageView imageView;
     private ImageView iv_photo_hasil;
 
-    private ImageView imageViewGrayscale;
+    private ImageView iv_photo_grayscale;
     private ImageView iv_photo_hasil_grayscale;
 
     private int[] redPixel = new int[MAX_COLOR];
@@ -94,7 +94,7 @@ public class LandingPageTugas2 extends AppCompatActivity {
         imageView = (ImageView) findViewById(R.id.iv_photo);
         iv_photo_hasil = (ImageView) findViewById(R.id.iv_photo_hasil);
 
-        imageViewGrayscale = (ImageView) findViewById(R.id.iv_photo_grayscale);
+        iv_photo_grayscale = (ImageView) findViewById(R.id.iv_photo_grayscale);
         iv_photo_hasil_grayscale = (ImageView) findViewById(R.id.iv_photo_hasil_grayscale);
 
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
@@ -164,6 +164,8 @@ public class LandingPageTugas2 extends AppCompatActivity {
 
                 imageView.setImageBitmap(selectedImage);
 
+                setBitmapGrayscaleEqualization();
+
                 bitmapAnalyzer();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -177,6 +179,9 @@ public class LandingPageTugas2 extends AppCompatActivity {
         bitmapAnalyzerUsingThreshold();
 //        setBitmapNewVal();
         setBitmapNewValEqualization();
+
+        // now we create photo of grayscale
+        setBitmapNewValGrayscaleEqualization();
     }
 
     protected void initChangePixel(){
@@ -235,6 +240,11 @@ public class LandingPageTugas2 extends AppCompatActivity {
     private void bitmapAnalyzerUsingThreshold() {
         int threshold = seekBarThreshold.getProgress();
         int newVal;
+        redPixelHasil = new int[MAX_COLOR];
+        greenPixelHasil = new int[MAX_COLOR];
+        bluePixelHasil = new int[MAX_COLOR];
+        grayPixelHasil = new int[MAX_COLOR];
+
         for (int i = 0; i < threshold; ++i) {
             newVal = (MAX_COLOR - 1) / threshold * i % 256;
             redPixelHasil[newVal] = redPixel[i];
@@ -249,6 +259,11 @@ public class LandingPageTugas2 extends AppCompatActivity {
     }
 
     private void equalizationPixel(){
+        redPixelCumulativeHasil = new int[MAX_COLOR];
+        greenPixelCumulativeHasil = new int[MAX_COLOR];
+        bluePixelCumulativeHasil = new int[MAX_COLOR];
+        grayPixelCumulativeHasil = new int[MAX_COLOR];
+
         BitmapDrawable bd = (BitmapDrawable) imageView.getDrawable();
         int height = bd.getBitmap().getHeight();
         int width = bd.getBitmap().getWidth();
@@ -349,12 +364,11 @@ public class LandingPageTugas2 extends AppCompatActivity {
         }
     }
 
-    private void setBitmapNewVal() {
+    private void setBitmapGrayscaleEqualization() {
         BitmapDrawable bd = (BitmapDrawable) imageView.getDrawable();
         int height = bd.getBitmap().getHeight();
         int width = bd.getBitmap().getWidth();
 
-        int threshold = seekBarThreshold.getProgress();
         final Bitmap output = bd.getBitmap().copy(Bitmap.Config.RGB_565, true);
 
         for (int i = 0; i < height; ++i) {
@@ -363,19 +377,46 @@ public class LandingPageTugas2 extends AppCompatActivity {
                 int red = Color.red(pixel);
                 int green = Color.green(pixel);
                 int blue = Color.blue(pixel);
-
-                double redHasil = (MAX_COLOR - 1) / threshold * red % MAX_COLOR;
-                double greenHasil = (MAX_COLOR - 1) / threshold * green % MAX_COLOR;
-                double blueHasil = (MAX_COLOR - 1) / threshold * blue % MAX_COLOR;
+                int gray = ((red + green + blue) / 3) % 256;
 
                 int newPixel = Color.rgb(
-                        (int)redHasil,
-                        (int)greenHasil,
-                        (int)blueHasil);
+                        gray,
+                        gray,
+                        gray);
                 output.setPixel(j, i, newPixel);
             }
         }
-        iv_photo_hasil.setImageBitmap(output);
+        iv_photo_grayscale.setImageBitmap(output);
+    }
+    
+    private void setBitmapNewValGrayscaleEqualization() {
+        BitmapDrawable bd = (BitmapDrawable) imageView.getDrawable();
+        int height = bd.getBitmap().getHeight();
+        int width = bd.getBitmap().getWidth();
+        
+        final Bitmap output = bd.getBitmap().copy(Bitmap.Config.RGB_565, true);
+
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j) {
+                int pixel = bd.getBitmap().getPixel(j, i);
+                int red = Color.red(pixel);
+                int green = Color.green(pixel);
+                int blue = Color.blue(pixel);
+                int gray = ((red + green + blue) / 3) % 256;
+
+                double grayscaleHasil = gray;
+                if (grayPixelChange[gray] > -1){
+                    grayscaleHasil = (double) grayPixelChange[gray];
+                }
+
+                int newPixel = Color.rgb(
+                        (int)grayscaleHasil,
+                        (int)grayscaleHasil,
+                        (int)grayscaleHasil);
+                output.setPixel(j, i, newPixel);
+            }
+        }
+        iv_photo_hasil_grayscale.setImageBitmap(output);
     }
 
     private void setBitmapNewValEqualization() {
