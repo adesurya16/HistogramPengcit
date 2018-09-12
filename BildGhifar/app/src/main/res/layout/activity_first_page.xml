@@ -29,6 +29,14 @@
             android:onClick="gotoTugas2"
             android:layout_marginTop="@dimen/ukuran_10dp"/>
 
+        <Button
+            android:id="@+id/btnTugas3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tugas 3 - Specification"
+            android:onClick="gotoTugas3"
+            android:layout_marginTop="@dimen/ukuran_10dp"/>
+
     </LinearLayout>
     
 </RelativeLayout>
