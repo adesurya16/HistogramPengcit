@@ -127,7 +127,7 @@
                 android:layout_height="50dp"
                 android:layout_marginLeft="20dp"
                 android:layout_toLeftOf="@id/tvSeekBarLeft"
-                android:max="400"
+                android:max="1000"
                 android:progress="0" />
 
             <TextView
@@ -160,8 +160,8 @@
                 android:layout_height="50dp"
                 android:layout_marginLeft="20dp"
                 android:layout_toLeftOf="@id/tvSeekBarCenter"
-                android:max="400"
-                android:progress="0" />
+                android:max="1000"
+                android:progress="200" />
 
             <TextView
                 android:id="@+id/tvSeekBarCenter"
@@ -193,7 +193,7 @@
                 android:layout_height="50dp"
                 android:layout_marginLeft="20dp"
                 android:layout_toLeftOf="@id/tvSeekBarRight"
-                android:max="400"
+                android:max="1000"
                 android:progress="0" />
 
             <TextView
@@ -235,6 +235,21 @@
             android:layout_marginBottom="10dp"
             android:layout_marginLeft="@dimen/marginleftright"
             android:layout_marginRight="@dimen/marginleftright"/>
+
+        <ImageView
+            android:id="@+id/iv_photo_result_specification"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@mipmap/ic_launcher"/>
+
+        <ImageView
+            android:id="@+id/iv_photo_grayscale_result_specification"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:src="@mipmap/ic_launcher"/>
 
         <LinearLayout
             android:id="@+id/linlayHasilChart"
