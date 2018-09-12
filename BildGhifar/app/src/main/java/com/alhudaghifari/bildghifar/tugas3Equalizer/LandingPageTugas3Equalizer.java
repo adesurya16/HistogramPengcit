@@ -67,6 +67,7 @@ public class LandingPageTugas3Equalizer extends AppCompatActivity {
     private ProgressBar progressBar;
 
     private LinearLayout linlayGrafilBeginning;
+    private LinearLayout linlayHasilChart;
 
     private int[] redPixel;
     private int[] greenPixel;
@@ -105,6 +106,7 @@ public class LandingPageTugas3Equalizer extends AppCompatActivity {
         buzier_gray_chart_hasil = (BarChart) findViewById(R.id.buzier_gray_chart_hasil);
 
         linlayGrafilBeginning = (LinearLayout) findViewById(R.id.linlayGrafilBeginning);
+        linlayHasilChart = (LinearLayout) findViewById(R.id.linlayHasilChart);
 
         linlayGrafilBeginning.setVisibility(View.GONE);
 
@@ -153,6 +155,10 @@ public class LandingPageTugas3Equalizer extends AppCompatActivity {
                 Toast.makeText(LandingPageTugas3Equalizer.this, "foto ga ada gan", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    public void matchBuzier(View view) {
+        linlayHasilChart.setVisibility(View.VISIBLE);
     }
 
 
@@ -246,7 +252,7 @@ public class LandingPageTugas3Equalizer extends AppCompatActivity {
             @Override
             public void run() {
                 histogramVisualizer();
-
+                chart_buzier.setVisibility(View.VISIBLE);
                 progressBar.setVisibility(View.GONE);
             }
         });

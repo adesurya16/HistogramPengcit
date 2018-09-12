@@ -127,7 +127,7 @@
                 android:layout_height="50dp"
                 android:layout_marginLeft="20dp"
                 android:layout_toLeftOf="@id/tvSeekBarLeft"
-                android:max="255"
+                android:max="400"
                 android:progress="0" />
 
             <TextView
@@ -160,7 +160,7 @@
                 android:layout_height="50dp"
                 android:layout_marginLeft="20dp"
                 android:layout_toLeftOf="@id/tvSeekBarCenter"
-                android:max="255"
+                android:max="400"
                 android:progress="0" />
 
             <TextView
@@ -193,7 +193,7 @@
                 android:layout_height="50dp"
                 android:layout_marginLeft="20dp"
                 android:layout_toLeftOf="@id/tvSeekBarRight"
-                android:max="255"
+                android:max="400"
                 android:progress="0" />
 
             <TextView
@@ -215,6 +215,7 @@
             android:layout_height="200dp"
             android:layout_weight="1"
             android:layout_marginLeft="1dp"
+            android:visibility="gone"
             android:layout_marginTop="@dimen/activity_vertical_margin"/>
 
         <Button
@@ -223,6 +224,7 @@
             android:layout_marginRight="@dimen/ukuran_10dp"
             android:layout_marginLeft="@dimen/ukuran_10dp"
             android:layout_marginTop="5dp"
+            android:onClick="matchBuzier"
             android:text="match"/>
 
         <View
@@ -235,8 +237,10 @@
             android:layout_marginRight="@dimen/marginleftright"/>
 
         <LinearLayout
+            android:id="@+id/linlayHasilChart"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             android:orientation="vertical">
 
             <com.github.mikephil.charting.charts.BarChart
