@@ -15,14 +15,12 @@
         android:paddingRight="20dp">
 
         <Button
-            android:id="@+id/btnTugas1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Tugas 1 - Histogram"
             android:onClick="gotoTugas1"/>
 
         <Button
-            android:id="@+id/btnTugas2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Tugas 2 - Batas"
@@ -30,11 +28,17 @@
             android:layout_marginTop="@dimen/ukuran_10dp"/>
 
         <Button
-            android:id="@+id/btnTugas3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Tugas 3 - Specification"
             android:onClick="gotoTugas3"
+            android:layout_marginTop="@dimen/ukuran_10dp"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tugas 4 - Chain Code"
+            android:onClick="gotoTugas4"
             android:layout_marginTop="@dimen/ukuran_10dp"/>
 
     </LinearLayout>
