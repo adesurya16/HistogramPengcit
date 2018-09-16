@@ -26,7 +26,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".tugas2carigarismuka.LandingPageTugas2" />
-        <activity android:name=".tugas3Equalizer.LandingPageTugas3Equalizer"></activity>
+        <activity android:name=".tugas3Equalizer.LandingPageTugas3Equalizer" />
+        <activity android:name=".tugas4ChainCode.LandingPageTugas4"></activity>
     </application>
 
 </manifest>
