@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.util.ArrayList;
 
 import com.alhudaghifari.bildghifar.R;
 import com.alhudaghifari.bildghifar.tugas1Histogram.PickImageActivity;
@@ -28,7 +29,8 @@ public class LandingPageTugas4 extends AppCompatActivity {
     private static final String TAG = LandingPageTugas4.class.getSimpleName();
 
     private static final int PICK_IMAGE = 23;
-
+    private static final int MAX_DIRECTION = 8;
+    private static  final int MAX_COLOR = 256;
     private Uri imageUri;
 
     private ImageView ivTextPhoto;
@@ -49,6 +51,12 @@ public class LandingPageTugas4 extends AppCompatActivity {
     private SeekBar seekBarThreshold;
 
     private int threshold = 128;
+
+    private int matrixBlackWhite[][];
+
+    private ArrayList<Integer> chainCode;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +116,198 @@ public class LandingPageTugas4 extends AppCompatActivity {
         }
     }
 
+    public void initMatrixBlackWhite(){
+        BitmapDrawable bd = (BitmapDrawable) ivTextPhoto.getDrawable();
+        int height = bd.getBitmap().getHeight();
+        int width = bd.getBitmap().getWidth();
+        this.matrixBlackWhite = new int[height][];
+        for (int i=0;i<height;i++){
+            this.matrixBlackWhite[i] = new int[width];
+        }
+    }
+
+    public void initChainCode(){
+        this.chainCode = new ArrayList<Integer>();
+    }
+
+    public void fillMatrixBlackWhite(){
+        BitmapDrawable bd = (BitmapDrawable) ivTextPhoto.getDrawable();
+        int height = bd.getBitmap().getHeight();
+        int width = bd.getBitmap().getWidth();
+
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j) {
+                int pixel = bd.getBitmap().getPixel(j, i);
+                int alpha = Color.alpha(pixel);
+                int red = Color.red(pixel);
+                int green = Color.green(pixel);
+                int blue = Color.blue(pixel);
+                int gray = ((red + green + blue) / 3) % 256;
+
+                if (gray > threshold) {
+                    this.matrixBlackWhite[i][j] = 0;
+                }else {
+                    this.matrixBlackWhite[i][j] = 1;
+                }
+
+            }
+        }
+    }
+
+    public void mainBorderTracing(){
+        // red = -1 border mark
+        // black = 1
+        // white = 0
+        BitmapDrawable bd = (BitmapDrawable) ivTextPhoto.getDrawable();
+        int height = bd.getBitmap().getHeight();
+        int width = bd.getBitmap().getWidth();
+        // asumsi 1 object shape dulu
+        boolean isFound = false;
+        for (int i=0;i<height;i++){
+            for(int j=0;j<width;j++){
+                if (matrixBlackWhite[i][j] > 0 && !isFound){
+                    // call proses
+                    tracingImage(i,j);
+                    // add to List of shape (for multiple number image)
+                    isFound = true;
+                }
+            }
+        }
+    }
+
+    public void tracingImage(int x, int y){
+        BitmapDrawable bd = (BitmapDrawable) ivTextPhoto.getDrawable();
+        int height = bd.getBitmap().getHeight();
+        int width = bd.getBitmap().getWidth();
+
+        // isShape = true if tracing result make a shape
+        int xBegin = x;
+        int yBegin = y;
+        int dir = MAX_DIRECTION - 1;
+
+        int xPrev = xBegin;
+        int yPrev = yBegin;
+        // init
+        int from = 0;
+        if (dir % 2 == 0){
+            from = (dir + 7) % MAX_DIRECTION;
+        }else{
+            from = (dir + 6) % MAX_DIRECTION;
+        }
+        boolean found = false;
+        // System.out.println("LOOP");
+        for(int i=0;i<MAX_DIRECTION;i++){
+            if (from == 0){
+                xBegin = xPrev;
+                yBegin = yPrev + 1;
+            }else if (from == 1){
+                xBegin = xPrev - 1;
+                yBegin = yPrev + 1;
+            }else if (from == 2){
+                xBegin = xPrev - 1;
+                yBegin = yPrev;
+            }else if (from == 3){
+                xBegin = xPrev - 1;
+                yBegin = yPrev - 1;
+            }else if (from == 4){
+                xBegin = xPrev;
+                yBegin = yPrev - 1;
+            }else if (from == 5){
+                xBegin = xPrev + 1;
+                yBegin = yPrev - 1;
+            }else if (from == 6){
+                xBegin = xPrev + 1;
+                yBegin = yPrev;
+            }else if (from == 7){
+                xBegin = xPrev + 1;
+                yBegin = yPrev + 1;
+            }
+
+            if ((xBegin >= 0 && xBegin < height) && (yBegin >= 0 && yBegin < width)){
+                // System.out.println(xBegin + " " + yBegin);
+                if (this.matrixBlackWhite[xBegin][yBegin] == 1){
+                    // System.out.println("masuk");
+                    found = true;
+                    // in case multiple object make it different method
+                    this.matrixBlackWhite[xBegin][yBegin] = -1;
+                }
+            }
+
+            if (found){
+                break;
+            }else{
+                from = (from + 1) % MAX_DIRECTION; // counter
+            }
+        }
+        dir = from;
+        this.chainCode.add(dir);
+        // loop
+        while(xBegin != x || yBegin != y){
+            from = 0;
+
+            xPrev = xBegin;
+            yPrev = yBegin;
+            if (dir % 2 == 0){
+                from = (dir + 7) % MAX_DIRECTION;
+            }else{
+                from = (dir + 6) % MAX_DIRECTION;
+            }
+            found = false;
+            // System.out.println("LOOP");
+            for(int i=0;i<MAX_DIRECTION;i++){
+                // System.out.println( "dir = " + from);
+                if (from == 0){
+                    xBegin = xPrev;
+                    yBegin = yPrev + 1;
+                }else if (from == 1){
+                    xBegin = xPrev - 1;
+                    yBegin = yPrev + 1;
+                }else if (from == 2){
+                    xBegin = xPrev - 1;
+                    yBegin = yPrev;
+                }else if (from == 3){
+                    xBegin = xPrev - 1;
+                    yBegin = yPrev - 1;
+                }else if (from == 4){
+                    xBegin = xPrev;
+                    yBegin = yPrev - 1;
+                }else if (from == 5){
+                    xBegin = xPrev + 1;
+                    yBegin = yPrev - 1;
+                }else if (from == 6){
+                    xBegin = xPrev + 1;
+                    yBegin = yPrev;
+                }else if (from == 7){
+                    xBegin = xPrev + 1;
+                    yBegin = yPrev + 1;
+                }
+
+                if ((xBegin >= 0 && xBegin < height) && (yBegin >= 0 && yBegin < width)){
+                    // System.out.println(xBegin + " " + yBegin);
+                    if (this.matrixBlackWhite[xBegin][yBegin] == 1){
+                        // System.out.println("masuk");
+                        found = true;
+                        this.matrixBlackWhite[xBegin][yBegin] = -1;
+                    }
+                }
+
+                if (found){
+                    break;
+                }else{
+                    from = (from + 1) % MAX_DIRECTION;
+                }
+            }
+            // gak mungkin not found
+            int last = this.chainCode.size() - 1;
+            if (!found || (Math.abs(this.chainCode.get(last) - from) == 4)){
+                break; //stop
+            }else{
+                dir = from;
+                this.chainCode.add(dir);
+            }
+        }
+    }
+
     public Bitmap getResizedBitmap(Bitmap image, int maxSize) {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -163,6 +363,52 @@ public class LandingPageTugas4 extends AppCompatActivity {
         btnTebakAngka.setVisibility(View.VISIBLE);
     }
 
+    private void setImageToBlackAndWhiteResult(){
+        BitmapDrawable bd = (BitmapDrawable) ivTextPhoto.getDrawable();
+        int height = bd.getBitmap().getHeight();
+        int width = bd.getBitmap().getWidth();
+
+        output = bd.getBitmap().copy(Bitmap.Config.RGB_565, true);
+
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j) {
+                int pixel = bd.getBitmap().getPixel(j, i);
+                int alpha = Color.alpha(pixel);
+                int red = Color.red(pixel);
+                int green = Color.green(pixel);
+                int blue = Color.blue(pixel);
+
+
+                if (this.matrixBlackWhite[i][j] == -1){
+                    red = MAX_COLOR - 1;
+                    green = 0;
+                    blue = 0;
+                }
+
+                int newPixel = Color.argb(
+                        alpha,
+                        red,
+                        green,
+                        blue);
+
+
+                output.setPixel(j, i, newPixel);
+            }
+        }
+        ivTextPhotoHasilIdentifikasi.setImageBitmap(output);
+    }
+
+    private void printChainCode() {
+        String result = "";
+        for(int i=0;i<this.chainCode.size();i++){
+            if (i < this.chainCode.size() - 1){
+                result = result + " ";
+            }
+            result = result + this.chainCode.get(i);
+        }
+        tvTextHasilIdentifikasi.setText(result);
+    }
+
     private void openGallery() {
         Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(gallery, PICK_IMAGE);
@@ -181,5 +427,11 @@ public class LandingPageTugas4 extends AppCompatActivity {
     public void tebakPhoto(View view) {
         tvTextHasilIdentifikasi.setVisibility(View.VISIBLE);
         ivTextPhotoHasilIdentifikasi.setVisibility(View.VISIBLE);
+        initMatrixBlackWhite();
+        initChainCode();
+        fillMatrixBlackWhite();
+        mainBorderTracing();
+        setImageToBlackAndWhiteResult();
+        printChainCode();
     }
 }
