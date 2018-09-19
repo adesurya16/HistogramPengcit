@@ -6,6 +6,8 @@ package com.alhudaghifari.bildghifar;
 
 public class Constant {
 
+    public static final String this_app = "com.alhudaghifari.bildghifari.ok";
+
     public static final String a = "a";
     public static final String b = "b";
     public static final String c = "c";

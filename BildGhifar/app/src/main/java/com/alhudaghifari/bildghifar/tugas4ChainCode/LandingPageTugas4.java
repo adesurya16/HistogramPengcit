@@ -6,23 +6,29 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.util.ArrayList;
 
 import com.alhudaghifari.bildghifar.R;
+import com.alhudaghifari.bildghifar.SharedPrefManager;
 import com.alhudaghifari.bildghifar.tugas1Histogram.PickImageActivity;
 
 import java.io.InputStream;
+import java.util.List;
 
 public class LandingPageTugas4 extends AppCompatActivity {
 
@@ -45,8 +51,14 @@ public class LandingPageTugas4 extends AppCompatActivity {
 
     private Button btnChangeToBw;
     private Button btnTebakAngka;
+    private Button btnUploadPhoto;
+    private Button btnAnalyzeFirst;
+
+    private ProgressBar progress_bar_analyze;
 
     private TextView tvThreshold;
+
+    private HorizontalScrollView horizontalScrollView;
 
     private SeekBar seekBarThreshold;
 
@@ -56,7 +68,9 @@ public class LandingPageTugas4 extends AppCompatActivity {
 
     private ArrayList<Integer> chainCode;
 
+    private List<String> listChainCode;
 
+    private SharedPrefManager sharedPrefManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +86,25 @@ public class LandingPageTugas4 extends AppCompatActivity {
         linlaySeekBar = (LinearLayout) findViewById(R.id.linlaySeekBar);
         btnChangeToBw = (Button) findViewById(R.id.btnChangeToBw);
         btnTebakAngka = (Button) findViewById(R.id.btnTebakAngka);
+        btnUploadPhoto = (Button) findViewById(R.id.btnUploadPhoto);
+        btnAnalyzeFirst = (Button) findViewById(R.id.btnAnalyzeFirst);
+        progress_bar_analyze = (ProgressBar) findViewById(R.id.progress_bar_analyze);
+        horizontalScrollView = (HorizontalScrollView) findViewById(R.id.horizontalScrollView);
+
+        listChainCode = new ArrayList<>();
+
+        sharedPrefManager = new SharedPrefManager(this);
+
+        if (sharedPrefManager.isAnalyzed()) {
+            btnAnalyzeFirst.setVisibility(View.GONE);
+            btnUploadPhoto.setVisibility(View.VISIBLE);
+            horizontalScrollView.setVisibility(View.VISIBLE);
+            readChainCodeFromLocalDb();
+        } else {
+            btnAnalyzeFirst.setVisibility(View.VISIBLE);
+            btnUploadPhoto.setVisibility(View.GONE);
+            horizontalScrollView.setVisibility(View.GONE);
+        }
 
         seekBarThreshold.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -117,7 +150,7 @@ public class LandingPageTugas4 extends AppCompatActivity {
     }
 
     public void initMatrixBlackWhite(){
-        BitmapDrawable bd = (BitmapDrawable) ivTextPhoto.getDrawable();
+        BitmapDrawable bd = (BitmapDrawable) ivTextPhotoHasilBw.getDrawable();
         int height = bd.getBitmap().getHeight();
         int width = bd.getBitmap().getWidth();
         this.matrixBlackWhite = new int[height][];
@@ -131,7 +164,7 @@ public class LandingPageTugas4 extends AppCompatActivity {
     }
 
     public void fillMatrixBlackWhite(){
-        BitmapDrawable bd = (BitmapDrawable) ivTextPhoto.getDrawable();
+        BitmapDrawable bd = (BitmapDrawable) ivTextPhotoHasilBw.getDrawable();
         int height = bd.getBitmap().getHeight();
         int width = bd.getBitmap().getWidth();
 
@@ -158,7 +191,7 @@ public class LandingPageTugas4 extends AppCompatActivity {
         // red = -1 border mark
         // black = 1
         // white = 0
-        BitmapDrawable bd = (BitmapDrawable) ivTextPhoto.getDrawable();
+        BitmapDrawable bd = (BitmapDrawable) ivTextPhotoHasilBw.getDrawable();
         int height = bd.getBitmap().getHeight();
         int width = bd.getBitmap().getWidth();
         // asumsi 1 object shape dulu
@@ -176,7 +209,7 @@ public class LandingPageTugas4 extends AppCompatActivity {
     }
 
     public void tracingImage(int x, int y){
-        BitmapDrawable bd = (BitmapDrawable) ivTextPhoto.getDrawable();
+        BitmapDrawable bd = (BitmapDrawable) ivTextPhotoHasilBw.getDrawable();
         int height = bd.getBitmap().getHeight();
         int width = bd.getBitmap().getWidth();
 
@@ -361,10 +394,11 @@ public class LandingPageTugas4 extends AppCompatActivity {
         linlaySeekBar.setVisibility(View.VISIBLE);
         btnChangeToBw.setVisibility(View.VISIBLE);
         btnTebakAngka.setVisibility(View.VISIBLE);
+        horizontalScrollView.setVisibility(View.VISIBLE);
     }
 
     private void setImageToBlackAndWhiteResult(){
-        BitmapDrawable bd = (BitmapDrawable) ivTextPhoto.getDrawable();
+        BitmapDrawable bd = (BitmapDrawable) ivTextPhotoHasilBw.getDrawable();
         int height = bd.getBitmap().getHeight();
         int width = bd.getBitmap().getWidth();
 
@@ -398,6 +432,31 @@ public class LandingPageTugas4 extends AppCompatActivity {
         ivTextPhotoHasilIdentifikasi.setImageBitmap(output);
     }
 
+    private void showPredictionImage() {
+        String result = "";
+        int count = 0;
+        boolean found = false;
+        for(int i=0;i<this.chainCode.size();i++){
+            if (i < this.chainCode.size() - 1){
+                result = result + " ";
+            }
+            result = result + this.chainCode.get(i);
+        }
+
+        Log.d(TAG, "Chain code : " + result);
+
+        while (count < listChainCode.size() && !found) {
+            Log.d(TAG, "count : " + count);
+            if (result.equals(listChainCode.get(count))) {
+                found = true;
+                tvTextHasilIdentifikasi.setText("ini adalah angka : " + count);
+            }
+            count++;
+        }
+        if (count == listChainCode.size())
+            tvTextHasilIdentifikasi.setText("tidak ditemukan prediksinya :(");
+    }
+
     private void printChainCode() {
         String result = "";
         for(int i=0;i<this.chainCode.size();i++){
@@ -407,6 +466,29 @@ public class LandingPageTugas4 extends AppCompatActivity {
             result = result + this.chainCode.get(i);
         }
         tvTextHasilIdentifikasi.setText(result);
+    }
+
+    private void readChainCodeFromLocalDb() {
+        listChainCode = new ArrayList<>();
+        int tot = sharedPrefManager.getTotalChainCode();
+        for (int i=0;i<tot;i++) {
+            listChainCode.add(sharedPrefManager.getChainCode("chainke" + i));
+            Log.d(TAG, "chain code ke " + i + " : " + listChainCode.get(i));
+        }
+    }
+
+    private void saveChainCodeToLocalDb() {
+        String result = "";
+        for(int i=0;i<this.chainCode.size();i++){
+            if (i < this.chainCode.size() - 1){
+                result = result + " ";
+            }
+            result = result + this.chainCode.get(i);
+        }
+        listChainCode.add(result);
+        sharedPrefManager.saveChainCode("chainke" + (listChainCode.size() - 1), result);
+        sharedPrefManager.setKeyTotalChainCode(listChainCode.size());
+        Log.d(TAG, "chainke : " + (listChainCode.size() - 1));
     }
 
     private void openGallery() {
@@ -432,6 +514,74 @@ public class LandingPageTugas4 extends AppCompatActivity {
         fillMatrixBlackWhite();
         mainBorderTracing();
         setImageToBlackAndWhiteResult();
-        printChainCode();
+//        printChainCode();
+        showPredictionImage();
+    }
+
+    public void onClickAnalyzeFirst(View view) {
+        btnAnalyzeFirst.setVisibility(View.GONE);
+        progress_bar_analyze.setVisibility(View.VISIBLE);
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0;i<10;i++) {
+                    switch (i) {
+                        case 0:
+                            ivTextPhoto.setImageResource(R.drawable.nol);
+                            setImageToBlackAndWhite();
+                            break;
+                        case 1:
+                            ivTextPhoto.setImageResource(R.drawable.satu);
+                            setImageToBlackAndWhite();
+                            break;
+                        case 2:
+                            ivTextPhoto.setImageResource(R.drawable.dua);
+                            setImageToBlackAndWhite();
+                            break;
+                        case 3:
+                            ivTextPhoto.setImageResource(R.drawable.tiga);
+                            setImageToBlackAndWhite();
+                            break;
+                        case 4:
+                            ivTextPhoto.setImageResource(R.drawable.empat);
+                            setImageToBlackAndWhite();
+                            break;
+                        case 5:
+                            ivTextPhoto.setImageResource(R.drawable.lima);
+                            setImageToBlackAndWhite();
+                            break;
+                        case 6:
+                            ivTextPhoto.setImageResource(R.drawable.enam);
+                            setImageToBlackAndWhite();
+                            break;
+                        case 7:
+                            ivTextPhoto.setImageResource(R.drawable.tujuh);
+                            setImageToBlackAndWhite();
+                            break;
+                        case 8:
+                            ivTextPhoto.setImageResource(R.drawable.delapan);
+                            setImageToBlackAndWhite();
+                            break;
+                        case 9:
+                            ivTextPhoto.setImageResource(R.drawable.sembilan);
+                            setImageToBlackAndWhite();
+                            break;
+                    }
+                    initMatrixBlackWhite();
+                    initChainCode();
+                    fillMatrixBlackWhite();
+                    mainBorderTracing();
+                    saveChainCodeToLocalDb();
+                }
+
+                ivTextPhoto.setImageResource(R.mipmap.ic_launcher_round);
+                ivTextPhotoHasilBw.setImageResource(R.mipmap.ic_launcher_round);
+                progress_bar_analyze.setVisibility(View.GONE);
+                btnUploadPhoto.setVisibility(View.VISIBLE);
+                sharedPrefManager.setAnalyzed(true);
+            }
+        }, 900);
+
     }
 }
