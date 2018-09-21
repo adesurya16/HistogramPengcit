@@ -6,11 +6,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
-import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -21,13 +20,12 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import java.util.ArrayList;
 
 import com.alhudaghifari.bildghifar.R;
 import com.alhudaghifari.bildghifar.SharedPrefManager;
-import com.alhudaghifari.bildghifar.tugas1Histogram.PickImageActivity;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 public class LandingPageTugas4 extends AppCompatActivity {
@@ -72,6 +70,8 @@ public class LandingPageTugas4 extends AppCompatActivity {
 
     private SharedPrefManager sharedPrefManager;
 
+    private int lengthChain[][] = new int[10][];
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,6 +94,10 @@ public class LandingPageTugas4 extends AppCompatActivity {
         listChainCode = new ArrayList<>();
 
         sharedPrefManager = new SharedPrefManager(this);
+
+        for (int i=0;i<10;i++) {
+            lengthChain[i] = new int[8];
+        }
 
         if (sharedPrefManager.isAnalyzed()) {
             btnAnalyzeFirst.setVisibility(View.GONE);
@@ -151,8 +155,8 @@ public class LandingPageTugas4 extends AppCompatActivity {
 
     public void initMatrixBlackWhite(){
         BitmapDrawable bd = (BitmapDrawable) ivTextPhotoHasilBw.getDrawable();
-        int height = bd.getBitmap().getHeight();
-        int width = bd.getBitmap().getWidth();
+        int height = output.getHeight();
+        int width = output.getWidth();
         this.matrixBlackWhite = new int[height][];
         for (int i=0;i<height;i++){
             this.matrixBlackWhite[i] = new int[width];
@@ -165,12 +169,12 @@ public class LandingPageTugas4 extends AppCompatActivity {
 
     public void fillMatrixBlackWhite(){
         BitmapDrawable bd = (BitmapDrawable) ivTextPhotoHasilBw.getDrawable();
-        int height = bd.getBitmap().getHeight();
-        int width = bd.getBitmap().getWidth();
+        int height = output.getHeight();
+        int width = output.getWidth();
 
         for (int i = 0; i < height; ++i) {
             for (int j = 0; j < width; ++j) {
-                int pixel = bd.getBitmap().getPixel(j, i);
+                int pixel = output.getPixel(j, i);
                 int alpha = Color.alpha(pixel);
                 int red = Color.red(pixel);
                 int green = Color.green(pixel);
@@ -192,8 +196,8 @@ public class LandingPageTugas4 extends AppCompatActivity {
         // black = 1
         // white = 0
         BitmapDrawable bd = (BitmapDrawable) ivTextPhotoHasilBw.getDrawable();
-        int height = bd.getBitmap().getHeight();
-        int width = bd.getBitmap().getWidth();
+        int height = output.getHeight();
+        int width = output.getWidth();
         // asumsi 1 object shape dulu
         boolean isFound = false;
         for (int i=0;i<height;i++){
@@ -210,8 +214,8 @@ public class LandingPageTugas4 extends AppCompatActivity {
 
     public void tracingImage(int x, int y){
         BitmapDrawable bd = (BitmapDrawable) ivTextPhotoHasilBw.getDrawable();
-        int height = bd.getBitmap().getHeight();
-        int width = bd.getBitmap().getWidth();
+        int height = output.getHeight();
+        int width = output.getWidth();
 
         // isShape = true if tracing result make a shape
         int xBegin = x;
@@ -384,7 +388,6 @@ public class LandingPageTugas4 extends AppCompatActivity {
                         gray);
 
                 if (count < 50) {
-                    Log.d(TAG, "gray : " + gray + " newPixe : " + newPixel);
                     count++;
                 }
                 output.setPixel(j, i, newPixel);
@@ -399,14 +402,14 @@ public class LandingPageTugas4 extends AppCompatActivity {
 
     private void setImageToBlackAndWhiteResult(){
         BitmapDrawable bd = (BitmapDrawable) ivTextPhotoHasilBw.getDrawable();
-        int height = bd.getBitmap().getHeight();
-        int width = bd.getBitmap().getWidth();
+        int height = output.getHeight();
+        int width = output.getWidth();
 
-        output = bd.getBitmap().copy(Bitmap.Config.RGB_565, true);
+        output = output.copy(Bitmap.Config.RGB_565, true);
 
         for (int i = 0; i < height; ++i) {
             for (int j = 0; j < width; ++j) {
-                int pixel = bd.getBitmap().getPixel(j, i);
+                int pixel = output.getPixel(j, i);
                 int alpha = Color.alpha(pixel);
                 int red = Color.red(pixel);
                 int green = Color.green(pixel);
@@ -432,31 +435,6 @@ public class LandingPageTugas4 extends AppCompatActivity {
         ivTextPhotoHasilIdentifikasi.setImageBitmap(output);
     }
 
-    private void showPredictionImage() {
-        String result = "";
-        int count = 0;
-        boolean found = false;
-        for(int i=0;i<this.chainCode.size();i++){
-            if (i < this.chainCode.size() - 1){
-                result = result + " ";
-            }
-            result = result + this.chainCode.get(i);
-        }
-
-        Log.d(TAG, "Chain code : " + result);
-
-        while (count < listChainCode.size() && !found) {
-            Log.d(TAG, "count : " + count);
-            if (result.equals(listChainCode.get(count))) {
-                found = true;
-                tvTextHasilIdentifikasi.setText("ini adalah angka : " + count);
-            }
-            count++;
-        }
-        if (count == listChainCode.size())
-            tvTextHasilIdentifikasi.setText("tidak ditemukan prediksinya :(");
-    }
-
     private void printChainCode() {
         String result = "";
         for(int i=0;i<this.chainCode.size();i++){
@@ -477,20 +455,64 @@ public class LandingPageTugas4 extends AppCompatActivity {
         }
     }
 
-    private void saveChainCodeToLocalDb() {
-        String result = "";
-        for(int i=0;i<this.chainCode.size();i++){
-            if (i < this.chainCode.size() - 1){
-                result = result + " ";
-            }
-            result = result + this.chainCode.get(i);
+    private void analyzeLenghtChainLocalData(int index) {
+        Log.d(TAG, "index ke-" + index);
+        for(int i=0;i<chainCode.size();i++){
+            lengthChain[index][chainCode.get(i)]++;
         }
-        listChainCode.add(result);
-        sharedPrefManager.saveChainCode("chainke" + (listChainCode.size() - 1), result);
-        sharedPrefManager.setKeyTotalChainCode(listChainCode.size());
-        Log.d(TAG, "chainke : " + (listChainCode.size() - 1));
+
+        for (int i=0;i<8;i++) {
+            Log.d(TAG, i + ". " + lengthChain[index][i]);
+        }
+
+        Log.d(TAG, "--------------------");
     }
 
+    /**
+     * cara dari
+     * https://stackoverflow.com/questions/6718525/understanding-freeman-chain-codes-for-ocr
+     */
+    private void analyzeImageResultChainCode() {
+        Log.d(TAG, "analyzeImageResultChainCode");
+        int lChainCode[] = new int[8];
+        int minimumValue = 0;
+        int index = 0;
+        int sum;
+        for(int i=0;i<chainCode.size();i++){
+            lChainCode[chainCode.get(i)]++;
+        }
+
+        int lengthChainAksen[][] = new int[10][];
+
+        for (int i=0;i<10;i++) {
+            lengthChainAksen[i] = new int[8];
+        }
+
+        for (int i=0;i<10;i++) {
+            sum = 0;
+            for (int j=0;j<8;j++) {
+                Log.d(TAG, i + ".) lChain code " + j + " : " + lChainCode[j]);
+                lengthChainAksen[i][j] = Math.abs(lengthChain[i][j] - lChainCode[j]);
+                sum += lengthChainAksen[i][j];
+            }
+            Log.d(TAG, i + ". sum : " + sum);
+            if (i == 0) {
+                minimumValue = sum;
+                index = 0;
+            } else {
+                if (minimumValue > sum) {
+                    minimumValue = sum;
+                    index = i;
+                }
+            }
+        }
+
+        tvTextHasilIdentifikasi.setText("ini adalah angka : " + index);
+    }
+
+    /**
+     *
+     */
     private void openGallery() {
         Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(gallery, PICK_IMAGE);
@@ -501,6 +523,7 @@ public class LandingPageTugas4 extends AppCompatActivity {
         setImageToBlackAndWhite();
         linlaySeekBar.setVisibility(View.VISIBLE);
     }
+
 
     public void uploadPhoto(View view) {
         openGallery();
@@ -514,57 +537,97 @@ public class LandingPageTugas4 extends AppCompatActivity {
         fillMatrixBlackWhite();
         mainBorderTracing();
         setImageToBlackAndWhiteResult();
-//        printChainCode();
-        showPredictionImage();
+        analyzeImageResultChainCode();
     }
+
 
     public void onClickAnalyzeFirst(View view) {
         btnAnalyzeFirst.setVisibility(View.GONE);
         progress_bar_analyze.setVisibility(View.VISIBLE);
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                for (int i = 0;i<10;i++) {
-                    switch (i) {
+        tvTextHasilIdentifikasi.setVisibility(View.VISIBLE);
+        lengthChain = new int[10][];
+        for (int i=0;i<10;i++) {
+            lengthChain[i] = new int[8];
+        }
+
+        for (int i = 0;i<10;i++) {
+            final int index = i;
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    tvTextHasilIdentifikasi.setText("Sedang menganalisa angka " + index + "....");
+                    Bitmap icon;
+                    switch (index) {
                         case 0:
-                            ivTextPhoto.setImageResource(R.drawable.nol);
+                            icon = BitmapFactory.decodeResource(getResources(),
+                                    R.drawable.nol);
+                            icon = getResizedBitmap(icon, 400);// 400 is for example, replace with desired size
+                            ivTextPhoto.setImageBitmap(icon);
                             setImageToBlackAndWhite();
                             break;
                         case 1:
+                            icon = BitmapFactory.decodeResource(getResources(),
+                                    R.drawable.satu);
+                            icon = getResizedBitmap(icon, 400);// 400 is for example, replace with desired size
+                            ivTextPhoto.setImageBitmap(icon);
                             ivTextPhoto.setImageResource(R.drawable.satu);
                             setImageToBlackAndWhite();
                             break;
                         case 2:
-                            ivTextPhoto.setImageResource(R.drawable.dua);
+                            icon = BitmapFactory.decodeResource(getResources(),
+                                    R.drawable.dua);
+                            icon = getResizedBitmap(icon, 400);// 400 is for example, replace with desired size
+                            ivTextPhoto.setImageBitmap(icon);
                             setImageToBlackAndWhite();
                             break;
                         case 3:
-                            ivTextPhoto.setImageResource(R.drawable.tiga);
+                            icon = BitmapFactory.decodeResource(getResources(),
+                                    R.drawable.tiga);
+                            icon = getResizedBitmap(icon, 400);// 400 is for example, replace with desired size
+                            ivTextPhoto.setImageBitmap(icon);
                             setImageToBlackAndWhite();
                             break;
                         case 4:
-                            ivTextPhoto.setImageResource(R.drawable.empat);
+                            icon = BitmapFactory.decodeResource(getResources(),
+                                    R.drawable.empat);
+                            icon = getResizedBitmap(icon, 400);// 400 is for example, replace with desired size
+                            ivTextPhoto.setImageBitmap(icon);
                             setImageToBlackAndWhite();
                             break;
                         case 5:
-                            ivTextPhoto.setImageResource(R.drawable.lima);
+                            icon = BitmapFactory.decodeResource(getResources(),
+                                    R.drawable.lima);
+                            icon = getResizedBitmap(icon, 400);// 400 is for example, replace with desired size
+                            ivTextPhoto.setImageBitmap(icon);
                             setImageToBlackAndWhite();
                             break;
                         case 6:
-                            ivTextPhoto.setImageResource(R.drawable.enam);
+                            icon = BitmapFactory.decodeResource(getResources(),
+                                    R.drawable.enam);
+                            icon = getResizedBitmap(icon, 400);// 400 is for example, replace with desired size
+                            ivTextPhoto.setImageBitmap(icon);
                             setImageToBlackAndWhite();
                             break;
                         case 7:
-                            ivTextPhoto.setImageResource(R.drawable.tujuh);
+                            icon = BitmapFactory.decodeResource(getResources(),
+                                    R.drawable.tujuh);
+                            icon = getResizedBitmap(icon, 400);// 400 is for example, replace with desired size
+                            ivTextPhoto.setImageBitmap(icon);
                             setImageToBlackAndWhite();
                             break;
                         case 8:
-                            ivTextPhoto.setImageResource(R.drawable.delapan);
+                            icon = BitmapFactory.decodeResource(getResources(),
+                                    R.drawable.delapan);
+                            icon = getResizedBitmap(icon, 400);// 400 is for example, replace with desired size
+                            ivTextPhoto.setImageBitmap(icon);
                             setImageToBlackAndWhite();
                             break;
                         case 9:
-                            ivTextPhoto.setImageResource(R.drawable.sembilan);
+                            icon = BitmapFactory.decodeResource(getResources(),
+                                    R.drawable.sembilan);
+                            icon = getResizedBitmap(icon, 400);// 400 is for example, replace with desired size
+                            ivTextPhoto.setImageBitmap(icon);
                             setImageToBlackAndWhite();
                             break;
                     }
@@ -572,16 +635,57 @@ public class LandingPageTugas4 extends AppCompatActivity {
                     initChainCode();
                     fillMatrixBlackWhite();
                     mainBorderTracing();
-                    saveChainCodeToLocalDb();
+                    analyzeLenghtChainLocalData(index);
+
+                    if (index == 9) {
+                        tvTextHasilIdentifikasi.setText("");
+                        ivTextPhoto.setImageResource(R.mipmap.ic_launcher_round);
+                        ivTextPhotoHasilBw.setImageResource(R.mipmap.ic_launcher_round);
+                        progress_bar_analyze.setVisibility(View.GONE);
+                        btnUploadPhoto.setVisibility(View.VISIBLE);
+                    }
                 }
-
-                ivTextPhoto.setImageResource(R.mipmap.ic_launcher_round);
-                ivTextPhotoHasilBw.setImageResource(R.mipmap.ic_launcher_round);
-                progress_bar_analyze.setVisibility(View.GONE);
-                btnUploadPhoto.setVisibility(View.VISIBLE);
-                sharedPrefManager.setAnalyzed(true);
-            }
-        }, 900);
-
+            }, 200);
+        }
     }
 }
+/**
+ * 0. 337
+ 1. 2
+ 2. 489
+ 3. 2
+ 4. 113
+ 5. 226
+ 6. 265
+ 7. 2
+
+ chaincode 6
+ 0. 258
+ 1. 173
+ 2. 307
+ 3. 164
+ 4. 251
+ 5. 167
+ 6. 326
+ 7. 151
+
+ chaincode 8
+ 0. 181
+ 1. 143
+ 2. 214
+ 3. 145
+ 4. 182
+ 5. 140
+ 6. 219
+ 7. 143
+
+ chaincode 3
+ 0. 359
+ 1. 204
+ 2. 288
+ 3. 201
+ 4. 352
+ 5. 206
+ 6. 291
+ 7. 196
+ */
