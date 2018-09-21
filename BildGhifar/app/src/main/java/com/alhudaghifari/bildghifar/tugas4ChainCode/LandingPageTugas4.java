@@ -571,7 +571,6 @@ public class LandingPageTugas4 extends AppCompatActivity {
                                     R.drawable.satu);
                             icon = getResizedBitmap(icon, 400);// 400 is for example, replace with desired size
                             ivTextPhoto.setImageBitmap(icon);
-                            ivTextPhoto.setImageResource(R.drawable.satu);
                             setImageToBlackAndWhite();
                             break;
                         case 2:
