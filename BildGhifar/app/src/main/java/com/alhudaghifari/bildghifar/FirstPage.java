@@ -37,4 +37,9 @@ public class FirstPage extends AppCompatActivity {
         Intent intent = new Intent(FirstPage.this, LandingPageTugas4.class);
         startActivity(intent);
     }
+
+    public void gototugas5(View view){
+        Intent intent = new Intent(FirstPage.this, LandingPageTugas5Thinning.class);
+        startActivity(intent);
+    }
 }
