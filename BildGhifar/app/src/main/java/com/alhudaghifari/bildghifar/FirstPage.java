@@ -9,6 +9,7 @@ import com.alhudaghifari.bildghifar.tugas1Histogram.LandingPageHistogram;
 import com.alhudaghifari.bildghifar.tugas2carigarismuka.LandingPageTugas2;
 import com.alhudaghifari.bildghifar.tugas3Equalizer.LandingPageTugas3Equalizer;
 import com.alhudaghifari.bildghifar.tugas4ChainCode.LandingPageTugas4;
+import com.alhudaghifari.bildghifar.tugas5Thinning.LandingPageTugas5Thinning;
 
 public class FirstPage extends AppCompatActivity {
 

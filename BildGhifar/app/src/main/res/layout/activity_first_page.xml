@@ -45,7 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Tugas 5 - Thinning"
-            android:onClick="gotoTugas5"
+            android:onClick="gototugas5"
             android:layout_marginTop="10dp"/>
 
     </LinearLayout>
