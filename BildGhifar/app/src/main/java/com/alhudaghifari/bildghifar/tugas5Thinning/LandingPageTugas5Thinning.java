@@ -35,6 +35,7 @@ public class LandingPageTugas5Thinning extends AppCompatActivity {
     private static final int MAX_DIRECTION = 8;
     private static  final int MAX_COLOR = 256;
     private Uri imageUri;
+    private ZhangSuen zhangSuen;
 
     private ImageView ivTextPhoto;
     private ImageView ivTextPhotoHasilBw;
@@ -78,7 +79,7 @@ public class LandingPageTugas5Thinning extends AppCompatActivity {
 
         ivTextPhoto = (ImageView) findViewById(R.id.ivTextPhoto);
         ivTextPhotoHasilBw = (ImageView) findViewById(R.id.ivTextPhotoHasilBw);
-        ivTextPhotoHasilIdentifikasi = (ImageView) findViewById(R.id.ivTextPhotoHasilIdentifikasi);
+        ivTextPhotoHasilIdentifikasi = (ImageView) findViewById(R.id.ivTextPhotoHasilIhinning);
         tvTextHasilIdentifikasi = (TextView) findViewById(R.id.tvTextHasilIdentifikasi);
         tvThreshold = (TextView) findViewById(R.id.tvThreshold);
         seekBarThreshold = (SeekBar) findViewById(R.id.seekBarThreshold);
@@ -192,7 +193,41 @@ public class LandingPageTugas5Thinning extends AppCompatActivity {
         Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(gallery, PICK_IMAGE);
     }
-    
+
+    public void initMatrixBlackWhite(){
+        BitmapDrawable bd = (BitmapDrawable) ivTextPhotoHasilBw.getDrawable();
+        int height = bd.getBitmap().getHeight();
+        int width = bd.getBitmap().getWidth();
+        this.matrixBlackWhite = new int[height][];
+        for (int i=0;i<height;i++){
+            this.matrixBlackWhite[i] = new int[width];
+        }
+    }
+
+    public void fillMatrixBlackWhite(){
+        BitmapDrawable bd = (BitmapDrawable) ivTextPhotoHasilBw.getDrawable();
+        int height = bd.getBitmap().getHeight();
+        int width = bd.getBitmap().getWidth();
+
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j) {
+                int pixel = bd.getBitmap().getPixel(j, i);
+                int alpha = Color.alpha(pixel);
+                int red = Color.red(pixel);
+                int green = Color.green(pixel);
+                int blue = Color.blue(pixel);
+                int gray = ((red + green + blue) / 3) % 256;
+
+                if (gray > threshold) {
+                    this.matrixBlackWhite[i][j] = 0;
+                }else {
+                    this.matrixBlackWhite[i][j] = 1;
+                }
+
+            }
+        }
+    }
+
     public void changeImageBwByThreshold(View view) {
         linlaySeekBar.setVisibility(View.GONE);
         setImageToBlackAndWhite();
@@ -203,6 +238,70 @@ public class LandingPageTugas5Thinning extends AppCompatActivity {
         openGallery();
     }
 
+
+
     public void tebakPhoto(View view) {
+        BitmapDrawable bd = (BitmapDrawable) ivTextPhotoHasilBw.getDrawable();
+        int height = bd.getBitmap().getHeight();
+        int width = bd.getBitmap().getWidth();
+        initMatrixBlackWhite();
+        fillMatrixBlackWhite();
+        this.zhangSuen = new ZhangSuen(this.matrixBlackWhite,  height, width);
+        this.zhangSuen.thinImage();
+        this.zhangSuen.copyToMatrix(this.matrixBlackWhite);
+
+        tvTextHasilIdentifikasi.setVisibility(View.VISIBLE);
+        ivTextPhotoHasilIdentifikasi.setVisibility(View.VISIBLE);
+
+
+        analyzeNumberThinningResult();
+        this.zhangSuen.copyToMatrix(this.matrixBlackWhite);
+        setImageToBlackAndWhiteResult();
+    }
+
+    private void setImageToBlackAndWhiteResult(){
+        BitmapDrawable bd = (BitmapDrawable) ivTextPhotoHasilBw.getDrawable();
+        int height = bd.getBitmap().getHeight();
+        int width = bd.getBitmap().getWidth();
+
+        output = output.copy(Bitmap.Config.RGB_565, true);
+
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j) {
+                int pixel = bd.getBitmap().getPixel(j, i);
+                int alpha = Color.alpha(pixel);
+                int red = Color.red(pixel);
+                int green = Color.green(pixel);
+                int blue = Color.blue(pixel);
+
+
+                if (this.matrixBlackWhite[i][j] == 0){
+                    red = MAX_COLOR - 1;
+                    green = MAX_COLOR - 1;
+                    blue = MAX_COLOR - 1;
+                }else{
+                    red = 0;
+                    green = 0;
+                    blue = 0;
+                }
+
+                int newPixel = Color.argb(
+                        alpha,
+                        red,
+                        green,
+                        blue);
+
+
+                output.setPixel(j, i, newPixel);
+            }
+        }
+        ivTextPhotoHasilIdentifikasi.setImageBitmap(output);
+    }
+
+    private void analyzeNumberThinningResult(){
+        this.zhangSuen.setThinningList();
+        this.zhangSuen.getBoundPoints();
+        int index = this.zhangSuen.recognizeNumber();
+        tvTextHasilIdentifikasi.setText("ini adalah angka : " + index);
     }
 }
