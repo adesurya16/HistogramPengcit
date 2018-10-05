@@ -302,6 +302,7 @@ public class LandingPageTugas5Thinning extends AppCompatActivity {
         this.zhangSuen.setThinningList();
         this.zhangSuen.getBoundPoints();
         int index = this.zhangSuen.recognizeNumber();
+        this.zhangSuen.postProcessing(index);
         tvTextHasilIdentifikasi.setText("ini adalah angka : " + index);
     }
 }

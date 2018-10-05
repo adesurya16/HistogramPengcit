@@ -315,6 +315,90 @@ class ZhangSuen {
         }
     }
 
+    public void postProcessing(int number){
+        ArrayList<Point> pList = getEndPoint();
+        int count = pList.size();
+        if (count == 3){
+            Point p1 = new Point(pList.get(0));
+            Point p2 = new Point(pList.get(1));
+            Point p3 = new Point(pList.get(2));
+            if (p1.x > p2.x){
+                Point tmp = new Point(p1);
+                p1.set(p2.x, p2.y);
+                p2.set(tmp.x, tmp.y);
+            }
+            if(p1.x > p3.x){
+                Point tmp = new Point(p1);
+                p1.set(p3.x, p3.y);
+                p3.set(tmp.x, tmp.y);
+            }
+            if(p2.x > p3.x){
+                Point tmp = new Point(p2);
+                p2.set(p3.x, p3.y);
+                p3.set(tmp.x, tmp.y);
+            }
+            if (number == 1 || number == 4 || number == 7){
+                deleteLine(p1);
+            }else if(number == 5){
+                deleteLine(p2);
+            }else if(number == 2){
+                deleteLine(p3);
+            }
+        }
+        setThinningList();
+    }
+
+    public int getDistance(Point p){
+        int xStart = p.x;
+        int yStart = p.y;
+        int currentX = -1;
+        int currentY = -1;
+        int len = 0;
+        while (numNeighbors(xStart, yStart) <= 2){
+            int h = xStart;
+            int w = yStart;
+            int dir = -1;
+            len++;
+//            this.matrixBlackWhite[xStart][yStart] = 0;
+            for(int i=0;i < this.iterationDirections.length - 1 ;i++){
+
+                // System.out.println(this.matrixBlackWhite[h + this.iterationDirections[i][1]][w + this.iterationDirections[i][0]]);
+                if (this.matrixBlackWhite[h + this.iterationDirections[i][1]][w + this.iterationDirections[i][0]] == 1 && dir == -1 && (h + this.iterationDirections[i][1]) != currentX && (w + this.iterationDirections[i][0]) != currentY){
+                    dir = i;
+                }
+            }
+            Log.d("direction  : ", " " + dir);
+            xStart = h + this.iterationDirections[dir][1];
+            yStart = w + this.iterationDirections[dir][0];
+            currentX = xStart;
+            currentY = yStart;
+        }
+        return len;
+    }
+
+    public void deleteLine(Point p){
+        int xStart = p.x;
+        int yStart = p.y;
+        Log.d("pointdelete  : ", " " + p.x + " " + p.y);
+        while (numNeighbors(xStart, yStart) <= 1){
+            int h = xStart;
+            int w = yStart;
+            int dir = -1;
+
+            this.matrixBlackWhite[xStart][yStart] = 0;
+            for(int i=0;i < this.iterationDirections.length - 1 ;i++){
+
+                // System.out.println(this.matrixBlackWhite[h + this.iterationDirections[i][1]][w + this.iterationDirections[i][0]]);
+                if (this.matrixBlackWhite[h + this.iterationDirections[i][1]][w + this.iterationDirections[i][0]] == 1 && dir == -1){
+                    dir = i;
+                }
+            }
+            Log.d("direction  : ", " " + dir);
+            xStart = h + this.iterationDirections[dir][1];
+            yStart = w + this.iterationDirections[dir][0];
+        }
+    }
+
     public int recognizeNumber(){
         // return number 0..9 , unknwon number -1
         ArrayList<Point> pList = getEndPoint();
@@ -342,6 +426,8 @@ class ZhangSuen {
                 // 6 atau 9
                 int midx = (this.pointMin.x + this.pointMax.x) / 2;
                 // System.out.println(midx);
+
+
                 if (pList.get(0).x <= midx){
                     number = 6;
                 }else{
