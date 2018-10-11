@@ -238,25 +238,29 @@ public class LandingPageTugas5Thinning extends AppCompatActivity {
         openGallery();
     }
 
-
-
     public void tebakPhoto(View view) {
         BitmapDrawable bd = (BitmapDrawable) ivTextPhotoHasilBw.getDrawable();
         int height = bd.getBitmap().getHeight();
         int width = bd.getBitmap().getWidth();
         initMatrixBlackWhite();
         fillMatrixBlackWhite();
-        this.zhangSuen = new ZhangSuen(this.matrixBlackWhite,  height, width);
-        this.zhangSuen.thinImage();
-        this.zhangSuen.copyToMatrix(this.matrixBlackWhite);
+        zhangSuen = new ZhangSuen(this.matrixBlackWhite,  height, width);
+        zhangSuen.thinImage();
+        zhangSuen.copyToMatrix(this.matrixBlackWhite);
 
         tvTextHasilIdentifikasi.setVisibility(View.VISIBLE);
         ivTextPhotoHasilIdentifikasi.setVisibility(View.VISIBLE);
 
-
         analyzeNumberThinningResult();
         this.zhangSuen.copyToMatrix(this.matrixBlackWhite);
         setImageToBlackAndWhiteResult();
+    }
+
+    private void analyzeNumberThinningResult(){
+        this.zhangSuen.setThinningList();
+        this.zhangSuen.getBoundPoints();
+        int index = this.zhangSuen.recognizeNumber();
+        tvTextHasilIdentifikasi.setText("ini adalah angka : " + index);
     }
 
     private void setImageToBlackAndWhiteResult(){
@@ -296,12 +300,5 @@ public class LandingPageTugas5Thinning extends AppCompatActivity {
             }
         }
         ivTextPhotoHasilIdentifikasi.setImageBitmap(output);
-    }
-
-    private void analyzeNumberThinningResult(){
-        this.zhangSuen.setThinningList();
-        this.zhangSuen.getBoundPoints();
-        int index = this.zhangSuen.recognizeNumber();
-        tvTextHasilIdentifikasi.setText("ini adalah angka : " + index);
     }
 }
