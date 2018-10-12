@@ -256,13 +256,6 @@ public class LandingPageTugas5Thinning extends AppCompatActivity {
         setImageToBlackAndWhiteResult();
     }
 
-    private void analyzeNumberThinningResult(){
-        this.zhangSuen.setThinningList();
-        this.zhangSuen.getBoundPoints();
-        int index = this.zhangSuen.recognizeNumber();
-        tvTextHasilIdentifikasi.setText("ini adalah angka : " + index);
-    }
-
     private void setImageToBlackAndWhiteResult(){
         BitmapDrawable bd = (BitmapDrawable) ivTextPhotoHasilBw.getDrawable();
         int height = bd.getBitmap().getHeight();
@@ -300,5 +293,13 @@ public class LandingPageTugas5Thinning extends AppCompatActivity {
             }
         }
         ivTextPhotoHasilIdentifikasi.setImageBitmap(output);
+    }
+
+    private void analyzeNumberThinningResult(){
+        this.zhangSuen.setThinningList();
+        this.zhangSuen.getBoundPoints();
+        int index = this.zhangSuen.recognizeNumber();
+        this.zhangSuen.postProcessing(index);
+        tvTextHasilIdentifikasi.setText("ini adalah angka : " + index);
     }
 }
