@@ -405,6 +405,7 @@ class ZhangSuen {
         // return character 0..9 , unknwon character -1
         ArrayList<Point> pList = getEndPoint();
         int count = pList.size();
+        int skewedStraightLimit = 30;
         Log.d(TAG, "jumlah titik : " + count);
         String character = "-1";
         switch(count){
@@ -448,7 +449,6 @@ class ZhangSuen {
                 Log.i(TAG, "length y : " + lengthY);
 
                 // batas untuk menentukan condong / kemiringan garis untuk I dan -
-                int skewedStraightLimit = 30;
 
                 int skewedLimitMax = 80;
                 int skewedLimitMin = 50;
@@ -510,17 +510,29 @@ class ZhangSuen {
                 }
                 break;
             case 4:
-//                Point p4_1 = new Point(pList.get(0));
-//                Point p4_2 = new Point(pList.get(1));
-//                Point p4_3 = new Point(pList.get(2));
-//                Point p4_4 = new Point(pList.get(3));
-//
-//                Log.d(TAG, "p4_1 | x : " + p4_1.x + " | y : " + p4_1.y);
-//                Log.d(TAG, "p4_2 | x : " + p4_2.x + " | y : " + p4_2.y);
-//                Log.d(TAG, "p4_3 | x : " + p4_3.x + " | y : " + p4_3.y);
-//                Log.d(TAG, "p4_4 | x : " + p4_4.x + " | y : " + p4_4.y);
+                Point p4_1 = new Point(pList.get(0));
+                Point p4_2 = new Point(pList.get(1));
+                Point p4_3 = new Point(pList.get(2));
+                Point p4_4 = new Point(pList.get(3));
 
-                character = "3";
+                Log.d(TAG, "p4_1 | x : " + p4_1.x + " | y : " + p4_1.y);
+                Log.d(TAG, "p4_2 | x : " + p4_2.x + " | y : " + p4_2.y);
+                Log.d(TAG, "p4_3 | x : " + p4_3.x + " | y : " + p4_3.y);
+                Log.d(TAG, "p4_4 | x : " + p4_4.x + " | y : " + p4_4.y);
+
+                int lengthx_2_3 = p4_3.x - p4_2.x;
+                int lengthy_4_1 = p4_4.y - p4_1.y;
+
+                Log.i(TAG, "length x 2_3 : " + lengthx_2_3);
+                Log.i(TAG, "length y 4_1 : " + lengthy_4_1);
+
+                if (lengthx_2_3 >= skewedStraightLimit*-1 && lengthx_2_3 <= skewedStraightLimit &&
+                        lengthy_4_1 >= skewedStraightLimit*-1 && lengthy_4_1 <= skewedStraightLimit)
+                    character = "+";
+                else
+                    character = "3";
+
+                Log.i(TAG, "4. character : " + character);
                 break;
             case 5:
                 character = "*";
