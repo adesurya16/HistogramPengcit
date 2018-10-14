@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.alhudaghifari.bildghifar.R;
 import com.alhudaghifari.bildghifar.SharedPrefManager;
+import com.github.chrisbanes.photoview.PhotoView;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -37,9 +38,10 @@ public class LandingPageTugas5Thinning extends AppCompatActivity {
     private Uri imageUri;
     private ZhangSuen zhangSuen;
 
+    private PhotoView photo_view_hasil_thinning;
+
     private ImageView ivTextPhoto;
     private ImageView ivTextPhotoHasilBw;
-    private ImageView ivTextPhotoHasilIdentifikasi;
     private TextView tvTextHasilIdentifikasi;
 
     private Bitmap selectedImage;
@@ -77,9 +79,9 @@ public class LandingPageTugas5Thinning extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_landing_page_tugas5_thinning);
 
+        photo_view_hasil_thinning = (PhotoView) findViewById(R.id.photo_view_hasil_thinning);
         ivTextPhoto = (ImageView) findViewById(R.id.ivTextPhoto);
         ivTextPhotoHasilBw = (ImageView) findViewById(R.id.ivTextPhotoHasilBw);
-        ivTextPhotoHasilIdentifikasi = (ImageView) findViewById(R.id.ivTextPhotoHasilIhinning);
         tvTextHasilIdentifikasi = (TextView) findViewById(R.id.tvTextHasilIdentifikasi);
         tvThreshold = (TextView) findViewById(R.id.tvThreshold);
         seekBarThreshold = (SeekBar) findViewById(R.id.seekBarThreshold);
@@ -249,7 +251,7 @@ public class LandingPageTugas5Thinning extends AppCompatActivity {
         zhangSuen.copyToMatrix(this.matrixBlackWhite);
 
         tvTextHasilIdentifikasi.setVisibility(View.VISIBLE);
-        ivTextPhotoHasilIdentifikasi.setVisibility(View.VISIBLE);
+        photo_view_hasil_thinning.setVisibility(View.VISIBLE);
 
         analyzeNumberThinningResult();
         this.zhangSuen.copyToMatrix(this.matrixBlackWhite);
@@ -292,14 +294,14 @@ public class LandingPageTugas5Thinning extends AppCompatActivity {
                 output.setPixel(j, i, newPixel);
             }
         }
-        ivTextPhotoHasilIdentifikasi.setImageBitmap(output);
+        photo_view_hasil_thinning.setImageBitmap(output);
     }
 
     private void analyzeNumberThinningResult(){
         this.zhangSuen.setThinningList();
         this.zhangSuen.getBoundPoints();
-        int index = this.zhangSuen.recognizeNumber();
+        String index = this.zhangSuen.recognizeCharacter();
         this.zhangSuen.postProcessing(index);
-        tvTextHasilIdentifikasi.setText("ini adalah angka : " + index);
+        tvTextHasilIdentifikasi.setText("ini adalah karakter : " + index);
     }
 }

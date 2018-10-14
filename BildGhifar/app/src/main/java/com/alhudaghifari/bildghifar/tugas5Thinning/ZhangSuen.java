@@ -11,6 +11,8 @@ import java.io.FileReader;
 import java.io.IOException;
 
 class ZhangSuen {
+
+    private static final String TAG = ZhangSuen.class.getSimpleName();
     private static final int MAX_DIRECTION = 8;
     private int matrixBlackWhite[][];
     private int width;
@@ -295,7 +297,7 @@ class ZhangSuen {
         int yStart = p.y;
         int i = 0;
         while(xStart != pCenter.x || yStart != pCenter.y){
-            Log.d("titik2 dari emdpoint paling pendek  : ", "" + i + " " + xStart + " " + yStart + " -> " + this.matrixBlackWhite[xStart][yStart]);
+            Log.d(TAG, "" + i + " " + xStart + " " + yStart + " -> " + this.matrixBlackWhite[xStart][yStart]);
             this.matrixBlackWhite[xStart][yStart] = 0;
             if (i == dirL.size()){
                 break;
@@ -315,7 +317,7 @@ class ZhangSuen {
         }
     }
 
-    public void postProcessing(int number){
+    public void postProcessing(String number){
         ArrayList<Point> pList = getEndPoint();
         int count = pList.size();
         if (count == 3){
@@ -337,11 +339,11 @@ class ZhangSuen {
                 p2.set(p3.x, p3.y);
                 p3.set(tmp.x, tmp.y);
             }
-            if (number == 1 || number == 4 || number == 7){
+            if (number.equals("1") || number.equals("4") || number.equals("7")){
                 deleteLine(p1);
-            }else if(number == 5){
+            }else if(number.equals("5")){
                 deleteLine(p2);
-            }else if(number == 2){
+            }else if(number.equals("2")){
                 deleteLine(p3);
             }
         }
@@ -399,12 +401,12 @@ class ZhangSuen {
         }
     }
 
-    public int recognizeNumber(){
-        // return number 0..9 , unknwon number -1
+    public String recognizeCharacter(){
+        // return character 0..9 , unknwon character -1
         ArrayList<Point> pList = getEndPoint();
         int count = pList.size();
-
-        int number = -1;
+        Log.d(TAG, "jumlah titik : " + count);
+        String character = "-1";
         switch(count){
             case 0:
                 // 0 atau 8
@@ -414,12 +416,12 @@ class ZhangSuen {
                 System.out.println(midy);
                 for(int i=xmin+2;i<pointMax.x - 1;i++){
                     if (this.matrixBlackWhite[i][midy] == 1){
-                        number = 8;
+                        character = "8";
                         break;
                     }
                 }
-                if (number == -1){
-                    number = 0;
+                if (character == "-1"){
+                    character = "0";
                 }
                 break;
             case 1:
@@ -429,11 +431,105 @@ class ZhangSuen {
 
 
                 if (pList.get(0).x <= midx){
-                    number = 6;
+                    character = "6";
                 }else{
-                    number = 9;
+                    character = "9";
                 }
                 break;
+            case 2:
+                Point p2_1 = new Point(pList.get(0));
+                Point p2_2 = new Point(pList.get(1));
+
+                // ini kayaknya dari awal inisiasi antara x dan y kebalik
+                int lengthX = p2_2.x - p2_1.x;
+                int lengthY = p2_2.y - p2_1.y;
+
+                Log.i(TAG, "length x : " + lengthX);
+                Log.i(TAG, "length y : " + lengthY);
+
+                // batas untuk menentukan condong / kemiringan garis untuk I dan -
+                int skewedStraightLimit = 30;
+
+                int skewedLimitMax = 80;
+                int skewedLimitMin = 50;
+
+                if (lengthY >= skewedStraightLimit*-1 && lengthY <= skewedStraightLimit && lengthY < lengthX)
+                    character = "I";
+                else if (lengthX >= skewedStraightLimit*-1 && lengthX <= skewedStraightLimit && lengthY > lengthX)
+                    character = "-";
+                else if (lengthY >= skewedLimitMax*-1 && lengthY <= skewedLimitMin && lengthY < lengthX)
+                    character = "/";
+                else if (lengthY >= skewedLimitMin && lengthY <= skewedLimitMax && lengthY < lengthX)
+                    character = "\\";
+
+
+                Log.i(TAG, "character : " + character);
+                break;
+            case 3:
+                Point p1 = new Point(pList.get(0));
+                Point p2 = new Point(pList.get(1));
+                Point p3 = new Point(pList.get(2));
+                if (p1.x > p2.x){
+                    Point tmp = new Point(p1);
+                    p1.set(p2.x, p2.y);
+                    p2.set(tmp.x, tmp.y);
+                }
+                if(p1.x > p3.x){
+                    Point tmp = new Point(p1);
+                    p1.set(p3.x, p3.y);
+                    p3.set(tmp.x, tmp.y);
+                }
+                if(p2.x > p3.x){
+                    Point tmp = new Point(p2);
+                    p2.set(p3.x, p3.y);
+                    p3.set(tmp.x, tmp.y);
+                }
+                int dir1 = getDirection(p1);
+                int dir2 = getDirection(p2);
+                int dir3 = getDirection(p3);
+
+                int area1 = getArea(p1.x, p1.y);
+                int area2 = getArea(p2.x, p2.y);
+                int area3 = getArea(p3.x, p3.y);
+
+                int middlex = (this.pointMax.x + this.pointMin.x) / 2;
+                int middley = (this.pointMax.y + this.pointMin.y) / 2;
+
+                if (area1 == 1 && area3 == 4 && (p2.x < (middlex + this.pointMax.x)/2) && (p2.x > (this.pointMin.x + middlex)/2)){
+                    character = "3";
+                }else if(p2.x > middlex && p3.x > middlex && area2 != 4 && area3 != 4 && (dir3 == 8 || dir3 == 1 || dir3 == 2) && (dir2 == 8 || dir2 == 7 || dir2 == 6)){
+                    character = "4";
+                }else if(dir1 == 7 && p1.y > middley && (dir3 == 2 || dir3 == 3 || dir3 == 4 || dir3 == 5) && area3 == 4 && p2.y < middley){
+                    character = "5";
+                }else if((dir1 == 2 || dir1 == 3 || dir1 == 4 || dir1 == 1) && area1 == 1 && (dir2 == 6 || dir2 == 7 || dir2 == 8) && area2 == 3 && p3.x > middlex){
+                    character = "2";
+                }else if((dir2 == 2 || dir2 == 3) && area2 == 1 && p1.y > middley){
+                    if(dir3 == 1){
+                        character = "1";
+                    }else character = "7";
+                }
+                break;
+            case 4:
+//                Point p4_1 = new Point(pList.get(0));
+//                Point p4_2 = new Point(pList.get(1));
+//                Point p4_3 = new Point(pList.get(2));
+//                Point p4_4 = new Point(pList.get(3));
+//
+//                Log.d(TAG, "p4_1 | x : " + p4_1.x + " | y : " + p4_1.y);
+//                Log.d(TAG, "p4_2 | x : " + p4_2.x + " | y : " + p4_2.y);
+//                Log.d(TAG, "p4_3 | x : " + p4_3.x + " | y : " + p4_3.y);
+//                Log.d(TAG, "p4_4 | x : " + p4_4.x + " | y : " + p4_4.y);
+
+                character = "3";
+                break;
+            case 5:
+                character = "*";
+                break;
+            default:
+                // unknown
+                character = "-1";
+                break;
+
 //            case -1:
 //                 // preprocessing false endpoint
 //
@@ -532,17 +628,17 @@ class ZhangSuen {
 //                int dir2 = getDirection(p2);
 //                int area2 = getArea(p2.x, p2.y);
 //                if ((dir1 == 2 || dir1 == 3) && (dir2 == 2 || dir2 == 3)){
-//                    number = 3;
+//                    character = 3;
 //                }
 //                int middlex = (this.pointMax.x + this.pointMin.x) / 2;
 //                if( p1.x >= middlex && p2.x >= middlex){
 //                    if ((dir2 == 8 || dir2 == 1 || dir2 == 2) && (dir1 == 6 || dir1 == 7 || dir1 == 8)){
-//                        number = 4;
+//                        character = 4;
 //                    }
 //                }else if((dir2 == 2 || dir2 == 3) && dir1 == 7){
-//                    number = 5;
+//                    character = 5;
 //                }else if((dir2 == 7 || dir2 == 8) && (dir1 == 1 || dir1 == 2 || dir1 == 3)){
-//                    number = 2;
+//                    character = 2;
 //                }else if(dir1 == 3 || dir1 == 2){
 //                    boolean found = false;
 //                    for(int i = p2.x ;i>p1.x;i--){
@@ -552,65 +648,14 @@ class ZhangSuen {
 //                        }
 //                    }
 //                    if (found){
-//                        number = 7;
+//                        character = 7;
 //                    }else{
-//            number = 1;
+//            character = 1;
 //        }
 //    }
 //
 //                break;
-                case 4:
-                    number = 3;
-                break;
-                case 3:
-                    Point p1 = new Point(pList.get(0));
-                    Point p2 = new Point(pList.get(1));
-                    Point p3 = new Point(pList.get(2));
-                    if (p1.x > p2.x){
-                        Point tmp = new Point(p1);
-                        p1.set(p2.x, p2.y);
-                        p2.set(tmp.x, tmp.y);
-                    }
-                    if(p1.x > p3.x){
-                        Point tmp = new Point(p1);
-                        p1.set(p3.x, p3.y);
-                        p3.set(tmp.x, tmp.y);
-                    }
-                    if(p2.x > p3.x){
-                        Point tmp = new Point(p2);
-                        p2.set(p3.x, p3.y);
-                        p3.set(tmp.x, tmp.y);
-                    }
-                    int dir1 = getDirection(p1);
-                    int dir2 = getDirection(p2);
-                    int dir3 = getDirection(p3);
-
-                    int area1 = getArea(p1.x, p1.y);
-                    int area2 = getArea(p2.x, p2.y);
-                    int area3 = getArea(p3.x, p3.y);
-
-                    int middlex = (this.pointMax.x + this.pointMin.x) / 2;
-                    int middley = (this.pointMax.y + this.pointMin.y) / 2;
-
-                    if (area1 == 1 && area3 == 4 && (p2.x < (middlex + this.pointMax.x)/2) && (p2.x > (this.pointMin.x + middlex)/2)){
-                        number = 3;
-                    }else if(p2.x > middlex && p3.x > middlex && area2 != 4 && area3 != 4 && (dir3 == 8 || dir3 == 1 || dir3 == 2) && (dir2 == 8 || dir2 == 7 || dir2 == 6)){
-                        number = 4;
-                    }else if(dir1 == 7 && p1.y > middley && (dir3 == 2 || dir3 == 3 || dir3 == 4 || dir3 == 5) && area3 == 4 && p2.y < middley){
-                        number = 5;
-                    }else if((dir1 == 2 || dir1 == 3 || dir1 == 4 || dir1 == 1) && area1 == 1 && (dir2 == 6 || dir2 == 7 || dir2 == 8) && area2 == 3 && p3.x > middlex){
-                        number = 2;
-                    }else if((dir2 == 2 || dir2 == 3) && area2 == 1 && p1.y > middley){
-                        if(dir3 == 1){
-                            number = 1;
-                        }else number = 7;
-                    }
-                    break;
-            default:
-                // unknown
-                number = -1;
-                break;
         }
-        return number;
+        return character;
     }
 }
