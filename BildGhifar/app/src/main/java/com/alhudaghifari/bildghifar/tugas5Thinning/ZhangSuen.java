@@ -1,6 +1,7 @@
 package com.alhudaghifari.bildghifar.tugas5Thinning;
 
 
+import android.annotation.SuppressLint;
 import android.graphics.Point;
 import android.util.Log;
 
@@ -18,6 +19,149 @@ class ZhangSuen {
     private ArrayList<Point> resultThinningList;
     private Point pointMax;
     private Point pointMin;
+
+    private final int MAX_INTERSECT_PATTERN = 20;
+    private final int MAX_ENDPOINT_PATTERN = 4;
+    private final int MAX_SISA = 4;
+    private final int sisaPointPattern[][][] = {
+            // 0
+                    {{1, 0, 0},
+                    {0, 1, 0},
+                    {0, 0, 0}},
+
+            // 1
+                    {{0, 0, 1},
+                    {0, 1, 0},
+                    {0, 0, 0}},
+
+            // 2
+                    {{0, 0, 0},
+                    {0, 1, 0},
+                    {0, 0, 1}},
+
+            // 3
+                    {{0, 0, 0},
+                    {0, 1, 0},
+                    {1, 0, 0}}
+    };
+    private final int intersectPoinPattern[][][] = {
+            // 0
+                    {{-1, -1, -1},
+                    {1, 1, 1},
+                    {0, 1, 0}},
+
+            // 1
+                    {{ 0, 1, -1},
+                    { 1, 1, -1},
+                    { 0, 1, -1}},
+
+            // 2
+                    {{ 0, 1, 0},
+                    { 1, 1, 1},
+                    { -1, -1, -1}},
+
+            // 3
+                    {{ -1, 1, 0},
+                    { -1, 1, 1},
+                    { -1, 1, 0}},
+
+            // 4
+                    {{ -1, 1, 0},
+                    { 0, 1, 1},
+                    { 1, 0, -1}},
+
+            // 5
+                    {{ 1, 0, -1},
+                    { 0, 1, 1},
+                    { -1, 1, 0}},
+
+            // 6
+                    {{ -1, 1, 0},
+                    { 1, 1, 0},
+                    { 0, 1, -1}},
+
+            // 7
+                    {{ 0, 1, -1},
+                    { 1, 1, 0},
+                    { -1, 0, 1}},
+
+            // 8
+                    {{ -1, 0, 1},
+                    { 0, 1, 0},
+                    { 1, 0, 1}},
+
+            // 9
+                    {{ 1, 0, -1},
+                    { 0, 1, 0},
+                    { 1, 0, 1}},
+
+            // 10
+                    {{ 1, 0, 1},
+                    { 0, 1, 0},
+                    { 1, 0, -1}},
+
+            // 11
+                    {{ 1, 0, 1},
+                    { 0, 1, 0},
+                    { -1, 0, 1}},
+
+            // 12
+                    {{ -1, 0, 1},
+                    { 1, 1, 0},
+                    { 0, 0, 1}},
+
+            // 13
+                    {{ 0, 0, 1},
+                    { 1, 1, 0},
+                    { -1, 0, 1}},
+
+            // 14
+                    {{ 0, 1, -1},
+                    { 0, 1, 0},
+                    { 1, 0, 1}},
+
+            // 15
+                    {{ -1, 1, 0},
+                    { 0, 1, 0},
+                    { 1, 0, 1}},
+
+            // 16
+                    {{ 1, 0, 0},
+                    { 0, 1, 1},
+                    { 1, 0, -1}},
+
+            // 17
+                    {{ 1, 0, -1},
+                    { 0, 1, 1},
+                    { 1, 0, 0}},
+
+            // 18
+                    {{ 1, 0, 1},
+                    { 0, 1, 0},
+                    { -1, 1, 0}},
+
+            // 19
+                    {{ 1, 0, 1},
+                    { 0, 1, 0},
+                    { 0, 1, -1}}
+    };
+    private final int endPointPattern[][][]= {
+                    {{0, 0, 0},
+                    {0, 1, 0},
+                    {-1, 1, -1}},
+
+                    {{0, 0, -1},
+                    {0, 1, 1},
+                    {0, 0, -1}},
+
+                    {{-1, 1, -1},
+                    {0, 1, 0},
+                    {0, 0, 0}},
+
+                    {{-1, 0, 0},
+                    {1, 1, 0},
+                    {-1, 0, 0}}
+    };
 
     /*
     P9 P2 P3
@@ -54,6 +198,128 @@ class ZhangSuen {
         this.resultThinningList = new ArrayList<>();
         this.pointMax = new Point();
         this.pointMin = new Point();
+    }
+
+    public boolean isFoundListOfPoint(ArrayList<Point> pList, int x, int y){
+        for (Point p: pList){
+            if(p.x == x && p.y == y){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public ArrayList<Point> getIntersectPoint(){
+        ArrayList<Point> pList = new ArrayList<>();
+        for (Point p: this.resultThinningList){
+            if (isValidEndPoint(p.x, p.y)){
+                pList.add(new Point(p));
+            }
+        }
+        return pList;
+    }
+
+    public boolean isNeighboorValidIntersect(int xCenter, int yCenter){
+        boolean isValid = false;
+        for(int i=0;i < this.iterationDirections.length - 1 ;i++){
+            if( (xCenter + this.iterationDirections[i][1]) >= 0 && (xCenter + this.iterationDirections[i][1]) < this.height && (yCenter + this.iterationDirections[i][0]) >= 0 && (yCenter + this.iterationDirections[i][0]) < this.width){
+                if (isValidIntersectPoint(xCenter + this.iterationDirections[i][1], yCenter + this.iterationDirections[i][0])){
+                    isValid = true;
+                    break;
+                }
+            }
+        }
+        return isValid;
+    }
+
+    public boolean isValidIntersectPoint(int x, int y){
+        if(this.matrixBlackWhite[x][y] == 0){
+            return false;
+        }
+
+        boolean isValid = false;
+        int centerX = 1;
+        int centerY = 1;
+        for(int idx = 0;idx < this.MAX_INTERSECT_PATTERN; idx++){
+            isValid = true;
+            for(int i=0;i < this.iterationDirections.length - 1 ;i++){
+                if( (x + this.iterationDirections[i][1]) >= 0 && (x + this.iterationDirections[i][1]) < this.height && (y + this.iterationDirections[i][0]) >= 0 && (y + this.iterationDirections[i][0]) < this.width){
+                    if(this.intersectPoinPattern[idx][centerX + this.iterationDirections[i][1]][centerY + this.iterationDirections[i][0]] > -1){
+                        if(this.intersectPoinPattern[idx][centerX + this.iterationDirections[i][1]][centerY + this.iterationDirections[i][0]] != this.matrixBlackWhite[x + this.iterationDirections[i][1]][y + this.iterationDirections[i][0]]){
+                            isValid = false;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (isValid){
+                break;
+            }
+        }
+        return isValid;
+    }
+
+    public boolean isValidEndPoint(int x, int y){
+        if(this.matrixBlackWhite[x][y] == 0){
+            return false;
+        }
+
+        boolean isValid = false;
+        int centerX = 1;
+        int centerY = 1;
+        for(int idx = 0;idx < this.MAX_ENDPOINT_PATTERN; idx++){
+            isValid = true;
+            for(int i=0;i < this.iterationDirections.length - 1 ;i++){
+                if( (x + this.iterationDirections[i][1]) >= 0 && (x + this.iterationDirections[i][1]) < this.height && (y + this.iterationDirections[i][0]) >= 0 && (y + this.iterationDirections[i][0]) < this.width){
+                    if(this.endPointPattern[idx][centerX + this.iterationDirections[i][1]][centerY + this.iterationDirections[i][0]] > -1){
+                        if(this.endPointPattern[idx][centerX + this.iterationDirections[i][1]][centerY + this.iterationDirections[i][0]] != this.matrixBlackWhite[x + this.iterationDirections[i][1]][y + this.iterationDirections[i][0]]){
+                            isValid = false;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (isValid){
+                break;
+            }
+        }
+        return isValid;
+    }
+
+
+    public boolean isValidSisaPoint(int x, int y){
+        if(this.matrixBlackWhite[x][y] == 0){
+            return false;
+        }
+
+        boolean isValid = false;
+        int centerX = 1;
+        int centerY = 1;
+        for(int idx = 0;idx < this.MAX_SISA; idx++){
+            isValid = true;
+            for(int i=0;i < this.iterationDirections.length - 1 ;i++){
+                if( (x + this.iterationDirections[i][1]) >= 0 && (x + this.iterationDirections[i][1]) < this.height && (y + this.iterationDirections[i][0]) >= 0 && (y + this.iterationDirections[i][0]) < this.width){
+                    if(this.sisaPointPattern[idx][centerX + this.iterationDirections[i][1]][centerY + this.iterationDirections[i][0]] > -1){
+                        if(this.sisaPointPattern[idx][centerX + this.iterationDirections[i][1]][centerY + this.iterationDirections[i][0]] != this.matrixBlackWhite[x + this.iterationDirections[i][1]][y + this.iterationDirections[i][0]]){
+                            isValid = false;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (isValid){
+                break;
+            }
+        }
+        return isValid;
+    }
+
+    public void copyList(ArrayList<Integer> l1, ArrayList<Integer> l2){
+        // copy isi l1 ke l2
+        // l2 dalam keadaan kososng/empty l2
+        for(int i: l1){
+            l2.add(i);
+        }
     }
 
     public void copyToMatrix(int matrix[][]){
@@ -289,6 +555,7 @@ class ZhangSuen {
         return dir;
     }
 
+    @SuppressLint("LongLogTag")
     public void deleteLineToCenter(Point p, Point pCenter, ArrayList<Integer> dirL){
 //        ArrayList<Point> p = getEndPoint();
         int xStart = p.x;
@@ -307,13 +574,7 @@ class ZhangSuen {
         }
     }
 
-    public void copyList(ArrayList<Integer> l1, ArrayList<Integer> l2){
-        // copy isi l1 ke l2
-        // l2 dalam keadaan kososng/empty l2
-        for(int i: l1){
-            l2.add(i);
-        }
-    }
+
 
     public void postProcessing(int number){
         ArrayList<Point> pList = getEndPoint();
@@ -338,15 +599,43 @@ class ZhangSuen {
                 p3.set(tmp.x, tmp.y);
             }
             if (number == 1 || number == 4 || number == 7){
-                deleteLine(p1);
+//                deleteLine(p1)
             }else if(number == 5){
-                deleteLine(p2);
+//                deleteLine(p2);
             }else if(number == 2){
-                deleteLine(p3);
+//                deleteLine(p3);
+            }
+
+            if (number == 2 || number == 4 || number == 5 || number == 1 || number == 7){
+                this.resultThinningList.clear();
+                setThinningList();
+                pList.clear();
+                pList = getEndPoint();
+                while (pList.size() > 2){
+                    deleteLine(getMinEndPointDistance(pList));
+                    this.resultThinningList.clear();
+                    setThinningList();
+                    pList.clear();
+                    pList = getEndPoint();
+                }
+            }
+
+        }
+
+    }
+
+    public Point getMinEndPointDistance(ArrayList<Point> pList){
+        int idx = 0;
+        int minLen = getDistance(pList.get(0));
+        for(int i=1;i<pList.size();i++){
+            if (getDistance(pList.get(i)) > minLen){
+                idx = i;
+                minLen = getDistance(pList.get(i));
             }
         }
-        setThinningList();
+        return pList.get(idx);
     }
+
 
     public int getDistance(Point p){
         int xStart = p.x;
@@ -354,6 +643,7 @@ class ZhangSuen {
         int currentX = -1;
         int currentY = -1;
         int len = 0;
+        Log.d("pointdistance  : ", " " + p.x + " " + p.y);
         while (numNeighbors(xStart, yStart) <= 2){
             int h = xStart;
             int w = yStart;
@@ -367,11 +657,14 @@ class ZhangSuen {
                     dir = i;
                 }
             }
-            Log.d("direction  : ", " " + dir);
+            if (dir == -1){
+                break;
+            }
+            Log.d("directiondistance  : ", " " + dir);
             xStart = h + this.iterationDirections[dir][1];
             yStart = w + this.iterationDirections[dir][0];
-            currentX = xStart;
-            currentY = yStart;
+            currentX = h;
+            currentY = w;
         }
         return len;
     }
@@ -393,10 +686,228 @@ class ZhangSuen {
                     dir = i;
                 }
             }
-            Log.d("direction  : ", " " + dir);
+            Log.d("direction deleteline : ", " " + dir);
             xStart = h + this.iterationDirections[dir][1];
             yStart = w + this.iterationDirections[dir][0];
         }
+    }
+
+    public ArrayList<Point> getListDeleteFromEndPoint(int x, int y){
+        // int distance = 0;
+        // x,y adalah end point
+        ArrayList<Point> chainCodePoint = new ArrayList<Point>();
+        int dir = MAX_DIRECTION - 1;
+        // this.matrixBlackWhite[x][y] = 0;
+        int xBegin = x;
+        int yBegin = y;
+        int xPrev = xBegin;
+        int yPrev = yBegin;
+
+        chainCodePoint.add(new Point(xBegin, yBegin));
+        // int from;
+        // ArrayList<int> chainCode = new ArrayList();
+        while(!isNeighboorValidIntersect(xBegin, yBegin)){
+            int from = 0;
+            xPrev = xBegin;
+            yPrev = yBegin;
+            if (dir % 2 == 0){
+                from = (dir + 7) % MAX_DIRECTION;
+            }else{
+                from = (dir + 6) % MAX_DIRECTION;
+            }
+            boolean found = false;
+            // System.out.println("LOOP");
+            for(int i=0;i<MAX_DIRECTION;i++){
+                // System.out.println( "dir = " + from);
+                if (from == 0){
+                    xBegin = xPrev;
+                    yBegin = yPrev + 1;
+                }else if (from == 1){
+                    xBegin = xPrev - 1;
+                    yBegin = yPrev + 1;
+                }else if (from == 2){
+                    xBegin = xPrev - 1;
+                    yBegin = yPrev;
+                }else if (from == 3){
+                    xBegin = xPrev - 1;
+                    yBegin = yPrev - 1;
+                }else if (from == 4){
+                    xBegin = xPrev;
+                    yBegin = yPrev - 1;
+                }else if (from == 5){
+                    xBegin = xPrev + 1;
+                    yBegin = yPrev - 1;
+                }else if (from == 6){
+                    xBegin = xPrev + 1;
+                    yBegin = yPrev;
+                }else if (from == 7){
+                    xBegin = xPrev + 1;
+                    yBegin = yPrev + 1;
+                }
+
+                if ((xBegin >= 0 && xBegin < this.height) && (yBegin >= 0 && yBegin < this.width)){
+                    // System.out.println(xBegin + " " + yBegin);
+                    if (this.matrixBlackWhite[xBegin][yBegin] == 1){
+                        // System.out.println("masuk");
+                        found = true;
+                        // this.matrixBlackWhite[xBegin][yBegin] = 0;
+                        chainCodePoint.add(new Point(xBegin, yBegin));
+                    }
+                }
+
+                if (found){
+                    break;
+                }else{
+                    from = (from + 1) % MAX_DIRECTION;
+                }
+            }
+
+            if(found){
+                dir = from;
+                // this.chainCode.add(dir);
+                // distance++;
+            }
+        }
+
+        // delete point
+
+        // for(Point p: chainCodePoint){
+        //     if(!isValidIntersectPoint(p.x, p.y)){
+        //         System.out.println(this.matrixBlackWhite[p.x][p.y]);
+        //         System.out.println(p.x + " , " + p.y);
+        //         this.matrixBlackWhite[p.x][p.y] = 0;
+        //     }
+        // }
+        // System.out.println("end of deleted");
+        return chainCodePoint;
+    }
+
+    public void postProcessingThreshold(int tholdPrecentage){
+        // thold percentage from longer width or height
+        getBoundPoints();
+        int sizeFromBounded = (this.pointMax.x - this.pointMin.x) * (this.pointMax.x - this.pointMin.x) + (this.pointMax.y - this.pointMin.y) * (this.pointMax.y - this.pointMin.y);
+        double sizeFromBounded2 = Math.sqrt((double) sizeFromBounded);
+        int tholdSize = (int) sizeFromBounded2 * tholdPrecentage / 100;
+
+        // if (this.height > this.width){
+        //     tholdSize = (int)this.height*thold / (int) 100;
+        // }else{
+        //     tholdSize = (int)this.width*thold / (int) 100;
+        // }
+        ArrayList<Point> delPoint = new ArrayList<>();
+        ArrayList<Point> pList = getEndPoint();
+        for(Point p : pList){
+            if (getDistanceFromPattern(p.x, p.y) < tholdSize){
+                System.out.println("Deleted");
+                delPoint.addAll(getListDeleteFromEndPoint(p.x, p.y));
+                // setThinningList();
+            }
+        }
+        deletePointFromList(delPoint);
+        deletePointFromList(getDeleteSisaPoint(pList, this.resultThinningList));
+        setThinningList();
+    }
+
+    public ArrayList<Point> getDeleteSisaPoint(ArrayList<Point> pListEndPoint, ArrayList<Point> pListThinning){
+        ArrayList<Point> delPoint = new ArrayList<>();
+        for(Point p : pListThinning){
+            if(this.matrixBlackWhite[p.x][p.y] == 1){
+                if(!isFoundListOfPoint(pListEndPoint, p.x, p.y)){
+                    if(numNeighbors(p.x, p.y) == 0 || isValidSisaPoint(p.x, p.y)){
+                        delPoint.add(p);
+                    }
+                }
+            }
+        }
+        return delPoint;
+    }
+
+    public void deletePointFromList(ArrayList<Point> delPoint){
+        for(Point p : delPoint){
+            this.matrixBlackWhite[p.x][p.y] = 0;
+        }
+    }
+
+    public int getDistanceFromPattern(int x, int y){
+        int distance = 0;
+        int xBegin = x;
+        int yBegin = y;
+        int xPrev = xBegin;
+        int yPrev = yBegin;
+        int dir = MAX_DIRECTION - 1;
+
+        // int from;
+        // ArrayList<int> chainCode = new ArrayList();
+        while(!isNeighboorValidIntersect(xBegin, yBegin)){
+            int from = 0;
+            xPrev = xBegin;
+            yPrev = yBegin;
+            if (dir % 2 == 0){
+                from = (dir + 7) % MAX_DIRECTION;
+            }else{
+                from = (dir + 6) % MAX_DIRECTION;
+            }
+            boolean found = false;
+            // System.out.println("LOOP");
+            for(int i=0;i<MAX_DIRECTION;i++){
+                // System.out.println( "dir = " + from);
+                if (from == 0){
+                    xBegin = xPrev;
+                    yBegin = yPrev + 1;
+                }else if (from == 1){
+                    xBegin = xPrev - 1;
+                    yBegin = yPrev + 1;
+                }else if (from == 2){
+                    xBegin = xPrev - 1;
+                    yBegin = yPrev;
+                }else if (from == 3){
+                    xBegin = xPrev - 1;
+                    yBegin = yPrev - 1;
+                }else if (from == 4){
+                    xBegin = xPrev;
+                    yBegin = yPrev - 1;
+                }else if (from == 5){
+                    xBegin = xPrev + 1;
+                    yBegin = yPrev - 1;
+                }else if (from == 6){
+                    xBegin = xPrev + 1;
+                    yBegin = yPrev;
+                }else if (from == 7){
+                    xBegin = xPrev + 1;
+                    yBegin = yPrev + 1;
+                }
+
+                if ((xBegin >= 0 && xBegin < this.height) && (yBegin >= 0 && yBegin < this.width)){
+                    // System.out.println(xBegin + " " + yBegin);
+                    if (this.matrixBlackWhite[xBegin][yBegin] == 1){
+                        // System.out.println("masuk");
+                        found = true;
+                        // this.matrixBlackWhite[xBegin][yBegin] = -1;
+                        // this.chainCodePoint.add(new Point(xBegin, yBegin));
+                    }
+                }
+
+                if (found){
+                    break;
+                }else{
+                    from = (from + 1) % MAX_DIRECTION;
+                }
+
+            }
+
+            if(found){
+                dir = from;
+                // this.chainCode.add(dir);
+                distance++;
+            }
+
+            // buat test
+            // if (isValidIntersectPoint(xBegin, yBegin)){
+            //     // this.matrixBlackWhite[xBegin][yBegin] = -1;
+            //     System.out.println("intersect = " + xBegin + " , " + yBegin);
+            // }
+        }
+        return distance;
     }
 
     public int recognizeNumber(){
