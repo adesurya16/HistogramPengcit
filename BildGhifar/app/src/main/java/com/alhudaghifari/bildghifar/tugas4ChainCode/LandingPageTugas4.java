@@ -50,7 +50,6 @@ public class LandingPageTugas4 extends AppCompatActivity {
     private Button btnChangeToBw;
     private Button btnTebakAngka;
     private Button btnUploadPhoto;
-    private Button btnAnalyzeFirst;
 
     private ProgressBar progress_bar_analyze;
 
@@ -67,8 +66,6 @@ public class LandingPageTugas4 extends AppCompatActivity {
     private ArrayList<Integer> chainCode;
 
     private List<String> listChainCode;
-
-    private SharedPrefManager sharedPrefManager;
 
     private int lengthChain[][] = new int[10][];
 
@@ -87,28 +84,24 @@ public class LandingPageTugas4 extends AppCompatActivity {
         btnChangeToBw = (Button) findViewById(R.id.btnChangeToBw);
         btnTebakAngka = (Button) findViewById(R.id.btnTebakAngka);
         btnUploadPhoto = (Button) findViewById(R.id.btnUploadPhoto);
-        btnAnalyzeFirst = (Button) findViewById(R.id.btnAnalyzeFirst);
         progress_bar_analyze = (ProgressBar) findViewById(R.id.progress_bar_analyze);
         horizontalScrollView = (HorizontalScrollView) findViewById(R.id.horizontalScrollView);
 
         listChainCode = new ArrayList<>();
 
-        sharedPrefManager = new SharedPrefManager(this);
 
         for (int i=0;i<10;i++) {
             lengthChain[i] = new int[8];
         }
 
-        if (sharedPrefManager.isAnalyzed()) {
-            btnAnalyzeFirst.setVisibility(View.GONE);
-            btnUploadPhoto.setVisibility(View.VISIBLE);
-            horizontalScrollView.setVisibility(View.VISIBLE);
-            readChainCodeFromLocalDb();
-        } else {
-            btnAnalyzeFirst.setVisibility(View.VISIBLE);
-            btnUploadPhoto.setVisibility(View.GONE);
-            horizontalScrollView.setVisibility(View.GONE);
-        }
+//        if (sharedPrefManager.isAnalyzed()) {
+//            btnUploadPhoto.setVisibility(View.VISIBLE);
+//            horizontalScrollView.setVisibility(View.VISIBLE);
+//            readChainCodeFromLocalDb();
+//        } else {
+//            btnUploadPhoto.setVisibility(View.GONE);
+//            horizontalScrollView.setVisibility(View.GONE);
+//        }
 
         seekBarThreshold.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -448,11 +441,11 @@ public class LandingPageTugas4 extends AppCompatActivity {
 
     private void readChainCodeFromLocalDb() {
         listChainCode = new ArrayList<>();
-        int tot = sharedPrefManager.getTotalChainCode();
-        for (int i=0;i<tot;i++) {
-            listChainCode.add(sharedPrefManager.getChainCode("chainke" + i));
-            Log.d(TAG, "chain code ke " + i + " : " + listChainCode.get(i));
-        }
+//        int tot = sharedPrefManager.getTotalChainCode();
+//        for (int i=0;i<tot;i++) {
+////            listChainCode.add(sharedPrefManager.getChainCode("chainke" + i));
+//            Log.d(TAG, "chain code ke " + i + " : " + listChainCode.get(i));
+//        }
     }
 
     private void analyzeLenghtChainLocalData(int index) {
@@ -510,9 +503,6 @@ public class LandingPageTugas4 extends AppCompatActivity {
         tvTextHasilIdentifikasi.setText("ini adalah angka : " + index);
     }
 
-    /**
-     *
-     */
     private void openGallery() {
         Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(gallery, PICK_IMAGE);
@@ -523,7 +513,6 @@ public class LandingPageTugas4 extends AppCompatActivity {
         setImageToBlackAndWhite();
         linlaySeekBar.setVisibility(View.VISIBLE);
     }
-
 
     public void uploadPhoto(View view) {
         openGallery();
@@ -537,12 +526,68 @@ public class LandingPageTugas4 extends AppCompatActivity {
         fillMatrixBlackWhite();
         mainBorderTracing();
         setImageToBlackAndWhiteResult();
-        analyzeImageResultChainCode();
+//        analyzeImageResultChainCode();
+        chainCodeRecognition();
     }
 
+    private void chainCodeRecognition() {
+        String resultChainCode = "";
+        for (Integer s : chainCode)
+        {
+            resultChainCode += s;
+        }
 
-    public void onClickAnalyzeFirst(View view) {
-        btnAnalyzeFirst.setVisibility(View.GONE);
+        int minEditDist = editDistDP(TemplateChainCode.templateChainCode[0], resultChainCode,
+                TemplateChainCode.templateChainCode[0].length(), resultChainCode.length());
+        Log.d(TAG, "0. minEditDistance : " + minEditDist);
+        int tempMin;
+        int index = 0;
+        for (int i=1;i<10;i++) {
+            tempMin = editDistDP(TemplateChainCode.templateChainCode[i], resultChainCode,
+                    TemplateChainCode.templateChainCode[i].length(), resultChainCode.length());
+            Log.d(TAG, i + ". tempMin : " + tempMin);
+            if (tempMin < minEditDist) {
+                minEditDist = tempMin;
+                index = i;
+            }
+        }
+        Log.d(TAG, "hasil prediksi : " + index);
+
+        tvTextHasilIdentifikasi.setText("ini adalah angka : " + index);
+    }
+
+    private int editDistDP(String str1, String str2, int m, int n)
+    {
+        int dp[][] = new int[m+1][n+1];
+
+        for (int i=0; i<=m; i++)
+        {
+            for (int j=0; j<=n; j++)
+            {
+                if (i==0)
+                    dp[i][j] = j;
+                else if (j==0)
+                    dp[i][j] = i;
+                else if (str1.charAt(i-1) == str2.charAt(j-1))
+                    dp[i][j] = dp[i-1][j-1];
+                else
+                    dp[i][j] = 1 + min(dp[i][j-1],  // Insert
+                                        dp[i-1][j],  // Remove
+                                        dp[i-1][j-1]); // Replace
+            }
+        }
+
+        return dp[m][n];
+    }
+
+    private int min(int x, int y, int z)
+    {
+        if (x <= y && x <= z) return x;
+        if (y <= x && y <= z) return y;
+        else return z;
+    }
+
+    public void onClickAnalyzeFirstOld(View view) {
         progress_bar_analyze.setVisibility(View.VISIBLE);
         tvTextHasilIdentifikasi.setVisibility(View.VISIBLE);
         lengthChain = new int[10][];

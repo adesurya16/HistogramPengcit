@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.alhudaghifari.bildghifar.R;
 import com.alhudaghifari.bildghifar.SharedPrefManager;
+import com.github.chrisbanes.photoview.PhotoView;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -37,9 +38,10 @@ public class LandingPageTugas5Thinning extends AppCompatActivity {
     private Uri imageUri;
     private ZhangSuen zhangSuen;
 
+    private PhotoView photo_view_hasil_thinning;
+
     private ImageView ivTextPhoto;
     private ImageView ivTextPhotoHasilBw;
-    private ImageView ivTextPhotoHasilIdentifikasi;
     private TextView tvTextHasilIdentifikasi;
 
     private Bitmap selectedImage;
@@ -50,7 +52,6 @@ public class LandingPageTugas5Thinning extends AppCompatActivity {
     private Button btnChangeToBw;
     private Button btnTebakAngka;
     private Button btnUploadPhoto;
-    private Button btnAnalyzeFirst;
 
     private ProgressBar progress_bar_analyze;
 
@@ -77,9 +78,9 @@ public class LandingPageTugas5Thinning extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_landing_page_tugas5_thinning);
 
+        photo_view_hasil_thinning = (PhotoView) findViewById(R.id.photo_view_hasil_thinning);
         ivTextPhoto = (ImageView) findViewById(R.id.ivTextPhoto);
         ivTextPhotoHasilBw = (ImageView) findViewById(R.id.ivTextPhotoHasilBw);
-        ivTextPhotoHasilIdentifikasi = (ImageView) findViewById(R.id.ivTextPhotoHasilIhinning);
         tvTextHasilIdentifikasi = (TextView) findViewById(R.id.tvTextHasilIdentifikasi);
         tvThreshold = (TextView) findViewById(R.id.tvThreshold);
         seekBarThreshold = (SeekBar) findViewById(R.id.seekBarThreshold);
@@ -87,7 +88,6 @@ public class LandingPageTugas5Thinning extends AppCompatActivity {
         btnChangeToBw = (Button) findViewById(R.id.btnChangeToBw);
         btnTebakAngka = (Button) findViewById(R.id.btnTebakAngka);
         btnUploadPhoto = (Button) findViewById(R.id.btnUploadPhoto);
-        btnAnalyzeFirst = (Button) findViewById(R.id.btnAnalyzeFirst);
         progress_bar_analyze = (ProgressBar) findViewById(R.id.progress_bar_analyze);
         horizontalScrollView = (HorizontalScrollView) findViewById(R.id.horizontalScrollView);
 
@@ -238,21 +238,18 @@ public class LandingPageTugas5Thinning extends AppCompatActivity {
         openGallery();
     }
 
-
-
     public void tebakPhoto(View view) {
         BitmapDrawable bd = (BitmapDrawable) ivTextPhotoHasilBw.getDrawable();
         int height = bd.getBitmap().getHeight();
         int width = bd.getBitmap().getWidth();
         initMatrixBlackWhite();
         fillMatrixBlackWhite();
-        this.zhangSuen = new ZhangSuen(this.matrixBlackWhite,  height, width);
-        this.zhangSuen.thinImage();
-        this.zhangSuen.copyToMatrix(this.matrixBlackWhite);
+        zhangSuen = new ZhangSuen(this.matrixBlackWhite,  height, width);
+        zhangSuen.thinImage();
+        zhangSuen.copyToMatrix(this.matrixBlackWhite);
 
         tvTextHasilIdentifikasi.setVisibility(View.VISIBLE);
-        ivTextPhotoHasilIdentifikasi.setVisibility(View.VISIBLE);
-
+        photo_view_hasil_thinning.setVisibility(View.VISIBLE);
 
         analyzeNumberThinningResult();
         this.zhangSuen.copyToMatrix(this.matrixBlackWhite);
@@ -295,14 +292,14 @@ public class LandingPageTugas5Thinning extends AppCompatActivity {
                 output.setPixel(j, i, newPixel);
             }
         }
-        ivTextPhotoHasilIdentifikasi.setImageBitmap(output);
+        photo_view_hasil_thinning.setImageBitmap(output);
     }
 
     private void analyzeNumberThinningResult(){
         this.zhangSuen.setThinningList();
         this.zhangSuen.getBoundPoints();
-        int index = this.zhangSuen.recognizeNumber();
+        String index = this.zhangSuen.recognizeCharacter();
         this.zhangSuen.postProcessing(index);
-        tvTextHasilIdentifikasi.setText("ini adalah angka : " + index);
+        tvTextHasilIdentifikasi.setText("ini adalah karakter : " + index);
     }
 }

@@ -6,118 +6,116 @@
     tools:context=".tugas5Thinning.LandingPageTugas5Thinning">
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingBottom="40dp"
-        android:orientation="vertical">
-
-        <HorizontalScrollView
-            android:id="@+id/horizontalScrollView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp">
+            android:layout_height="match_parent"
+            android:paddingBottom="40dp"
+            android:orientation="vertical">
 
-            <LinearLayout
+            <HorizontalScrollView
+                android:id="@+id/horizontalScrollView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/ivTextPhoto"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/ic_launcher_round"
+                        android:layout_marginRight="5dp"/>
+
+                    <ImageView
+                        android:id="@+id/ivTextPhotoHasilBw"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:src="@mipmap/ic_launcher_round"/>
+
+                </LinearLayout>
+
+            </HorizontalScrollView>
+
+            <LinearLayout
+                android:id="@+id/linlaySeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
                 android:orientation="horizontal">
 
-                <ImageView
-                    android:id="@+id/ivTextPhoto"
-                    android:layout_width="wrap_content"
+                <SeekBar
+                    android:id="@+id/seekBarThreshold"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:src="@mipmap/ic_launcher_round"
-                    android:layout_marginRight="5dp"/>
+                    android:layout_marginTop="@dimen/ukuran_10dp"
+                    android:max="255"
+                    android:layout_weight="1"
+                    android:progress="128" />
 
-                <ImageView
-                    android:id="@+id/ivTextPhotoHasilBw"
-                    android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/tvThreshold"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:src="@mipmap/ic_launcher_round"/>
+                    android:layout_gravity="center"
+                    android:text="128"
+                    android:layout_weight="9"
+                    android:textSize="16sp" />
 
             </LinearLayout>
 
-        </HorizontalScrollView>
+            <Button
+                android:id="@+id/btnChangeToBw"
+                android:layout_width="wrap_content"
+                android:layout_gravity="center"
+                android:layout_height="wrap_content"
+                android:text="change image BW by threshold"
+                android:onClick="changeImageBwByThreshold"
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"/>
 
-        <LinearLayout
-            android:id="@+id/linlaySeekBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:orientation="horizontal">
-
-            <SeekBar
-                android:id="@+id/seekBarThreshold"
+            <Button
+                android:id="@+id/btnUploadPhoto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/ukuran_10dp"
-                android:max="255"
-                android:layout_weight="1"
-                android:progress="128" />
+                android:text="upload photo"
+                android:onClick="uploadPhoto"
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"/>
+
+            <Button
+                android:id="@+id/btnTebakAngka"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="tebak karakter"
+                android:onClick="tebakPhoto"
+                android:layout_marginTop="1dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"/>
 
             <TextView
-                android:id="@+id/tvThreshold"
-                android:layout_width="match_parent"
+                android:id="@+id/tvTextHasilIdentifikasi"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="128"
-                android:layout_weight="9"
-                android:textSize="16sp" />
+                android:text="prediksi : "
+                android:textSize="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_gravity="center"/>
+
+            <com.github.chrisbanes.photoview.PhotoView
+                android:id="@+id/photo_view_hasil_thinning"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@mipmap/ic_launcher_round"/>
 
         </LinearLayout>
-
-        <Button
-            android:id="@+id/btnChangeToBw"
-            android:layout_width="wrap_content"
-            android:layout_gravity="center"
-            android:layout_height="wrap_content"
-            android:text="change image BW by threshold"
-            android:onClick="changeImageBwByThreshold"
-            android:layout_marginTop="20dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"/>
-
-        <Button
-            android:id="@+id/btnUploadPhoto"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="upload photo"
-            android:onClick="uploadPhoto"
-            android:layout_marginTop="20dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"/>
-
-        <Button
-            android:id="@+id/btnTebakAngka"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="tebak angka"
-            android:onClick="tebakPhoto"
-            android:layout_marginTop="1dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"/>
-
-        <TextView
-            android:id="@+id/tvTextHasilIdentifikasi"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="prediksi : "
-            android:textSize="20dp"
-            android:layout_marginTop="20dp"
-            android:layout_gravity="center"/>
-
-        <ImageView
-            android:id="@+id/ivTextPhotoHasilIhinning"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:src="@mipmap/ic_launcher_round"
-            android:layout_gravity="center"/>
-
-    </LinearLayout>
 
 </ScrollView>
