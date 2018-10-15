@@ -35,6 +35,7 @@ public class LandingPageTugas5Thinning extends AppCompatActivity {
     private static final int PICK_IMAGE = 23;
     private static final int MAX_DIRECTION = 8;
     private static  final int MAX_COLOR = 256;
+    private final int THRESHOLD_POST_PROCESSING = 20;
     private Uri imageUri;
     private ZhangSuen zhangSuen;
 
@@ -298,8 +299,9 @@ public class LandingPageTugas5Thinning extends AppCompatActivity {
     private void analyzeNumberThinningResult(){
         this.zhangSuen.setThinningList();
         this.zhangSuen.getBoundPoints();
-        String index = this.zhangSuen.recognizeCharacter();
-        this.zhangSuen.postProcessing(index);
-        tvTextHasilIdentifikasi.setText("ini adalah karakter : " + index);
+//        String index = this.zhangSuen.recognizeCharacter();
+
+        this.zhangSuen.postProcessingThreshold(THRESHOLD_POST_PROCESSING);
+//        tvTextHasilIdentifikasi.setText("ini adalah karakter : " + index);
     }
 }
