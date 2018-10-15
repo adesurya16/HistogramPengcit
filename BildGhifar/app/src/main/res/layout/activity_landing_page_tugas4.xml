@@ -12,21 +12,11 @@
         android:paddingBottom="40dp"
         android:orientation="vertical">
 
-        <Button
-            android:id="@+id/btnAnalyzeFirst"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:onClick="onClickAnalyzeFirst"
-            android:text="Analyze First"/>
-
         <ProgressBar
             android:id="@+id/progress_bar_analyze"
             android:layout_marginTop="60dp"
-            android:visibility="gone"
             android:layout_width="40dp"
+            android:visibility="gone"
             android:layout_height="40dp"
             android:layout_gravity="center"/>
 
@@ -34,7 +24,6 @@
             android:id="@+id/horizontalScrollView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp">
 
@@ -70,7 +59,6 @@
             android:layout_height="wrap_content"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
-            android:visibility="gone"
             android:orientation="horizontal">
 
             <SeekBar
@@ -97,7 +85,6 @@
             android:id="@+id/btnChangeToBw"
             android:layout_width="wrap_content"
             android:layout_gravity="center"
-            android:visibility="gone"
             android:layout_height="wrap_content"
             android:text="change image BW by threshold"
             android:onClick="changeImageBwByThreshold"
@@ -110,7 +97,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="upload photo"
-            android:visibility="gone"
             android:onClick="uploadPhoto"
             android:layout_marginTop="20dp"
             android:layout_marginLeft="20dp"
@@ -121,7 +107,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="tebak angka"
-            android:visibility="gone"
             android:onClick="tebakPhoto"
             android:layout_marginTop="1dp"
             android:layout_marginLeft="20dp"
@@ -141,7 +126,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:visibility="gone"
             android:src="@mipmap/ic_launcher_round"
             android:layout_gravity="center"/>
 
