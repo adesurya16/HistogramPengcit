@@ -52,7 +52,6 @@ public class LandingPageTugas5Thinning extends AppCompatActivity {
     private Button btnChangeToBw;
     private Button btnTebakAngka;
     private Button btnUploadPhoto;
-    private Button btnAnalyzeFirst;
 
     private ProgressBar progress_bar_analyze;
 
@@ -89,7 +88,6 @@ public class LandingPageTugas5Thinning extends AppCompatActivity {
         btnChangeToBw = (Button) findViewById(R.id.btnChangeToBw);
         btnTebakAngka = (Button) findViewById(R.id.btnTebakAngka);
         btnUploadPhoto = (Button) findViewById(R.id.btnUploadPhoto);
-        btnAnalyzeFirst = (Button) findViewById(R.id.btnAnalyzeFirst);
         progress_bar_analyze = (ProgressBar) findViewById(R.id.progress_bar_analyze);
         horizontalScrollView = (HorizontalScrollView) findViewById(R.id.horizontalScrollView);
 
