@@ -17,14 +17,14 @@ import com.alhudaghifari.bildghifar.R;
 /**
  * Created by Alhudaghifari on 13:07 16/10/18
  */
-public class AdapterUts extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class RecyclerUts extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context mContext;
     private int size;
 
-    private OnButtonYaListener onButtonYaListener;
+    private OnButtonClickListener onButtonYaListener;
 
-    public AdapterUts (Context context, int size) {
+    public RecyclerUts(Context context, int size) {
         mContext = context;
         this.size = size;
     }
@@ -32,7 +32,7 @@ public class AdapterUts extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.item_menu_bottom, parent, false);
-        view.setBackgroundColor(ContextCompat.getColor(mContext, R.color.white_pollar));
+        view.setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorPrimary));
         return new ViewHolderSolution(view);
     }
 
@@ -40,8 +40,41 @@ public class AdapterUts extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
 
         ViewHolderSolution viewHolderSolution = (ViewHolderSolution) holder;
-//        viewHolderSolution.mTextViewParent.setText(message);
-//        viewHolderSolution.mTextViewChild.setText(description);
+
+        switch (position) {
+            case 0:
+                viewHolderSolution.mImageViewIcon.setImageResource(R.drawable.ic_brightness_white);
+                viewHolderSolution.mTextViewNamaIcon.setText("Brightness");
+                break;
+            case 1:
+                viewHolderSolution.mImageViewIcon.setImageResource(R.drawable.ic_grayscale_white);
+                viewHolderSolution.mTextViewNamaIcon.setText("Grayscale");
+                break;
+            case 2:
+                viewHolderSolution.mImageViewIcon.setImageResource(R.drawable.ic_bw_white);
+                viewHolderSolution.mTextViewNamaIcon.setText("BnW");
+                break;
+            case 3:
+                viewHolderSolution.mImageViewIcon.setImageResource(R.drawable.ic_equalizer_white);
+                viewHolderSolution.mTextViewNamaIcon.setText("Equalizer");
+                break;
+            case 4:
+                viewHolderSolution.mImageViewIcon.setImageResource(R.drawable.ic_predictnum_chaincode_white);
+                viewHolderSolution.mTextViewNamaIcon.setText("Chaincode");
+                break;
+            case 5:
+                viewHolderSolution.mImageViewIcon.setImageResource(R.drawable.ic_predictnum_thinning_white);
+                viewHolderSolution.mTextViewNamaIcon.setText("Predict Char");
+                break;
+            case 6:
+                viewHolderSolution.mImageViewIcon.setImageResource(R.drawable.ic_refresh_white);
+                viewHolderSolution.mTextViewNamaIcon.setText("Refresh");
+                break;
+            default:
+                viewHolderSolution.mImageViewIcon.setImageResource(R.drawable.ic_refresh_white);
+                viewHolderSolution.mTextViewNamaIcon.setText("Refresh");
+                break;
+        }
 
         viewHolderSolution.mLinearLayoutIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,11 +114,11 @@ public class AdapterUts extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    public interface OnButtonYaListener {
+    public interface OnButtonClickListener {
         void onClick(int posisi);
     }
 
-    public void setOnButtonYaListener(OnButtonYaListener onButtonYaListener) {
+    public void setOnButtonYaListener(OnButtonClickListener onButtonYaListener) {
         this.onButtonYaListener = onButtonYaListener;
     }
 }
