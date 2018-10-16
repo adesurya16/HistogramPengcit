@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,6 +46,11 @@ public class UtsActivity extends AppCompatActivity {
     private TextView tvJudulMenu;
     private TextView tvPrediction;
 
+    private SeekBar seekBarThreshold;
+    private SeekBar seekBarLeft;
+    private SeekBar seekBarCenter;
+    private SeekBar seekBarRight;
+
     private int statusPage;
 
     private final int SHOW_BRIGHTNESS = 0;
@@ -70,8 +76,14 @@ public class UtsActivity extends AppCompatActivity {
         linlayThreshold = (LinearLayout) findViewById(R.id.linlayThreshold);
         tvJudulMenu = (TextView) findViewById(R.id.tvJudulMenu);
         tvPrediction = (TextView) findViewById(R.id.tvPrediction);
+        seekBarThreshold = (SeekBar) findViewById(R.id.seekBarThreshold);
+        seekBarLeft = (SeekBar) findViewById(R.id.seekBarLeft);
+        seekBarCenter = (SeekBar) findViewById(R.id.seekBarCenter);
+        seekBarRight = (SeekBar) findViewById(R.id.seekBarRight);
 
-        setAdapterUts();
+        initializeListener();
+
+        setAdapterUts(-1);
 
     }
 
@@ -134,21 +146,39 @@ public class UtsActivity extends AppCompatActivity {
         return Bitmap.createScaledBitmap(image, width, height, true);
     }
 
-    private void setAdapterUts() {
+    private void initializeListener() {
         onButtonClickListener = new RecyclerUts.OnButtonClickListener() {
             @Override
             public void onClick(int posisi) {
                 Log.d(TAG, "onButtonClickListener posisi " + posisi);
+                if (posisi == SHOW_HOME)
+                    setAdapterUts(-1);
+                else setAdapterUts(posisi);
                 showPage(posisi);
             }
         };
 
+
+    }
+
+    private void setAdapterUts(final int clicked) {
         final LinearLayoutManager mLinearLayoutManager =
                 new LinearLayoutManager(UtsActivity.this, LinearLayoutManager.HORIZONTAL, false);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
-        recyclerUts = new RecyclerUts(UtsActivity.this, 7);
+        mRecyclerView.setNestedScrollingEnabled(false);
+        recyclerUts = new RecyclerUts(UtsActivity.this, 7, clicked);
         recyclerUts.setOnButtonYaListener(onButtonClickListener);
         mRecyclerView.setAdapter(recyclerUts);
+        mRecyclerView.post(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG,"recyclerview down");
+                if (clicked != -1)
+                    mRecyclerView.smoothScrollToPosition(clicked);
+                else if (clicked > 3)
+                    mRecyclerView.smoothScrollToPosition(clicked + 2);
+            }
+        });
     }
 
     private void showPage(int page) {

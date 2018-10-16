@@ -23,6 +23,7 @@
     <color name="blueblack">#212f3d</color>
     <color name="darkblue">#2d5b87</color>
     <color name="halfblue">#54a3e0</color>
+    <color name="halfblueclicked">#3884bf</color>
 
     <color name="darkblack">#585859</color>
     <color name="darkblack2">#98999b</color>

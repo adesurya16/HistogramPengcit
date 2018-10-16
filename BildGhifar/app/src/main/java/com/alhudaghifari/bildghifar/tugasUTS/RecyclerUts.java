@@ -21,12 +21,14 @@ public class RecyclerUts extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context mContext;
     private int size;
+    private int clicked;
 
     private OnButtonClickListener onButtonYaListener;
 
-    public RecyclerUts(Context context, int size) {
+    public RecyclerUts(Context context, int size, int clicked) {
         mContext = context;
         this.size = size;
+        this.clicked = clicked;
     }
 
     @Override
@@ -40,6 +42,9 @@ public class RecyclerUts extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
 
         ViewHolderSolution viewHolderSolution = (ViewHolderSolution) holder;
+
+        if (position == clicked)
+            viewHolderSolution.mLinearLayoutIcon.setBackgroundColor(mContext.getResources().getColor(R.color.halfblueclicked));
 
         switch (position) {
             case 0:

@@ -24,6 +24,7 @@
         android:paddingRight="5dp"
         android:paddingLeft="5dp"
         android:elevation="4dp"
+        android:visibility="gone"
         android:background="@color/silver"
         android:orientation="vertical">
 
