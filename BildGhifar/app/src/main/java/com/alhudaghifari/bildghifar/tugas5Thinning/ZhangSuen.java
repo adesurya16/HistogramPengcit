@@ -214,7 +214,7 @@ class ZhangSuen {
     public ArrayList<Point> getIntersectPoint(){
         ArrayList<Point> pList = new ArrayList<>();
         for (Point p: this.resultThinningList){
-            if (isValidEndPoint(p.x, p.y)){
+            if (isValidIntersectPoint(p.x, p.y)){
                 pList.add(new Point(p));
             }
         }
@@ -451,6 +451,7 @@ class ZhangSuen {
     }
 
     public void setThinningList(){
+        this.resultThinningList.clear();
         for(int i=0;i<height;i++){
             for(int j=0;j<width;j++){
                 if (this.matrixBlackWhite[i][j] == 1){
@@ -473,7 +474,7 @@ class ZhangSuen {
         ArrayList<Point> pList = new ArrayList<>();
         for (Point p: this.resultThinningList){
             // System.out.println("(" + p.x + ", " + p.y + ")");
-            if (numNeighbors(p.x, p.y) == 1){
+            if (numNeighbors(p.x, p.y) == 1 || isValidEndPoint(p.x, p.y)){
                 // System.out.println("(" + p.x + ", " + p.y + ")");
                 pList.add(new Point(p));
             }
@@ -541,6 +542,40 @@ class ZhangSuen {
             area = 4;
         }
         // else originv
+        return area;
+    }
+
+    public int getAreaQuadran(int h, int w){
+        // 1 .. 4
+        int area = 0;
+        if ((h > this.pointMin.x) && (h < ((this.pointMax.x + this.pointMin.x) / 2)) && (w > this.pointMin.y) && (w < (this.pointMax.y + this.pointMin.y) / 2)){
+            area = 1;
+        }else if(h > this.pointMin.x && h < ((this.pointMax.x + this.pointMin.x) / 2) && w > ((this.pointMax.y + this.pointMin.y) / 2) && w < this.pointMax.y){
+            area = 2;
+        }else if(h > ((this.pointMax.x + this.pointMin.x) / 2) && h < this.pointMax.x && w > ((this.pointMax.y + this.pointMin.y) / 2) && w < this.pointMax.y){
+            area = 3;
+        }else if(h > ((this.pointMax.x + this.pointMin.x) / 2) && h < this.pointMax.x && w > this.pointMin.y && (w < (this.pointMax.y + this.pointMin.y) / 2)){
+            area = 4;
+        }
+        // else origin
+        return area;
+    }
+
+    public int getAreaQuadran(Point p){
+        int h = p.x;
+        int w = p.y;
+        // 1 .. 4
+        int area = 0;
+        if ((h > this.pointMin.x) && (h < ((this.pointMax.x + this.pointMin.x) / 2)) && (w > this.pointMin.y) && (w < (this.pointMax.y + this.pointMin.y) / 2)){
+            area = 1;
+        }else if(h > this.pointMin.x && h < ((this.pointMax.x + this.pointMin.x) / 2) && w > ((this.pointMax.y + this.pointMin.y) / 2) && w < this.pointMax.y){
+            area = 2;
+        }else if(h > ((this.pointMax.x + this.pointMin.x) / 2) && h < this.pointMax.x && w > ((this.pointMax.y + this.pointMin.y) / 2) && w < this.pointMax.y){
+            area = 3;
+        }else if(h > ((this.pointMax.x + this.pointMin.x) / 2) && h < this.pointMax.x && w > this.pointMin.y && (w < (this.pointMax.y + this.pointMin.y) / 2)){
+            area = 4;
+        }
+        // else origin
         return area;
     }
 
@@ -694,7 +729,7 @@ class ZhangSuen {
         chainCodePoint.add(new Point(xBegin, yBegin));
         // int from;
         // ArrayList<int> chainCode = new ArrayList();
-        while(!isNeighboorValidIntersect(xBegin, yBegin)){
+        while(!isNeighboorValidIntersect(xBegin, yBegin) && !isValidEndPoint(xBegin, yBegin) && numNeighbors(xBegin,yBegin) > 1){
             int from = 0;
             xPrev = xBegin;
             yPrev = yBegin;
@@ -770,6 +805,150 @@ class ZhangSuen {
         return chainCodePoint;
     }
 
+    public int getAmountOfHole(){
+        ArrayList<Point> pListIntersect = getIntersectPoint();
+
+        if (pListIntersect.size() > 0){
+            for(Point p: pListIntersect){
+
+            }
+            return 0;
+        }else{
+
+            int isCircle = 1;
+            int x = this.resultThinningList.get(0).x;
+            int y = this.resultThinningList.get(0).y;
+            int xBegin = x;
+            int yBegin = y;
+            int xPrev = xBegin;
+            int yPrev = yBegin;
+            int dir = MAX_DIRECTION - 1;
+            ArrayList<Integer> chainCode = new ArrayList<>();
+            int from = 0;
+            if (dir % 2 == 0){
+                from = (dir + 7) % MAX_DIRECTION;
+            }else{
+                from = (dir + 6) % MAX_DIRECTION;
+            }
+            boolean found = false;
+            // System.out.println("LOOP");
+            for(int i=0;i<MAX_DIRECTION;i++){
+                if (from == 0){
+                    xBegin = xPrev;
+                    yBegin = yPrev + 1;
+                }else if (from == 1){
+                    xBegin = xPrev - 1;
+                    yBegin = yPrev + 1;
+                }else if (from == 2){
+                    xBegin = xPrev - 1;
+                    yBegin = yPrev;
+                }else if (from == 3){
+                    xBegin = xPrev - 1;
+                    yBegin = yPrev - 1;
+                }else if (from == 4){
+                    xBegin = xPrev;
+                    yBegin = yPrev - 1;
+                }else if (from == 5){
+                    xBegin = xPrev + 1;
+                    yBegin = yPrev - 1;
+                }else if (from == 6){
+                    xBegin = xPrev + 1;
+                    yBegin = yPrev;
+                }else if (from == 7){
+                    xBegin = xPrev + 1;
+                    yBegin = yPrev + 1;
+                }
+
+                if ((xBegin >= 0 && xBegin < this.height) && (yBegin >= 0 && yBegin < this.width)){
+                    // System.out.println(xBegin + " " + yBegin);
+                    if (this.matrixBlackWhite[xBegin][yBegin] == 1){
+                        // System.out.println("masuk");
+                        found = true;
+                        // in case multiple object make it different method
+                        // this.matrixBlackWhite[xBegin][yBegin] = -1;
+                        // chainCodePoint.add(new Point(xBegin, yBegin));
+                    }
+                }
+
+                if (found){
+                    break;
+                }else{
+                    from = (from + 1) % MAX_DIRECTION; // counter
+                }
+            }
+            dir = from;
+            chainCode.add(dir);
+            while(xBegin != x || yBegin != y){
+                from = 0;
+
+                xPrev = xBegin;
+                yPrev = yBegin;
+                if (dir % 2 == 0){
+                    from = (dir + 7) % MAX_DIRECTION;
+                }else{
+                    from = (dir + 6) % MAX_DIRECTION;
+                }
+                found = false;
+                // System.out.println("LOOP");
+                for(int i=0;i<MAX_DIRECTION;i++){
+                    // System.out.println( "dir = " + from);
+                    if (from == 0){
+                        xBegin = xPrev;
+                        yBegin = yPrev + 1;
+                    }else if (from == 1){
+                        xBegin = xPrev - 1;
+                        yBegin = yPrev + 1;
+                    }else if (from == 2){
+                        xBegin = xPrev - 1;
+                        yBegin = yPrev;
+                    }else if (from == 3){
+                        xBegin = xPrev - 1;
+                        yBegin = yPrev - 1;
+                    }else if (from == 4){
+                        xBegin = xPrev;
+                        yBegin = yPrev - 1;
+                    }else if (from == 5){
+                        xBegin = xPrev + 1;
+                        yBegin = yPrev - 1;
+                    }else if (from == 6){
+                        xBegin = xPrev + 1;
+                        yBegin = yPrev;
+                    }else if (from == 7){
+                        xBegin = xPrev + 1;
+                        yBegin = yPrev + 1;
+                    }
+
+                    if ((xBegin >= 0 && xBegin < this.height) && (yBegin >= 0 && yBegin < this.width)){
+                        // System.out.println(xBegin + " " + yBegin);
+                        if (this.matrixBlackWhite[xBegin][yBegin] == 1){
+                            // System.out.println("masuk");
+                            found = true;
+                            // this.matrixBlackWhite[xBegin][yBegin] = -1;
+                            // chainCodePoint.add(new Point(xBegin, yBegin));
+                        }
+                    }
+
+                    if (found){
+                        break;
+                    }else{
+                        from = (from + 1) % MAX_DIRECTION;
+                    }
+                }
+                // gak mungkin not found
+                int last = chainCode.size() - 1;
+                if (!found || (Math.abs(chainCode.get(last) - from) == 4)){
+                    isCircle = 0;
+//                    System.out.println(xBegin + " " + yBegin);
+                    break; //stop
+                }else{
+                    dir = from;
+                    chainCode.add(dir);
+                }
+            }
+            return isCircle;
+        }
+    }
+
     public void postProcessingThreshold(int tholdPrecentage){
         // thold percentage from longer width or height
         getBoundPoints();
@@ -784,16 +963,41 @@ class ZhangSuen {
         // }
         ArrayList<Point> delPoint = new ArrayList<>();
         ArrayList<Point> pList = getEndPoint();
-        for(Point p : pList){
-            if (getDistanceFromPattern(p.x, p.y) < tholdSize){
-                System.out.println("Deleted");
-                delPoint.addAll(getListDeleteFromEndPoint(p.x, p.y));
-                // setThinningList();
+        boolean isChanged = true;
+        while(isChanged){
+            isChanged = false;
+            delPoint.clear();
+            pList.clear();
+            pList = getEndPoint();
+            if (pList.size() > 2){
+                for(Point p : pList){
+                    if (getDistanceFromPattern(p.x, p.y) < tholdSize){
+                        // System.out.println("Deleted");
+                        Log.d(TAG, "Deleted " + p.x + ", " + p.y);
+                        isChanged = true;
+                        delPoint.addAll(getListDeleteFromEndPoint(p.x, p.y));
+                        // setThinningList();
+                    }
+                }
+            }
+            deletePointFromList(delPoint);
+            deletePointFromList(getDeleteSisaPoint(pList, this.resultThinningList));
+            deletePointFromList(getDeleteEndPointPattern(this.resultThinningList));
+            setThinningList();
+            getBoundPoints();
+        }
+    }
+
+    public ArrayList<Point> getDeleteEndPointPattern(ArrayList<Point> pListThinning){
+        ArrayList<Point> delPoint = new ArrayList<>();
+        for(Point p : pListThinning){
+            if(this.matrixBlackWhite[p.x][p.y] == 1){
+                if(isValidEndPoint(p.x, p.y)){
+                    delPoint.add(p);
+                }
             }
         }
-        deletePointFromList(delPoint);
-        deletePointFromList(getDeleteSisaPoint(pList, this.resultThinningList));
-        setThinningList();
+        return delPoint;
     }
 
     public ArrayList<Point> getDeleteSisaPoint(ArrayList<Point> pListEndPoint, ArrayList<Point> pListThinning){
@@ -826,7 +1030,7 @@ class ZhangSuen {
 
         // int from;
         // ArrayList<int> chainCode = new ArrayList();
-        while(!isNeighboorValidIntersect(xBegin, yBegin)){
+        while(!isNeighboorValidIntersect(xBegin, yBegin) && !isValidEndPoint(xBegin, yBegin) && numNeighbors(xBegin,yBegin) > 1){
             int from = 0;
             xPrev = xBegin;
             yPrev = yBegin;
@@ -1167,5 +1371,66 @@ class ZhangSuen {
 //                break;
         }
         return character;
+    }
+
+    public int recognizeCharacterAscii(){
+        // ambil semua feature yang mungkin
+        // sementara masih 1 objek
+        // return ascii number
+        // feature direction, kuadran, gradien, isOriginOffset tertentu, intersect point, endpoint. circle
+        ArrayList<Point> pListEndPoint = getEndPoint();
+        ArrayList<Point> pListInterPoints = getIntersectPoint();
+//        System.out.println("size of endpoint : " + pListEndPoint.size());
+        Log.d(TAG, "jumlah end point : " + pListEndPoint.size());
+        Log.d(TAG, "jumlah Intersect point : " + pListInterPoints.size());
+        // sementara 0 - 9 (ascii 48 - 57)
+        if (pListEndPoint.size() == 0){
+            if (pListInterPoints.size() > 0){
+                return 8;
+            }else{
+                return 0;
+            }
+        }else if(pListEndPoint.size() == 1){
+            int q = getAreaQuadran(pListEndPoint.get(0));
+//            System.out.println("q : " + q);
+            if (q == 2){
+                return 6;
+            }else if(q == 4){
+                return 9;
+            }else if(q == 3){
+                return 4;
+            }
+        }else if(pListEndPoint.size() == 2){
+            Point p1 = new Point();
+            Point p2 = new Point();
+            if(pListEndPoint.get(0).x <  pListEndPoint.get(1).x){
+                p1 = pListEndPoint.get(0);
+                p2 = pListEndPoint.get(1);
+            }else{
+                p2 = pListEndPoint.get(0);
+                p1 = pListEndPoint.get(1);
+            }
+
+            int q1 = getAreaQuadran(p1);
+            int q2 = getAreaQuadran(p2);
+//            System.out.println("q1 : " + q1 + " , " + "q2 : " + q2);
+//            System.out.println("dir1 : " + getDirection(p1) + " , " + "dir2 : " + getDirection(p2));
+            Log.d(TAG, "q1 : " + q1 + " , " + "q2 : " + q2);
+            Log.d(TAG, "dir1 : " + getDirection(p1) + " , " + "dir2 : " + getDirection(p2));
+            if (q1 == 1 && q2 == 4  && getDirection(p1) == 3 && (getDirection(p2) == 2 || getDirection(p2) == 1)){
+                return 7;
+            }else if(q1 == 1 && q2 == 3 && getDirection(p2) == 1){
+                return 1;
+            }else if(q1 == 2 && q2 == 4){
+                return 5;
+            }else if(q1 == 1 && q2 == 3){
+                return 2;
+            }else if(q1 == 3 && q2 == 3){
+                return 4;
+            }else if(q1 == 1 && q2 == 4){
+                return 3;
+            }
+        }
+        return -1;
     }
 }
