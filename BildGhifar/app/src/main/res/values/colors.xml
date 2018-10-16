@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorPrimary">#049fec</color>
+    <color name="colorPrimaryDark">#049fec</color>
     <color name="colorAccent">#FF4081</color>
 
     <!--cp abuabu2 adalah warna untuk ikon action bar toolbar-->
@@ -26,6 +26,7 @@
 
     <color name="darkblack">#585859</color>
     <color name="darkblack2">#98999b</color>
+    <color name="silver">#e2e2e2</color>
     <color name="white_pollar">#ffffff</color>
 
     <color name="orange"> #e67e22 </color>
