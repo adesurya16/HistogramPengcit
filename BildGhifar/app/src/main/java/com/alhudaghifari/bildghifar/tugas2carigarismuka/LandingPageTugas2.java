@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.media.Image;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -214,6 +215,11 @@ public class LandingPageTugas2 extends AppCompatActivity {
     }
 
     private void bitmapAnalyzer() {
+        redPixel = new int[MAX_COLOR];
+        greenPixel = new int[MAX_COLOR];
+        bluePixel = new int[MAX_COLOR];
+        grayPixel = new int[MAX_COLOR];
+
         progressBar.setVisibility(View.VISIBLE);
         BitmapDrawable bd = (BitmapDrawable) imageView.getDrawable();
         int height = bd.getBitmap().getHeight();
