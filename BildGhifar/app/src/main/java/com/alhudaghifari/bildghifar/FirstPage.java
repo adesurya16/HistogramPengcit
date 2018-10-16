@@ -10,6 +10,7 @@ import com.alhudaghifari.bildghifar.tugas2carigarismuka.LandingPageTugas2;
 import com.alhudaghifari.bildghifar.tugas3Equalizer.LandingPageTugas3Equalizer;
 import com.alhudaghifari.bildghifar.tugas4ChainCode.LandingPageTugas4;
 import com.alhudaghifari.bildghifar.tugas5Thinning.LandingPageTugas5Thinning;
+import com.alhudaghifari.bildghifar.tugasUTS.UtsActivity;
 
 public class FirstPage extends AppCompatActivity {
 
@@ -41,6 +42,11 @@ public class FirstPage extends AppCompatActivity {
 
     public void gototugas5(View view){
         Intent intent = new Intent(FirstPage.this, LandingPageTugas5Thinning.class);
+        startActivity(intent);
+    }
+
+    public void gototugas6(View view){
+        Intent intent = new Intent(FirstPage.this, UtsActivity.class);
         startActivity(intent);
     }
 }

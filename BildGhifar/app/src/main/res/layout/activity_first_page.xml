@@ -48,6 +48,13 @@
             android:onClick="gototugas5"
             android:layout_marginTop="10dp"/>
 
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tugas 6 - UTS"
+            android:onClick="gototugas6"
+            android:layout_marginTop="10dp"/>
+
     </LinearLayout>
     
 </RelativeLayout>
