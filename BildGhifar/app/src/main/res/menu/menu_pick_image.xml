@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_histogram"
+        android:icon="@drawable/ic_histogram_white"
+        android:title="PickImage"
+        app:showAsAction="ifRoom"/>
+
     <item
         android:id="@+id/action_ambil_gambar"
         android:icon="@drawable/ic_image_black_24dp"

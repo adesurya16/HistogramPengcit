@@ -77,7 +77,7 @@ public class RecyclerUts extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 break;
             default:
                 viewHolderSolution.mImageViewIcon.setImageResource(R.drawable.ic_refresh_white);
-                viewHolderSolution.mTextViewNamaIcon.setText("Refresh");
+                viewHolderSolution.mTextViewNamaIcon.setText("Reset");
                 break;
         }
 
