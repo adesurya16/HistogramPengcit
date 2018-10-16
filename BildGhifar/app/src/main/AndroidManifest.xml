@@ -27,8 +27,9 @@
         </activity>
         <activity android:name=".tugas2carigarismuka.LandingPageTugas2" />
         <activity android:name=".tugas3Equalizer.LandingPageTugas3Equalizer" />
-        <activity android:name=".tugas4ChainCode.LandingPageTugas4"></activity>
-        <activity android:name=".tugas5Thinning.LandingPageTugas5Thinning"></activity>
+        <activity android:name=".tugas4ChainCode.LandingPageTugas4" />
+        <activity android:name=".tugas5Thinning.LandingPageTugas5Thinning" />
+        <activity android:name=".tugasUTS.UtsActivity"></activity>
     </application>
 
 </manifest>
