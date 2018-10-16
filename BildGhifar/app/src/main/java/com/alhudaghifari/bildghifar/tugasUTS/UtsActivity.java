@@ -152,13 +152,14 @@ public class UtsActivity extends AppCompatActivity {
     }
 
     private void showPage(int page) {
-        linlaySubMenu.setVisibility(View.GONE);
+        linlaySubMenu.setVisibility(View.VISIBLE);
         linlayThreshold.setVisibility(View.GONE);
         svEqualizer.setVisibility(View.GONE);
         tvPrediction.setVisibility(View.GONE);
 
         switch (page) {
             case SHOW_HOME:
+                linlaySubMenu.setVisibility(View.GONE);
                 statusPage = SHOW_HOME;
                 break;
             case SHOW_BRIGHTNESS:
