@@ -102,7 +102,6 @@
 
             </LinearLayout>
 
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -149,6 +148,60 @@
 
                 <com.github.mikephil.charting.charts.BarChart
                     android:id="@+id/gray_chart_hasil"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="1dp"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Buzzier Histogram"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginTop="10dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <com.github.mikephil.charting.charts.BarChart
+                    android:id="@+id/buzier_red_chart_hasil"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginRight="1dp"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_weight="1"/>
+
+                <com.github.mikephil.charting.charts.BarChart
+                    android:id="@+id/buzier_green_chart_hasil"
+                    android:layout_marginLeft="1dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_weight="1"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <com.github.mikephil.charting.charts.BarChart
+                    android:id="@+id/buzier_blue_chart_hasil"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_weight="1"
+                    android:layout_marginRight="1dp"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"/>
+
+                <com.github.mikephil.charting.charts.BarChart
+                    android:id="@+id/buzier_gray_chart_hasil"
                     android:layout_width="match_parent"
                     android:layout_height="200dp"
                     android:layout_weight="1"
@@ -343,7 +396,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="0"
+                android:text="128"
                 android:textSize="16sp" />
 
             <SeekBar
@@ -375,7 +428,7 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_numbers"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="92dp"
         android:nestedScrollingEnabled="true"
         android:layout_alignParentBottom="true"
         android:fadingEdge="none"

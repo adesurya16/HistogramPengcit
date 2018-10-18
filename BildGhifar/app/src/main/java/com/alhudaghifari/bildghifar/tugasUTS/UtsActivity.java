@@ -25,6 +25,9 @@ import android.widget.Toast;
 
 import com.alhudaghifari.bildghifar.R;
 import com.alhudaghifari.bildghifar.tugas2carigarismuka.LandingPageTugas2;
+import com.alhudaghifari.bildghifar.tugas3Equalizer.LandingPageTugas3Equalizer;
+import com.alhudaghifari.bildghifar.tugas4ChainCode.TemplateChainCode;
+import com.alhudaghifari.bildghifar.tugas5Thinning.ZhangSuen;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.data.BarData;
@@ -57,6 +60,7 @@ public class UtsActivity extends AppCompatActivity {
     private RelativeLayout rellayMainPhoto;
 
     private ImageView ivCheckDone;
+    private ImageView ivCheckEqualizer;
 
     private Bitmap originalPhoto;
     private Bitmap output;
@@ -91,6 +95,13 @@ public class UtsActivity extends AppCompatActivity {
     private int[] greenPixel = new int[MAX_COLOR];
     private int[] bluePixel = new int[MAX_COLOR];
     private int[] grayPixel = new int[MAX_COLOR];
+
+    private BarChart buzier_red_chart_hasil;
+    private BarChart buzier_green_chart_hasil;
+    private BarChart buzier_blue_chart_hasil;
+    private BarChart buzier_gray_chart_hasil;
+
+    private ZhangSuen zhangSuen;
 
     private boolean isOpen = false;
     private boolean isHistogramOpened = false;
@@ -130,6 +141,9 @@ public class UtsActivity extends AppCompatActivity {
         seekBarCenter = (SeekBar) findViewById(R.id.seekBarCenter);
         seekBarRight = (SeekBar) findViewById(R.id.seekBarRight);
         ivCheckDone = (ImageView) findViewById(R.id.ivCheckDone);
+        ivCheckEqualizer = (ImageView) findViewById(R.id.ivCheckEqualizer);
+
+        chart_buzier = (BarChart) findViewById(R.id.chart_buzier);
 
         redChart = (BarChart) findViewById(R.id.red_chart);
         greenChart = (BarChart) findViewById(R.id.green_chart);
@@ -141,6 +155,11 @@ public class UtsActivity extends AppCompatActivity {
         greenChartHasil = (BarChart) findViewById(R.id.green_chart_hasil);
         blueChartHasil = (BarChart) findViewById(R.id.blue_chart_hasil);
         grayChartHasil = (BarChart) findViewById(R.id.gray_chart_hasil);
+
+        buzier_red_chart_hasil = (BarChart) findViewById(R.id.buzier_red_chart_hasil);
+        buzier_green_chart_hasil = (BarChart) findViewById(R.id.buzier_green_chart_hasil);
+        buzier_blue_chart_hasil = (BarChart) findViewById(R.id.buzier_blue_chart_hasil);
+        buzier_gray_chart_hasil = (BarChart) findViewById(R.id.buzier_gray_chart_hasil);
 
 
         initializeListener();
@@ -189,6 +208,7 @@ public class UtsActivity extends AppCompatActivity {
 
                 photoView.setImageBitmap(selectedImage);
 
+                output = selectedImage.copy(Bitmap.Config.RGB_565, true);
                 bitmapAnalyzer();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -217,8 +237,6 @@ public class UtsActivity extends AppCompatActivity {
         return Bitmap.createScaledBitmap(image, width, height, true);
     }
 
-
-
     private void initializeListener() {
         onButtonClickListener = new RecyclerUts.OnButtonClickListener() {
             @Override
@@ -230,8 +248,10 @@ public class UtsActivity extends AppCompatActivity {
                 } else if (posisi == SHOW_GRAYSCALE) {
                     setBitmapGrayscaleEqualization();
                     setAdapterUts(posisi);
-                } else if (posisi == SHOW_BW) {
-                    setImageToBlackAndWhite();
+                } else if (posisi == SHOW_EQUALIZER) {
+
+                    getPointQuadraticbuzier();
+                    histogramBuzierVisualizer();
                     setAdapterUts(posisi);
                 }
                 else setAdapterUts(posisi);
@@ -265,6 +285,16 @@ public class UtsActivity extends AppCompatActivity {
             }
         });
 
+        ivCheckEqualizer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getPointQuadraticbuzier();
+                specificateHistogram();
+                histogramHasilVisualizer();
+                setBitmapHasilSpecification();
+            }
+        });
+
         ivCheckDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -276,12 +306,89 @@ public class UtsActivity extends AppCompatActivity {
                         setBitmapNewValEqualization();
                         break;
                     case SHOW_BW:
+                        setImageToBlackAndWhite();
                         break;
                     case SHOW_CHAINCODE:
+                        setImageToBlackAndWhite();
+                        initMatrixBlackWhite();
+                        initChainCode();
+                        fillMatrixBlackWhite();
+                        mainBorderTracing();
+                        setImageToBlackAndWhiteResult();
+                        chainCodeRecognition();
                         break;
                     case SHOW_THINNING:
+                        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
+                        int height = bd.getBitmap().getHeight();
+                        int width = bd.getBitmap().getWidth();
+                        initMatrixBlackWhiteThinning();
+                        fillMatrixBlackWhiteThinning();
+                        zhangSuen = new ZhangSuen(matrixBlackWhite,  height, width);
+                        zhangSuen.thinImage();
+                        zhangSuen.copyToMatrix(matrixBlackWhite);
+
+                        analyzeNumberThinningResult();
+                        zhangSuen.copyToMatrix(matrixBlackWhite);
+                        setImageToBlackAndWhiteResultThinning();
                         break;
                 }
+            }
+        });
+
+        seekBarLeft.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                tvSeekBarLeft.setText(String.valueOf(progress));
+                getPointQuadraticbuzier();
+                histogramBuzierVisualizer();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        seekBarCenter.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                tvSeekBarCenter.setText(String.valueOf(progress));
+                getPointQuadraticbuzier();
+                histogramBuzierVisualizer();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        seekBarRight.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                tvSeekBarRight.setText(String.valueOf(progress));
+                getPointQuadraticbuzier();
+                histogramBuzierVisualizer();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
             }
         });
     }
@@ -754,5 +861,713 @@ public class UtsActivity extends AppCompatActivity {
         photoView.setImageBitmap(output);
     }
 
-    ///** =========== kode untuk BLACK and WHITE - START ============= **///
+    ///** =========== kode untuk BLACK and WHITE - end ============= **///
+
+
+    ///** =========== kode untuk EQUALIZER - START ============= **///
+
+    private class point{
+        public int x;
+        public int y;
+        public point(){
+            this.x = 0;
+            this.y = 0;
+        }
+    }
+
+    private static final int MAX_POINT = 3;
+    private point[] points;
+    private int[] histogramPixel2;
+
+    private BarChart chart_buzier;
+
+    private int[] buzierPixelCumulative;
+
+    private int[] lookupRedPixel;
+    private int[] lookupGreenPixel;
+    private int[] lookupBluePixel;
+    private int[] lookupGrayPixel;
+
+    private void initPoint(){
+        this.histogramPixel2 = new int[MAX_COLOR];
+        this.points = new point[MAX_POINT];
+        for (int i=0;i<this.points.length;++i){
+            this.points[i] = new point();
+        }
+
+        int leftSeek = seekBarLeft.getProgress();
+        int centerSeek = seekBarCenter.getProgress();
+        int rightSeek = seekBarRight.getProgress();
+
+        this.points[0].x = 0;
+        this.points[0].y = leftSeek;
+
+        this.points[1].x = 128;
+        this.points[1].y = centerSeek;
+
+        this.points[2].x = 255;
+        this.points[2].y = rightSeek;
+    }
+
+    public void getPointQuadraticbuzier(){
+        // process point X [0..255]
+        initPoint();
+        for(int i = 0; i < MAX_COLOR; ++i){
+            int Xpoint = i;
+
+            // get value a,b,c from point quadratic buzzier X
+            int aX = this.points[0].x - 2*this.points[1].x + this.points[2].x;
+            int bX = 2*(this.points[1].x - this.points[0].x);
+            int cX = this.points[0].x - Xpoint;
+            float t = getQuadraticbuzierConst(aX, bX, cX);
+
+            // get value a,b,c from point quadratic buzzier X
+            int aY = this.points[0].y - 2*this.points[1].y + this.points[2].y;
+            int bY = 2*(this.points[1].y - this.points[0].y);
+            int cY = this.points[0].y;
+
+            int Ypoint = Math.round((float)aY * t * t + (float)bY * t + cY);
+            this.histogramPixel2[Xpoint] = Ypoint;
+
+        }
+    }
+
+
+    private float getQuadraticbuzierConst(int a, int b, int c){
+        double d = 0;
+        try{
+            d = Math.sqrt((float)b*(float)b - 4*(float)a*(float)c);
+            // System.out.println(d);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        float x1 = ((float)-b + (float)d) / (float)2*a;
+        float x2 = ((float)-b - (float)d) / (float)2*a;
+        if (x1 >= 0 && x1 <= 1){
+            return x1;
+        }else return x2;
+    }
+
+
+    private void histogramBuzierVisualizer(){
+        List<BarEntry> buzierEntries = new ArrayList<>();
+        for (int i = 0; i < MAX_COLOR; ++i) {
+            buzierEntries.add(new BarEntry(i ,histogramPixel2[i]));
+        }
+        BarDataSet buzierDataSet = new BarDataSet(buzierEntries, "buzier");
+        buzierDataSet.setColor(Color.MAGENTA);
+        BarData buzierData = new BarData(buzierDataSet);
+        chart_buzier.setData(buzierData);
+        chart_buzier.invalidate();
+    }
+
+
+    private void initCumulativePixel(){
+        this.redPixelCumulative = new int[MAX_COLOR];
+        this.greenPixelCumulative = new int[MAX_COLOR];
+        this.bluePixelCumulative= new int[MAX_COLOR];
+        this.grayPixelCumulative= new int[MAX_COLOR];
+        this.buzierPixelCumulative = new int[MAX_COLOR];
+
+        int cumulativeRed = 0;
+        int cumulativeGreen = 0;
+        int cumulativeBlue = 0;
+        int cumulativeGray = 0;
+        int cumulativeBuzier = 0;
+        for(int i=0;i<MAX_COLOR;i++){
+            cumulativeRed += this.redPixel[i];
+            this.redPixelCumulative[i] = cumulativeRed;
+
+            cumulativeGreen += this.greenPixel[i];
+            this.greenPixelCumulative[i] = cumulativeGreen;
+
+            cumulativeBlue += this.bluePixel[i];
+            this.bluePixelCumulative[i] = cumulativeBlue;
+
+            cumulativeGray += this.grayPixel[i];
+            this.grayPixelCumulative[i] = cumulativeGray;
+
+            cumulativeBuzier += this.histogramPixel2[i];
+            this.buzierPixelCumulative[i] = cumulativeBuzier;
+        }
+    }
+
+
+    private void initLookupTable(){
+        this.lookupRedPixel = new int[MAX_COLOR];
+        this.lookupGreenPixel = new int[MAX_COLOR];
+        this.lookupBluePixel = new int[MAX_COLOR];
+        this.lookupGrayPixel = new int[MAX_COLOR];
+    }
+
+    private void specificateHistogram(){
+        initCumulativePixel();
+        int cumulativeBuzier = this.buzierPixelCumulative[MAX_COLOR - 1];
+
+        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
+        int height = bd.getBitmap().getHeight();
+        int width = bd.getBitmap().getWidth();
+
+        int cumulativeRGB = this.grayPixelCumulative[MAX_COLOR - 1];
+
+        initLookupTable();
+        // create lookup table red
+        for(int i=0;i<MAX_COLOR;i++){
+            float prob1 = (float) this.redPixelCumulative[i] / (float) cumulativeRGB;
+
+            // get the minimum distance
+            int resultLookup = 0;
+            float distance = Math.abs(prob1 - ((float) this.buzierPixelCumulative[0] / (float) cumulativeBuzier));
+            for(int j=1;j<MAX_COLOR;j++){
+                float prob2 = (float) this.buzierPixelCumulative[j] / (float) cumulativeBuzier;
+                if (Math.abs(prob1 - prob2) < distance){
+                    distance = Math.abs(prob1 - prob2);
+                    resultLookup = j;
+                }
+            }
+
+            // get the result
+            // add to lookup table
+            this.lookupRedPixel[i] = resultLookup;
+        }
+
+        // create lookup table green
+        for(int i=0;i<MAX_COLOR;i++){
+            float prob1 = (float) this.greenPixelCumulative[i] / (float) cumulativeRGB;
+
+            // get the minimum distance
+            int resultLookup = 0;
+            float distance = Math.abs(prob1 - ((float) this.buzierPixelCumulative[0] / (float) cumulativeBuzier));
+            for(int j=1;j<MAX_COLOR;j++){
+                float prob2 = (float) this.buzierPixelCumulative[j] / (float) cumulativeBuzier;
+                if (Math.abs(prob1 - prob2) < distance){
+                    distance = Math.abs(prob1 - prob2);
+                    resultLookup = j;
+                }
+            }
+
+            // get the result
+            // add to lookup table
+            this.lookupGreenPixel[i] = resultLookup;
+        }
+
+        // create lookup table blue
+        for(int i=0;i<MAX_COLOR;i++){
+            float prob1 = (float) this.bluePixelCumulative[i] / (float) cumulativeRGB;
+
+            // get the minimum distance
+            int resultLookup = 0;
+            float distance = Math.abs(prob1 - ((float) this.buzierPixelCumulative[0] / (float) cumulativeBuzier));
+            for(int j=1;j<MAX_COLOR;j++){
+                float prob2 = (float) this.buzierPixelCumulative[j] / (float) cumulativeBuzier;
+                if (Math.abs(prob1 - prob2) < distance){
+                    distance = Math.abs(prob1 - prob2);
+                    resultLookup = j;
+                }
+            }
+
+            // get the result
+            // add to lookup table
+            this.lookupBluePixel[i] = resultLookup;
+        }
+
+        // create lookup table gray
+        for(int i=0;i<MAX_COLOR;i++){
+            float prob1 = (float) this.grayPixelCumulative[i] / (float) cumulativeRGB;
+
+            // get the minimum distance
+            int resultLookup = 0;
+            float distance = Math.abs(prob1 - ((float) this.buzierPixelCumulative[0] / (float) cumulativeBuzier));
+            for(int j=1;j<MAX_COLOR;j++){
+                float prob2 = (float) this.buzierPixelCumulative[j] / (float) cumulativeBuzier;
+                if (Math.abs(prob1 - prob2) < distance){
+                    distance = Math.abs(prob1 - prob2);
+                    resultLookup = j;
+                }
+            }
+
+            // get the result
+            // add to lookup table
+            this.lookupGrayPixel[i] = resultLookup;
+        }
+        initPixelHasil();
+        fillPixelHasil();
+    }
+
+
+    private void initPixelHasil(){
+        redPixelHasil = new int[MAX_COLOR];
+        greenPixelHasil = new int[MAX_COLOR];
+        bluePixelHasil = new int[MAX_COLOR];
+        grayPixelHasil = new int[MAX_COLOR];
+    }
+
+    private void fillPixelHasil(){
+        // from lookup HARUS DIINIT TERLEBIH DAHULU
+        for(int i=0;i<MAX_COLOR;i++){
+            redPixelHasil[lookupRedPixel[i]] += redPixel[i];
+            greenPixelHasil[lookupGreenPixel[i]] += greenPixel[i];
+            bluePixelHasil[lookupGreenPixel[i]] += bluePixel[i];
+            grayPixelHasil[lookupGreenPixel[i]] += grayPixel[i];
+        }
+    }
+
+
+    private void histogramHasilVisualizer(){
+        List<BarEntry> redEntries = new ArrayList<>();
+        List<BarEntry> greenEntries = new ArrayList<>();
+        List<BarEntry> blueEntries = new ArrayList<>();
+        List<BarEntry> grayEntries = new ArrayList<>();
+
+        for (int i = 0; i < MAX_COLOR; ++i) {
+            redEntries.add(new BarEntry(i, redPixelHasil[i]));
+            greenEntries.add(new BarEntry(i, greenPixelHasil[i]));
+            blueEntries.add(new BarEntry(i, bluePixelHasil[i]));
+            grayEntries.add(new BarEntry(i, grayPixelHasil[i]));
+        }
+
+        BarDataSet redDataSet = new BarDataSet(redEntries, "Red");
+        BarDataSet greenDataSet = new BarDataSet(greenEntries, "Green");
+        BarDataSet blueDataSet = new BarDataSet(blueEntries, "Blue");
+        BarDataSet grayDataSet = new BarDataSet(grayEntries, "Gray");
+
+        redDataSet.setColor(Color.RED);
+        greenDataSet.setColor(Color.GREEN);
+        blueDataSet.setColor(Color.BLUE);
+        grayDataSet.setColor(Color.GRAY);
+
+        BarData redData = new BarData(redDataSet);
+        BarData greenData = new BarData(greenDataSet);
+        BarData blueData = new BarData(blueDataSet);
+        BarData grayData = new BarData(grayDataSet);
+
+        buzier_red_chart_hasil.setData(redData);
+        buzier_green_chart_hasil.setData(greenData);
+        buzier_blue_chart_hasil.setData(blueData);
+        buzier_gray_chart_hasil.setData(grayData);
+
+        buzier_red_chart_hasil.invalidate();
+        buzier_green_chart_hasil.invalidate();
+        buzier_blue_chart_hasil.invalidate();
+        buzier_gray_chart_hasil.invalidate();
+    }
+
+    private void setBitmapHasilSpecification() {
+        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
+        int height = bd.getBitmap().getHeight();
+        int width = bd.getBitmap().getWidth();
+
+        final Bitmap output = bd.getBitmap().copy(Bitmap.Config.RGB_565, true);
+
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j) {
+                int pixel = bd.getBitmap().getPixel(j, i);
+                int red = Color.red(pixel);
+                int green = Color.green(pixel);
+                int blue = Color.blue(pixel);
+
+                // lookup
+                double redHasil = (double) lookupRedPixel[red];
+                double greenHasil = (double) lookupGreenPixel[green];
+                double blueHasil = (double) lookupBluePixel[blue];
+
+                int newPixel = Color.rgb(
+                        (int)redHasil,
+                        (int)greenHasil,
+                        (int)blueHasil);
+                output.setPixel(j, i, newPixel);
+            }
+        }
+        photoView.setImageBitmap(output);
+    }
+
+    ///** =========== kode untuk EQUALIZER - end ============= **///
+
+
+    ///** =========== kode untuk chain code - start ============= **///
+
+    private int matrixBlackWhite[][];
+    private ArrayList<Integer> chainCode;
+    private static final int MAX_DIRECTION = 8;
+
+    public void initMatrixBlackWhite(){
+        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
+        int height = output.getHeight();
+        int width = output.getWidth();
+        this.matrixBlackWhite = new int[height][];
+        for (int i=0;i<height;i++){
+            this.matrixBlackWhite[i] = new int[width];
+        }
+    }
+
+    public void initChainCode(){
+        this.chainCode = new ArrayList<Integer>();
+    }
+
+
+    public void fillMatrixBlackWhite(){
+        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
+        int height = output.getHeight();
+        int width = output.getWidth();
+
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j) {
+                int pixel = output.getPixel(j, i);
+                int alpha = Color.alpha(pixel);
+                int red = Color.red(pixel);
+                int green = Color.green(pixel);
+                int blue = Color.blue(pixel);
+                int gray = ((red + green + blue) / 3) % 256;
+
+                if (gray > threshold) {
+                    this.matrixBlackWhite[i][j] = 0;
+                }else {
+                    this.matrixBlackWhite[i][j] = 1;
+                }
+
+            }
+        }
+    }
+
+
+    public void mainBorderTracing(){
+        // red = -1 border mark
+        // black = 1
+        // white = 0
+        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
+        int height = output.getHeight();
+        int width = output.getWidth();
+        // asumsi 1 object shape dulu
+        boolean isFound = false;
+        for (int i=0;i<height;i++){
+            for(int j=0;j<width;j++){
+                if (matrixBlackWhite[i][j] > 0 && !isFound){
+                    // call proses
+                    tracingImage(i,j);
+                    // add to List of shape (for multiple number image)
+                    isFound = true;
+                }
+            }
+        }
+    }
+
+    private void setImageToBlackAndWhiteResult(){
+        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
+        int height = output.getHeight();
+        int width = output.getWidth();
+
+        output = output.copy(Bitmap.Config.RGB_565, true);
+
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j) {
+                int pixel = output.getPixel(j, i);
+                int alpha = Color.alpha(pixel);
+                int red = Color.red(pixel);
+                int green = Color.green(pixel);
+                int blue = Color.blue(pixel);
+
+
+                if (this.matrixBlackWhite[i][j] == -1){
+                    red = MAX_COLOR - 1;
+                    green = 0;
+                    blue = 0;
+                }
+
+                int newPixel = Color.argb(
+                        alpha,
+                        red,
+                        green,
+                        blue);
+
+
+                output.setPixel(j, i, newPixel);
+            }
+        }
+        photoView.setImageBitmap(output);
+    }
+
+
+    private void chainCodeRecognition() {
+        String resultChainCode = "";
+        for (Integer s : chainCode)
+        {
+            resultChainCode += s;
+        }
+
+        int minEditDist = editDistDP(TemplateChainCode.templateChainCode[0], resultChainCode,
+                TemplateChainCode.templateChainCode[0].length(), resultChainCode.length());
+        Log.d(TAG, "0. minEditDistance : " + minEditDist);
+        int tempMin;
+        int index = 0;
+        for (int i=1;i<10;i++) {
+            tempMin = editDistDP(TemplateChainCode.templateChainCode[i], resultChainCode,
+                    TemplateChainCode.templateChainCode[i].length(), resultChainCode.length());
+            Log.d(TAG, i + ". tempMin : " + tempMin);
+            if (tempMin < minEditDist) {
+                minEditDist = tempMin;
+                index = i;
+            }
+        }
+        Log.d(TAG, "hasil prediksi : " + index);
+
+        tvPrediction.setText("Prediction : " + index);
+    }
+
+
+    private int editDistDP(String str1, String str2, int m, int n)
+    {
+        int dp[][] = new int[m+1][n+1];
+
+        for (int i=0; i<=m; i++)
+        {
+            for (int j=0; j<=n; j++)
+            {
+                if (i==0)
+                    dp[i][j] = j;
+                else if (j==0)
+                    dp[i][j] = i;
+                else if (str1.charAt(i-1) == str2.charAt(j-1))
+                    dp[i][j] = dp[i-1][j-1];
+                else
+                    dp[i][j] = 1 + min(dp[i][j-1],  // Insert
+                            dp[i-1][j],  // Remove
+                            dp[i-1][j-1]); // Replace
+            }
+        }
+
+        return dp[m][n];
+    }
+
+
+    private int min(int x, int y, int z)
+    {
+        if (x <= y && x <= z) return x;
+        if (y <= x && y <= z) return y;
+        else return z;
+    }
+
+    public void tracingImage(int x, int y){
+        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
+        int height = output.getHeight();
+        int width = output.getWidth();
+
+        // isShape = true if tracing result make a shape
+        int xBegin = x;
+        int yBegin = y;
+        int dir = MAX_DIRECTION - 1;
+
+        int xPrev = xBegin;
+        int yPrev = yBegin;
+        // init
+        int from = 0;
+        if (dir % 2 == 0){
+            from = (dir + 7) % MAX_DIRECTION;
+        }else{
+            from = (dir + 6) % MAX_DIRECTION;
+        }
+        boolean found = false;
+        // System.out.println("LOOP");
+        for(int i=0;i<MAX_DIRECTION;i++){
+            if (from == 0){
+                xBegin = xPrev;
+                yBegin = yPrev + 1;
+            }else if (from == 1){
+                xBegin = xPrev - 1;
+                yBegin = yPrev + 1;
+            }else if (from == 2){
+                xBegin = xPrev - 1;
+                yBegin = yPrev;
+            }else if (from == 3){
+                xBegin = xPrev - 1;
+                yBegin = yPrev - 1;
+            }else if (from == 4){
+                xBegin = xPrev;
+                yBegin = yPrev - 1;
+            }else if (from == 5){
+                xBegin = xPrev + 1;
+                yBegin = yPrev - 1;
+            }else if (from == 6){
+                xBegin = xPrev + 1;
+                yBegin = yPrev;
+            }else if (from == 7){
+                xBegin = xPrev + 1;
+                yBegin = yPrev + 1;
+            }
+
+            if ((xBegin >= 0 && xBegin < height) && (yBegin >= 0 && yBegin < width)){
+                // System.out.println(xBegin + " " + yBegin);
+                if (this.matrixBlackWhite[xBegin][yBegin] == 1){
+                    // System.out.println("masuk");
+                    found = true;
+                    // in case multiple object make it different method
+                    this.matrixBlackWhite[xBegin][yBegin] = -1;
+                }
+            }
+
+            if (found){
+                break;
+            }else{
+                from = (from + 1) % MAX_DIRECTION; // counter
+            }
+        }
+        dir = from;
+        this.chainCode.add(dir);
+        // loop
+        while(xBegin != x || yBegin != y){
+            from = 0;
+
+            xPrev = xBegin;
+            yPrev = yBegin;
+            if (dir % 2 == 0){
+                from = (dir + 7) % MAX_DIRECTION;
+            }else{
+                from = (dir + 6) % MAX_DIRECTION;
+            }
+            found = false;
+            // System.out.println("LOOP");
+            for(int i=0;i<MAX_DIRECTION;i++){
+                // System.out.println( "dir = " + from);
+                if (from == 0){
+                    xBegin = xPrev;
+                    yBegin = yPrev + 1;
+                }else if (from == 1){
+                    xBegin = xPrev - 1;
+                    yBegin = yPrev + 1;
+                }else if (from == 2){
+                    xBegin = xPrev - 1;
+                    yBegin = yPrev;
+                }else if (from == 3){
+                    xBegin = xPrev - 1;
+                    yBegin = yPrev - 1;
+                }else if (from == 4){
+                    xBegin = xPrev;
+                    yBegin = yPrev - 1;
+                }else if (from == 5){
+                    xBegin = xPrev + 1;
+                    yBegin = yPrev - 1;
+                }else if (from == 6){
+                    xBegin = xPrev + 1;
+                    yBegin = yPrev;
+                }else if (from == 7){
+                    xBegin = xPrev + 1;
+                    yBegin = yPrev + 1;
+                }
+
+                if ((xBegin >= 0 && xBegin < height) && (yBegin >= 0 && yBegin < width)){
+                    // System.out.println(xBegin + " " + yBegin);
+                    if (this.matrixBlackWhite[xBegin][yBegin] == 1){
+                        // System.out.println("masuk");
+                        found = true;
+                        this.matrixBlackWhite[xBegin][yBegin] = -1;
+                    }
+                }
+
+                if (found){
+                    break;
+                }else{
+                    from = (from + 1) % MAX_DIRECTION;
+                }
+            }
+            // gak mungkin not found
+            int last = this.chainCode.size() - 1;
+            if (!found || (Math.abs(this.chainCode.get(last) - from) == 4)){
+                break; //stop
+            }else{
+                dir = from;
+                this.chainCode.add(dir);
+            }
+        }
+    }
+
+    ///** =========== kode untuk chain code - end ============= **///
+
+    private final int THRESHOLD_POST_PROCESSING = 20;
+
+    private void analyzeNumberThinningResult(){
+        this.zhangSuen.setThinningList();
+        this.zhangSuen.getBoundPoints();
+//        String index = this.zhangSuen.recognizeCharacter();
+
+        this.zhangSuen.postProcessingThreshold(THRESHOLD_POST_PROCESSING);
+        int index = this.zhangSuen.recognizeCharacterAscii();
+        tvPrediction.setText("Prediction : " + index);
+    }
+
+
+    private void setImageToBlackAndWhiteResultThinning(){
+        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
+        int height = bd.getBitmap().getHeight();
+        int width = bd.getBitmap().getWidth();
+
+        output = output.copy(Bitmap.Config.RGB_565, true);
+
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j) {
+                int pixel = bd.getBitmap().getPixel(j, i);
+                int alpha = Color.alpha(pixel);
+                int red = Color.red(pixel);
+                int green = Color.green(pixel);
+                int blue = Color.blue(pixel);
+
+
+                if (this.matrixBlackWhite[i][j] == 0){
+                    red = MAX_COLOR - 1;
+                    green = MAX_COLOR - 1;
+                    blue = MAX_COLOR - 1;
+                }else{
+                    red = 0;
+                    green = 0;
+                    blue = 0;
+                }
+
+                int newPixel = Color.argb(
+                        alpha,
+                        red,
+                        green,
+                        blue);
+
+
+                output.setPixel(j, i, newPixel);
+            }
+        }
+        photoView.setImageBitmap(output);
+    }
+
+
+    public void initMatrixBlackWhiteThinning(){
+        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
+        int height = bd.getBitmap().getHeight();
+        int width = bd.getBitmap().getWidth();
+        this.matrixBlackWhite = new int[height][];
+        for (int i=0;i<height;i++){
+            this.matrixBlackWhite[i] = new int[width];
+        }
+    }
+
+    public void fillMatrixBlackWhiteThinning(){
+        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
+        int height = bd.getBitmap().getHeight();
+        int width = bd.getBitmap().getWidth();
+
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j) {
+                int pixel = bd.getBitmap().getPixel(j, i);
+                int alpha = Color.alpha(pixel);
+                int red = Color.red(pixel);
+                int green = Color.green(pixel);
+                int blue = Color.blue(pixel);
+                int gray = ((red + green + blue) / 3) % 256;
+
+                if (gray > threshold) {
+                    this.matrixBlackWhite[i][j] = 0;
+                }else {
+                    this.matrixBlackWhite[i][j] = 1;
+                }
+
+            }
+        }
+    }
+
+    ///** =========== kode untuk thinning - start ============= **///
+
 }

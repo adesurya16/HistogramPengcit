@@ -11,7 +11,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-class ZhangSuen {
+public class ZhangSuen {
 
     private static final String TAG = ZhangSuen.class.getSimpleName();
     private static final int MAX_DIRECTION = 8;
