@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
@@ -86,6 +87,8 @@ public class UtsActivity extends AppCompatActivity {
     private int thresholdCenter;
     private int thresholdRight;
 
+    private ProgressBar progress_bar;
+
     private BarChart redChart;
     private BarChart greenChart;
     private BarChart blueChart;
@@ -142,6 +145,7 @@ public class UtsActivity extends AppCompatActivity {
         seekBarRight = (SeekBar) findViewById(R.id.seekBarRight);
         ivCheckDone = (ImageView) findViewById(R.id.ivCheckDone);
         ivCheckEqualizer = (ImageView) findViewById(R.id.ivCheckEqualizer);
+        progress_bar = (ProgressBar) findViewById(R.id.progress_bar);
 
         chart_buzier = (BarChart) findViewById(R.id.chart_buzier);
 
@@ -207,6 +211,7 @@ public class UtsActivity extends AppCompatActivity {
                 originalPhoto = selectedImage;
 
                 photoView.setImageBitmap(selectedImage);
+                tvPrediction.setText("Prediction : ");
 
                 output = selectedImage.copy(Bitmap.Config.RGB_565, true);
                 bitmapAnalyzer();
@@ -298,6 +303,7 @@ public class UtsActivity extends AppCompatActivity {
         ivCheckDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                progress_bar.setVisibility(View.VISIBLE);
                 switch (statusPage) {
                     case SHOW_BRIGHTNESS:
                         photoView.setImageBitmap(originalPhoto);
@@ -306,6 +312,7 @@ public class UtsActivity extends AppCompatActivity {
                         setBitmapNewValEqualization();
                         break;
                     case SHOW_BW:
+                        photoView.setImageBitmap(originalPhoto);
                         setImageToBlackAndWhite();
                         break;
                     case SHOW_CHAINCODE:
@@ -332,6 +339,7 @@ public class UtsActivity extends AppCompatActivity {
                         setImageToBlackAndWhiteResultThinning();
                         break;
                 }
+                progress_bar.setVisibility(View.GONE);
             }
         });
 
@@ -1486,10 +1494,10 @@ public class UtsActivity extends AppCompatActivity {
     private void analyzeNumberThinningResult(){
         this.zhangSuen.setThinningList();
         this.zhangSuen.getBoundPoints();
-//        String index = this.zhangSuen.recognizeCharacter();
+//        this.zhangSuen.postProcessingThreshold(THRESHOLD_POST_PROCESSING);
+        String index = this.zhangSuen.recognizeCharacter();
 
-        this.zhangSuen.postProcessingThreshold(THRESHOLD_POST_PROCESSING);
-        int index = this.zhangSuen.recognizeCharacterAscii();
+//        int index = this.zhangSuen.recognizeCharacterAscii();
         tvPrediction.setText("Prediction : " + index);
     }
 

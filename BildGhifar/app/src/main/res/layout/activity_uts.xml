@@ -428,7 +428,7 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_numbers"
         android:layout_width="match_parent"
-        android:layout_height="92dp"
+        android:layout_height="90dp"
         android:nestedScrollingEnabled="true"
         android:layout_alignParentBottom="true"
         android:fadingEdge="none"
