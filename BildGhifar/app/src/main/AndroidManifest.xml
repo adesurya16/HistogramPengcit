@@ -7,7 +7,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_logoku"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
@@ -19,17 +19,18 @@
         <activity android:name=".tugas1Histogram.MpChartPageHistogram" />
         <activity android:name=".tugas1Histogram.PickImageActivity" />
         <activity android:name=".FirstPage">
+        </activity>
+        <activity android:name=".tugas2carigarismuka.LandingPageTugas2" />
+        <activity android:name=".tugas3Equalizer.LandingPageTugas3Equalizer" />
+        <activity android:name=".tugas4ChainCode.LandingPageTugas4" />
+        <activity android:name=".tugas5Thinning.LandingPageTugas5Thinning" />
+        <activity android:name=".tugasUTS.UtsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".tugas2carigarismuka.LandingPageTugas2" />
-        <activity android:name=".tugas3Equalizer.LandingPageTugas3Equalizer" />
-        <activity android:name=".tugas4ChainCode.LandingPageTugas4" />
-        <activity android:name=".tugas5Thinning.LandingPageTugas5Thinning" />
-        <activity android:name=".tugasUTS.UtsActivity"></activity>
     </application>
 
 </manifest>
