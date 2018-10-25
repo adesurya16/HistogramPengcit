@@ -212,6 +212,7 @@ public class UtsActivity extends AppCompatActivity {
 
                 photoView.setImageBitmap(selectedImage);
                 tvPrediction.setText("Prediction : ");
+                setAdapterUts(-1);
 
                 output = selectedImage.copy(Bitmap.Config.RGB_565, true);
                 bitmapAnalyzer();
@@ -1495,7 +1496,12 @@ public class UtsActivity extends AppCompatActivity {
         this.zhangSuen.setThinningList();
         this.zhangSuen.getBoundPoints();
 //        this.zhangSuen.postProcessingThreshold(THRESHOLD_POST_PROCESSING);
-        String index = this.zhangSuen.recognizeCharacter();
+        String index = zhangSuen.recognizeCharacter();
+
+        if (index.equals("-1")) {
+            zhangSuen.postProcessingThreshold(THRESHOLD_POST_PROCESSING);
+            index = zhangSuen.recognizeCharacterAscii();
+        }
 
 //        int index = this.zhangSuen.recognizeCharacterAscii();
         tvPrediction.setText("Prediction : " + index);

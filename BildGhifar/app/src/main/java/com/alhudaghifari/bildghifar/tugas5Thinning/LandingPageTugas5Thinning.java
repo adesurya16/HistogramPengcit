@@ -302,7 +302,7 @@ public class LandingPageTugas5Thinning extends AppCompatActivity {
 //        String index = this.zhangSuen.recognizeCharacter();
 
         this.zhangSuen.postProcessingThreshold(THRESHOLD_POST_PROCESSING);
-        int index = this.zhangSuen.recognizeCharacterAscii();
+        String index = this.zhangSuen.recognizeCharacterAscii();
         tvTextHasilIdentifikasi.setText("ini adalah karakter : " + index);
     }
 }

@@ -1147,16 +1147,30 @@ public class ZhangSuen {
                 int lengthX = p2_2.x - p2_1.x;
                 int lengthY = p2_2.y - p2_1.y;
 
+                int area2_1 = getArea(p2_1.x, p2_1.y);
+                int area2_2 = getArea(p2_2.x, p2_2.y);
+
                 Log.i(TAG, "length x : " + lengthX);
                 Log.i(TAG, "length y : " + lengthY);
+
+
+                Log.i(TAG, "area1 : " + area2_1);
+                Log.i(TAG, "area2 : " + area2_2);
 
                 // batas untuk menentukan condong / kemiringan garis untuk I dan -
 
                 int skewedLimitMax = 80;
                 int skewedLimitMin = 50;
 
-                if (lengthY >= skewedStraightLimit*-1 && lengthY <= skewedStraightLimit && lengthY < lengthX)
+                if (lengthY >= skewedStraightLimit*-1 && lengthY <= skewedStraightLimit && lengthY < lengthX
+                        && area2_1 == 0 && area2_2 == 0)
                     character = "I";
+                else if (lengthY >= skewedStraightLimit*-1 && lengthY <= skewedStraightLimit && lengthY < lengthX
+                        && area2_1 == 1 && area2_2 == 4)
+                    character = "]";
+                else if (lengthY >= skewedStraightLimit*-1 && lengthY <= skewedStraightLimit && lengthY < lengthX
+                        && area2_1 == 2 && area2_2 == 3)
+                    character = "[";
                 else if (lengthX >= skewedStraightLimit*-1 && lengthX <= skewedStraightLimit && lengthY > lengthX)
                     character = "-";
                 else if (lengthY >= skewedLimitMax*-1 && lengthY <= skewedLimitMin && lengthY < lengthX)
@@ -1231,6 +1245,10 @@ public class ZhangSuen {
                 if (lengthx_2_3 >= skewedStraightLimit*-1 && lengthx_2_3 <= skewedStraightLimit &&
                         lengthy_4_1 >= skewedStraightLimit*-1 && lengthy_4_1 <= skewedStraightLimit)
                     character = "+";
+                else if (p4_1.y == p4_3.y)
+                    character = "k";
+                else if (p4_2.x == p4_3.x && p4_3.x == p4_4.x)
+                    character = "m";
                 else
                     character = "3";
 
@@ -1243,6 +1261,93 @@ public class ZhangSuen {
                 // unknown
                 character = "-1";
                 break;
+        }
+        return character;
+    }
+
+    public String recognizeCharacterAscii(){
+        // ambil semua feature yang mungkin
+        // sementara masih 1 objek
+        // return ascii number
+        // feature direction, kuadran, gradien, isOriginOffset tertentu, intersect point, endpoint. circle
+        ArrayList<Point> pListEndPoint = getEndPoint();
+        ArrayList<Point> pListInterPoints = getIntersectPoint();
+//        System.out.println("size of endpoint : " + pListEndPoint.size());
+        Log.d(TAG, "jumlah end point : " + pListEndPoint.size());
+        Log.d(TAG, "jumlah Intersect point : " + pListInterPoints.size());
+        // sementara 0 - 9 (ascii 48 - 57)
+        if (pListEndPoint.size() == 0){
+            if (pListInterPoints.size() > 0){
+                return "8";
+            }else{
+                return "0";
+            }
+        }else if(pListEndPoint.size() == 1){
+            int q = getAreaQuadran(pListEndPoint.get(0));
+//            System.out.println("q : " + q);
+            if (q == 2){
+                return "6";
+            }else if(q == 4){
+                return "9";
+            }else if(q == 3){
+                return "4";
+            }
+        }else if(pListEndPoint.size() == 2){
+            Point p1 = new Point();
+            Point p2 = new Point();
+            if(pListEndPoint.get(0).x <  pListEndPoint.get(1).x){
+                p1 = pListEndPoint.get(0);
+                p2 = pListEndPoint.get(1);
+            }else{
+                p2 = pListEndPoint.get(0);
+                p1 = pListEndPoint.get(1);
+            }
+
+            int q1 = getAreaQuadran(p1);
+            int q2 = getAreaQuadran(p2);
+//            System.out.println("q1 : " + q1 + " , " + "q2 : " + q2);
+//            System.out.println("dir1 : " + getDirection(p1) + " , " + "dir2 : " + getDirection(p2));
+            Log.d(TAG, "q1 : " + q1 + " , " + "q2 : " + q2);
+            Log.d(TAG, "dir1 : " + getDirection(p1) + " , " + "dir2 : " + getDirection(p2));
+            if (q1 == 1 && q2 == 4  && getDirection(p1) == 3 && (getDirection(p2) == 2 || getDirection(p2) == 1)){
+                return "7";
+            }else if(q1 == 1 && q2 == 3 && getDirection(p2) == 1 && getDirection(p1) == 3){
+                return "a";
+            }else if(q1 == 1 && q2 == 3 && getDirection(p2) == 1){
+                return "1";
+            } else if(q1 == 2 && q2 == 4){
+                return "5";
+            }else if(q1 == 1 && q2 == 3){
+                return "2";
+            }else if(q1 == 3 && q2 == 3 && getDirection(p2) == 8 && getDirection(p1) == 2){
+                return "Q";
+            }else if(q1 == 1 && q2 == 4){
+                return "3";
+            }else if (q1 == 2 && q2 == 1 && getDirection(p1) == 5 && getDirection(p2) == 5 ) {
+                return "u";
+            }else if (q1 == 2 && q2 == 3) {
+                return "C";
+            }
+        } else if(pListEndPoint.size() == 3) {
+            Point p1 = new Point();
+            Point p2 = new Point();
+            Point p3 = new Point();
+
+            int q1 = getAreaQuadran(p1);
+            int q2 = getAreaQuadran(p2);
+            int q3 = getAreaQuadran(p3);
+
+            Log.d(TAG, "TITIK 3 q1 : " + q1 + "\n" +
+                    "q2 : " + q2 + "\n" +
+                    "q3 : " + q3 + "\n");
+
+            return "E";
+        }
+        return "-1";
+    }
+}
+
+// museum kode
 
 //            case -1:
 //                 // preprocessing false endpoint
@@ -1369,68 +1474,3 @@ public class ZhangSuen {
 //    }
 //
 //                break;
-        }
-        return character;
-    }
-
-    public int recognizeCharacterAscii(){
-        // ambil semua feature yang mungkin
-        // sementara masih 1 objek
-        // return ascii number
-        // feature direction, kuadran, gradien, isOriginOffset tertentu, intersect point, endpoint. circle
-        ArrayList<Point> pListEndPoint = getEndPoint();
-        ArrayList<Point> pListInterPoints = getIntersectPoint();
-//        System.out.println("size of endpoint : " + pListEndPoint.size());
-        Log.d(TAG, "jumlah end point : " + pListEndPoint.size());
-        Log.d(TAG, "jumlah Intersect point : " + pListInterPoints.size());
-        // sementara 0 - 9 (ascii 48 - 57)
-        if (pListEndPoint.size() == 0){
-            if (pListInterPoints.size() > 0){
-                return 8;
-            }else{
-                return 0;
-            }
-        }else if(pListEndPoint.size() == 1){
-            int q = getAreaQuadran(pListEndPoint.get(0));
-//            System.out.println("q : " + q);
-            if (q == 2){
-                return 6;
-            }else if(q == 4){
-                return 9;
-            }else if(q == 3){
-                return 4;
-            }
-        }else if(pListEndPoint.size() == 2){
-            Point p1 = new Point();
-            Point p2 = new Point();
-            if(pListEndPoint.get(0).x <  pListEndPoint.get(1).x){
-                p1 = pListEndPoint.get(0);
-                p2 = pListEndPoint.get(1);
-            }else{
-                p2 = pListEndPoint.get(0);
-                p1 = pListEndPoint.get(1);
-            }
-
-            int q1 = getAreaQuadran(p1);
-            int q2 = getAreaQuadran(p2);
-//            System.out.println("q1 : " + q1 + " , " + "q2 : " + q2);
-//            System.out.println("dir1 : " + getDirection(p1) + " , " + "dir2 : " + getDirection(p2));
-            Log.d(TAG, "q1 : " + q1 + " , " + "q2 : " + q2);
-            Log.d(TAG, "dir1 : " + getDirection(p1) + " , " + "dir2 : " + getDirection(p2));
-            if (q1 == 1 && q2 == 4  && getDirection(p1) == 3 && (getDirection(p2) == 2 || getDirection(p2) == 1)){
-                return 7;
-            }else if(q1 == 1 && q2 == 3 && getDirection(p2) == 1){
-                return 1;
-            }else if(q1 == 2 && q2 == 4){
-                return 5;
-            }else if(q1 == 1 && q2 == 3){
-                return 2;
-            }else if(q1 == 3 && q2 == 3){
-                return 4;
-            }else if(q1 == 1 && q2 == 4){
-                return 3;
-            }
-        }
-        return -1;
-    }
-}
