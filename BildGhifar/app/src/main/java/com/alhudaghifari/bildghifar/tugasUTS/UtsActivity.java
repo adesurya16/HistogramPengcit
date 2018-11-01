@@ -1,11 +1,13 @@
 package com.alhudaghifari.bildghifar.tugasUTS;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -35,6 +37,7 @@ import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -105,9 +108,11 @@ public class UtsActivity extends AppCompatActivity {
     private BarChart buzier_gray_chart_hasil;
 
     private ZhangSuen zhangSuen;
+    private PredictCharUsingChainCode predictCharUsingChainCode;
 
     private boolean isOpen = false;
     private boolean isHistogramOpened = false;
+    private boolean isPhotoSet = false;
 
     private final int SHOW_BRIGHTNESS = 0;
     private final int SHOW_GRAYSCALE = 1;
@@ -216,6 +221,7 @@ public class UtsActivity extends AppCompatActivity {
 
                 output = selectedImage.copy(Bitmap.Config.RGB_565, true);
                 bitmapAnalyzer();
+                isPhotoSet = true;
             } catch (Exception e) {
                 e.printStackTrace();
                 Toast.makeText(UtsActivity.this, "foto ga ada gan", Toast.LENGTH_SHORT).show();
@@ -304,43 +310,39 @@ public class UtsActivity extends AppCompatActivity {
         ivCheckDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                progress_bar.setVisibility(View.VISIBLE);
-                switch (statusPage) {
-                    case SHOW_BRIGHTNESS:
-                        photoView.setImageBitmap(originalPhoto);
-                        initChangePixel();
-                        bitmapAnalyzerUsingThreshold();
-                        setBitmapNewValEqualization();
-                        break;
-                    case SHOW_BW:
-                        photoView.setImageBitmap(originalPhoto);
-                        setImageToBlackAndWhite();
-                        break;
-                    case SHOW_CHAINCODE:
-                        setImageToBlackAndWhite();
-                        initMatrixBlackWhite();
-                        initChainCode();
-                        fillMatrixBlackWhite();
-                        mainBorderTracing();
-                        setImageToBlackAndWhiteResult();
-                        chainCodeRecognition();
-                        break;
-                    case SHOW_THINNING:
-                        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
-                        int height = bd.getBitmap().getHeight();
-                        int width = bd.getBitmap().getWidth();
-                        initMatrixBlackWhiteThinning();
-                        fillMatrixBlackWhiteThinning();
-                        zhangSuen = new ZhangSuen(matrixBlackWhite,  height, width);
-                        zhangSuen.thinImage();
-                        zhangSuen.copyToMatrix(matrixBlackWhite);
+                if (isPhotoSet) {
+                    progress_bar.setVisibility(View.VISIBLE);
+                    switch (statusPage) {
+                        case SHOW_BRIGHTNESS:
+                            photoView.setImageBitmap(originalPhoto);
+                            initChangePixel();
+                            bitmapAnalyzerUsingThreshold();
+                            setBitmapNewValEqualization();
+                            break;
+                        case SHOW_BW:
+                            photoView.setImageBitmap(originalPhoto);
+                            setImageToBlackAndWhite();
+                            break;
+                        case SHOW_CHAINCODE:
+                            new PredictUsingChainCode().execute();
+                            break;
+                        case SHOW_THINNING:
+                            BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
+                            int height = bd.getBitmap().getHeight();
+                            int width = bd.getBitmap().getWidth();
+                            initMatrixBlackWhiteThinning();
+                            fillMatrixBlackWhiteThinning();
+                            zhangSuen = new ZhangSuen(matrixBlackWhite,  height, width);
+                            zhangSuen.thinImage();
+                            zhangSuen.copyToMatrix(matrixBlackWhite);
 
-                        analyzeNumberThinningResult();
-                        zhangSuen.copyToMatrix(matrixBlackWhite);
-                        setImageToBlackAndWhiteResultThinning();
-                        break;
+                            analyzeNumberThinningResult();
+                            zhangSuen.copyToMatrix(matrixBlackWhite);
+                            setImageToBlackAndWhiteResultThinning();
+                            break;
+                    }
+                    progress_bar.setVisibility(View.GONE);
                 }
-                progress_bar.setVisibility(View.GONE);
             }
         });
 
@@ -838,8 +840,8 @@ public class UtsActivity extends AppCompatActivity {
 
     private void setImageToBlackAndWhite() {
         BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
-        int height = bd.getBitmap().getHeight();
-        int width = bd.getBitmap().getWidth();
+        height = bd.getBitmap().getHeight();
+        width = bd.getBitmap().getWidth();
         int count = 0;
         output = bd.getBitmap().copy(Bitmap.Config.RGB_565, true);
 
@@ -1198,11 +1200,10 @@ public class UtsActivity extends AppCompatActivity {
     private int matrixBlackWhite[][];
     private ArrayList<Integer> chainCode;
     private static final int MAX_DIRECTION = 8;
+    int height;
+    int width;
 
     public void initMatrixBlackWhite(){
-        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
-        int height = output.getHeight();
-        int width = output.getWidth();
         this.matrixBlackWhite = new int[height][];
         for (int i=0;i<height;i++){
             this.matrixBlackWhite[i] = new int[width];
@@ -1213,12 +1214,7 @@ public class UtsActivity extends AppCompatActivity {
         this.chainCode = new ArrayList<Integer>();
     }
 
-
     public void fillMatrixBlackWhite(){
-        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
-        int height = output.getHeight();
-        int width = output.getWidth();
-
         for (int i = 0; i < height; ++i) {
             for (int j = 0; j < width; ++j) {
                 int pixel = output.getPixel(j, i);
@@ -1230,22 +1226,17 @@ public class UtsActivity extends AppCompatActivity {
 
                 if (gray > threshold) {
                     this.matrixBlackWhite[i][j] = 0;
-                }else {
+                } else {
                     this.matrixBlackWhite[i][j] = 1;
                 }
-
             }
         }
     }
-
 
     public void mainBorderTracing(){
         // red = -1 border mark
         // black = 1
         // white = 0
-        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
-        int height = output.getHeight();
-        int width = output.getWidth();
         // asumsi 1 object shape dulu
         boolean isFound = false;
         for (int i=0;i<height;i++){
@@ -1275,7 +1266,6 @@ public class UtsActivity extends AppCompatActivity {
                 int green = Color.green(pixel);
                 int blue = Color.blue(pixel);
 
-
                 if (this.matrixBlackWhite[i][j] == -1){
                     red = MAX_COLOR - 1;
                     green = 0;
@@ -1287,7 +1277,6 @@ public class UtsActivity extends AppCompatActivity {
                         red,
                         green,
                         blue);
-
 
                 output.setPixel(j, i, newPixel);
             }
@@ -1346,7 +1335,6 @@ public class UtsActivity extends AppCompatActivity {
 
         return dp[m][n];
     }
-
 
     private int min(int x, int y, int z)
     {
@@ -1485,6 +1473,72 @@ public class UtsActivity extends AppCompatActivity {
                 dir = from;
                 this.chainCode.add(dir);
             }
+        }
+    }
+
+    private void initializedImageToBitmap() {
+        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
+        height = bd.getBitmap().getHeight();
+        width = bd.getBitmap().getWidth();
+        output = bd.getBitmap().copy(Bitmap.Config.RGB_565, true);
+
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j) {
+                int pixel = bd.getBitmap().getPixel(j, i);
+                int alpha = Color.alpha(pixel);
+                int red = Color.red(pixel);
+                int green = Color.green(pixel);
+                int blue = Color.blue(pixel);
+                int gray = ((red + green + blue) / 3) % 256;
+
+                if (gray > threshold) gray = 255;
+                else  gray = 0;
+
+                int newPixel = Color.argb(
+                        alpha,
+                        gray,
+                        gray,
+                        gray);
+
+                output.setPixel(j, i, newPixel);
+            }
+        }
+    }
+
+    private class PredictUsingChainCode extends AsyncTask<Void, Void, String> {
+        ProgressDialog dialog;
+        @Override
+        protected void onPreExecute() {
+            Log.d(TAG, "onPreExecute");
+            progress_bar.setVisibility(View.VISIBLE);
+            dialog = ProgressDialog.show(UtsActivity.this, "Loading",
+                    "Loading. Please wait...", true);
+            dialog.setCancelable(false);
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            Log.d(TAG, "doInBackground");
+            initializedImageToBitmap();
+            initMatrixBlackWhite();
+            initChainCode();
+            fillMatrixBlackWhite();
+            mainBorderTracing();
+//                        chainCodeRecognition();
+            Log.d(TAG, "chaincode array length : " + chainCode.size());
+            predictCharUsingChainCode = new PredictCharUsingChainCode(getApplicationContext());
+            predictCharUsingChainCode.predictCharKnn(chainCode,10);
+            return "";
+        }
+
+        @Override
+        protected void onPostExecute(String a) {
+            Log.d(TAG, "onPostExecute");
+            dialog.dismiss();
+//            progress_bar.setVisibility(View.GONE);
+            setImageToBlackAndWhiteResult();
+            tvPrediction.setText("Prediction : " + predictCharUsingChainCode.getCharPredicted() + "\n" +
+                                "nearest char : " + predictCharUsingChainCode.getNearestNeighbour());
         }
     }
 
