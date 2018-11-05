@@ -60,6 +60,7 @@ public class UtsActivity extends AppCompatActivity {
     private LinearLayout linlaySubMenu;
     private LinearLayout linlayJudul;
     private LinearLayout linlayThreshold;
+    private LinearLayout linlayThresholdThinning;
 
     private RelativeLayout rellayMainPhoto;
 
@@ -75,22 +76,27 @@ public class UtsActivity extends AppCompatActivity {
     private TextView tvJudulMenu;
     private TextView tvPrediction;
     private TextView tvThreshold;
+    private TextView tvThresholdThinning;
     private TextView tvSeekBarLeft;
     private TextView tvSeekBarCenter;
     private TextView tvSeekBarRight;
+    private TextView tvJudulThresholdThinning;
 
     private SeekBar seekBarThreshold;
     private SeekBar seekBarLeft;
     private SeekBar seekBarCenter;
     private SeekBar seekBarRight;
+    private SeekBar seekBarThresholdThinning;
 
     private int statusPage;
     private int threshold = 128;
+    private int thresholdThinning = 5;
     private int thresholdLeft;
     private int thresholdCenter;
     private int thresholdRight;
 
     private ProgressBar progress_bar;
+    private Collection cs;
 
     private BarChart redChart;
     private BarChart greenChart;
@@ -138,16 +144,20 @@ public class UtsActivity extends AppCompatActivity {
         svEqualizer = (ScrollView) findViewById(R.id.svEqualizer);
         svHistogram = (ScrollView) findViewById(R.id.svHistogram);
         linlayThreshold = (LinearLayout) findViewById(R.id.linlayThreshold);
+        linlayThresholdThinning = (LinearLayout) findViewById(R.id.linlayThresholdThinning);
         tvJudulMenu = (TextView) findViewById(R.id.tvJudulMenu);
         tvPrediction = (TextView) findViewById(R.id.tvPrediction);
         tvThreshold = (TextView) findViewById(R.id.tvThreshold);
         tvSeekBarLeft = (TextView) findViewById(R.id.tvSeekBarLeft);
         tvSeekBarCenter = (TextView) findViewById(R.id.tvSeekBarCenter);
         tvSeekBarRight = (TextView) findViewById(R.id.tvSeekBarRight);
+        tvJudulThresholdThinning = (TextView) findViewById(R.id.tvJudulThresholdThinning);
+        tvThresholdThinning = (TextView) findViewById(R.id.tvThresholdThinning);
         seekBarThreshold = (SeekBar) findViewById(R.id.seekBarThreshold);
         seekBarLeft = (SeekBar) findViewById(R.id.seekBarLeft);
         seekBarCenter = (SeekBar) findViewById(R.id.seekBarCenter);
         seekBarRight = (SeekBar) findViewById(R.id.seekBarRight);
+        seekBarThresholdThinning = (SeekBar) findViewById(R.id.seekBarThresholdThinning);
         ivCheckDone = (ImageView) findViewById(R.id.ivCheckDone);
         ivCheckEqualizer = (ImageView) findViewById(R.id.ivCheckEqualizer);
         progress_bar = (ProgressBar) findViewById(R.id.progress_bar);
@@ -328,16 +338,19 @@ public class UtsActivity extends AppCompatActivity {
                             break;
                         case SHOW_THINNING:
                             BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
-                            int height = bd.getBitmap().getHeight();
-                            int width = bd.getBitmap().getWidth();
+                            height = bd.getBitmap().getHeight();
+                            width = bd.getBitmap().getWidth();
                             initMatrixBlackWhiteThinning();
                             fillMatrixBlackWhiteThinning();
-                            zhangSuen = new ZhangSuen(matrixBlackWhite,  height, width);
-                            zhangSuen.thinImage();
-                            zhangSuen.copyToMatrix(matrixBlackWhite);
-
+                            cs = new Collection(matrixBlackWhite, height, width);
+                            cs.setThreshold(thresholdThinning);
+                            cs.thinImage();
+//                            zhangSuen = new ZhangSuen(matrixBlackWhite,  height, width);
+//                            zhangSuen.thinImage();
+//                            zhangSuen.copyToMatrix(matrixBlackWhite);
+//
                             analyzeNumberThinningResult();
-                            zhangSuen.copyToMatrix(matrixBlackWhite);
+                            cs.copyToMatrix(matrixBlackWhite);
                             setImageToBlackAndWhiteResultThinning();
                             break;
                     }
@@ -390,6 +403,24 @@ public class UtsActivity extends AppCompatActivity {
                 tvSeekBarRight.setText(String.valueOf(progress));
                 getPointQuadraticbuzier();
                 histogramBuzierVisualizer();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        seekBarThresholdThinning.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                tvThresholdThinning.setText(String.valueOf(progress));
+                thresholdThinning = progress;
             }
 
             @Override
@@ -493,6 +524,8 @@ public class UtsActivity extends AppCompatActivity {
     private void showPage(int page) {
         linlaySubMenu.setVisibility(View.VISIBLE);
         linlayThreshold.setVisibility(View.GONE);
+        linlayThresholdThinning.setVisibility(View.GONE);
+        tvJudulThresholdThinning.setVisibility(View.GONE);
         svEqualizer.setVisibility(View.GONE);
         tvPrediction.setVisibility(View.GONE);
 
@@ -540,6 +573,8 @@ public class UtsActivity extends AppCompatActivity {
                 break;
             case SHOW_THINNING:
                 linlayThreshold.setVisibility(View.VISIBLE);
+                linlayThresholdThinning.setVisibility(View.VISIBLE);
+                tvJudulThresholdThinning.setVisibility(View.VISIBLE);
                 tvPrediction.setVisibility(View.VISIBLE);
                 tvJudulMenu.setText("Number Recognition using Zhang Suen");
                 statusPage = SHOW_THINNING;
@@ -1547,18 +1582,16 @@ public class UtsActivity extends AppCompatActivity {
     private final int THRESHOLD_POST_PROCESSING = 20;
 
     private void analyzeNumberThinningResult(){
-        this.zhangSuen.setThinningList();
-        this.zhangSuen.getBoundPoints();
-//        this.zhangSuen.postProcessingThreshold(THRESHOLD_POST_PROCESSING);
-        String index = zhangSuen.recognizeCharacter();
+        cs.setThinningList();
+        cs.getBoundPoints();
+        cs.getSkeletons();
+        cs.postProcessingThresholdAll();
+        cs.getUpdateMatrix();
 
-        if (index.equals("-1")) {
-            zhangSuen.postProcessingThreshold(THRESHOLD_POST_PROCESSING);
-            index = zhangSuen.recognizeCharacterAscii();
-        }
+        int numberAscii = cs.recognizeCharacterAscii();
 
-//        int index = this.zhangSuen.recognizeCharacterAscii();
-        tvPrediction.setText("Prediction : " + index);
+        Log.d(TAG, "hasil prediksi : " + numberAscii);
+        tvPrediction.setText("Prediction : " + (char) numberAscii);
     }
 
 

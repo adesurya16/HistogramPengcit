@@ -546,7 +546,7 @@ class Collection{
                     return 39;
                 }else if(c == 1 && (q1 == 4 || q1 == 3) && q2 == 3 && g > 0 && s.getDistanceFromPattern(p2.x, p2.y) < s.getResultThinningList().size() / 4){
                     return 81;
-                }else if(c == 0 && q2 == 3 && c == 1 && q1 == 2 && pListIntersect.size() == 2){
+                }else if(q2 == 3 && c == 1 && q1 == 2 && pListIntersect.size() == 2 && s.getDistanceFromPattern(p2.x, p2.y) > s.getResultThinningList().size() / 2){
                     // System.out.println(s.getDistanceFromPattern(pListEndPoint.get(0).x, pListEndPoint.get(0).y));
                     return 64;
                 }else if(p1.x < this.height/2 && p2.x > this.height/2 && left == 0 && right == 0 && p1.y == p2.y){
@@ -600,7 +600,7 @@ class Collection{
                     }else if(q1 == 2 && q2 == 3 && s.getAreaQuadran(pSect1) == 2 && len < (this.pointMax.x - this.pointMin.x) / 2 && s.getDistanceFromPattern(p1.x, p1.y) < s.getDistanceFromPattern(p2.x, p2.y)){
                         return 113;
                     }
-                }else if(c == 0 && q1 == 2 && q2 == 4 && left > 0 || right > 0){
+                }else if(c == 0 && q1 == 2 && q2 == 4 && (left > 0 || right > 0)){
                     // 5 atau S
                     String s1 = toStringFromArrayListInt(s.getChainCode(p1));
                     String s5 = Template.ascii53;

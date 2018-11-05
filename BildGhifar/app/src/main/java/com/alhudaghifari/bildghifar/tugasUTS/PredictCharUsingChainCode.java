@@ -126,7 +126,7 @@ public class PredictCharUsingChainCode {
         int tempDistance;
         int counter = 0;
 
-        InputStream is = context.getResources().openRawResource(R.raw.chaincodenormalizedvsix);
+        InputStream is = context.getResources().openRawResource(R.raw.chaincodenormalizedvfive);
         BufferedReader br = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
 
         String line = "";
