@@ -431,7 +431,7 @@ public class OperatorFilter{
                     kernelBlue[mid + this.iterationDirections[k][1]][mid + this.iterationDirections[k][0]] = this.pixImageBlue[ii][jj];
                 }
 
-                 int diffRed = getDifferenceMax(kernelRed);
+                int diffRed = getDifferenceMax(kernelRed);
                 int diffGreen = getDifferenceMax(kernelGreen);
                 int diffBlue = getDifferenceMax(kernelBlue);
 //                Color newColor = new Color(gradRed, gradGreen, gradBlue);
