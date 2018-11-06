@@ -21,7 +21,10 @@ public class OperatorFilter{
     private int pixImageBlue[][];
 
     public int pixImageGS[][]; 
-    private final int iterationDirections[][] = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
+    private final int iterationDirections[][] =
+                    {{0, -1}, {1, -1}, {1, 0},
+                     {1, 1},  {0, 1}, {-1, 1},
+                     {-1, 0}, {-1, -1}};
 
 
 //    public OperatorFilter(BufferedImage img, int height, int width){
@@ -219,6 +222,11 @@ public class OperatorFilter{
             resGreen[i] = new int[this.width];
             resBlue[i] = new int[this.width];
 
+            /**
+             *  {{0, -1}, {1, -1}, {1, 0},
+                 {1, 1},               {0, 1},
+                 {-1, 1}, {-1, 0}, {-1, -1}};
+             */
             for(int j=0;j<this.width;j++){
 //                Color c = this.pixImage[i][j];
                 int ii = i;

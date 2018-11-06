@@ -72,6 +72,22 @@ public class RecyclerUts extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 viewHolderSolution.mTextViewNamaIcon.setText("Predict Char");
                 break;
             case 6:
+                viewHolderSolution.mImageViewIcon.setImageResource(R.drawable.ic_photo_filter_white);
+                viewHolderSolution.mTextViewNamaIcon.setText("Mean");
+                break;
+            case 7:
+                viewHolderSolution.mImageViewIcon.setImageResource(R.drawable.ic_photo_filter_white);
+                viewHolderSolution.mTextViewNamaIcon.setText("Median");
+                break;
+            case 8:
+                viewHolderSolution.mImageViewIcon.setImageResource(R.drawable.ic_photo_filter_white);
+                viewHolderSolution.mTextViewNamaIcon.setText("difference");
+                break;
+            case 9:
+                viewHolderSolution.mImageViewIcon.setImageResource(R.drawable.ic_photo_filter_white);
+                viewHolderSolution.mTextViewNamaIcon.setText("gradient");
+                break;
+            case 10:
                 viewHolderSolution.mImageViewIcon.setImageResource(R.drawable.ic_refresh_white);
                 viewHolderSolution.mTextViewNamaIcon.setText("Refresh");
                 break;

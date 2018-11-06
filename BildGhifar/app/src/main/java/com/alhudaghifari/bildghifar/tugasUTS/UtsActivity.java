@@ -98,6 +98,8 @@ public class UtsActivity extends AppCompatActivity {
     private ProgressBar progress_bar;
     private Collection cs;
 
+    ProgressDialog dialog;
+
     private BarChart redChart;
     private BarChart greenChart;
     private BarChart blueChart;
@@ -107,6 +109,10 @@ public class UtsActivity extends AppCompatActivity {
     private int[] greenPixel = new int[MAX_COLOR];
     private int[] bluePixel = new int[MAX_COLOR];
     private int[] grayPixel = new int[MAX_COLOR];
+
+    private int[][] redPixel2;
+    private int[][] greenPixel2;
+    private int[][] bluePixel2;
 
     private BarChart buzier_red_chart_hasil;
     private BarChart buzier_green_chart_hasil;
@@ -126,9 +132,13 @@ public class UtsActivity extends AppCompatActivity {
     private final int SHOW_EQUALIZER = 3;
     private final int SHOW_CHAINCODE = 4;
     private final int SHOW_THINNING = 5;
-    private final int SHOW_HOME = 6;
     private final int SHOW_MAIN_PHOTO = 7;
     private final int SHOW_HISTOGRAM = 8;
+    private final int SHOW_MEAN = 6;
+    private final int SHOW_MEDIAN = 7;
+    private final int SHOW_DIFFERENCE = 8;
+    private final int SHOW_GRADIENT = 9;
+    private final int SHOW_HOME = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -264,20 +274,36 @@ public class UtsActivity extends AppCompatActivity {
             @Override
             public void onClick(int posisi) {
                 Log.d(TAG, "onButtonClickListener posisi " + posisi);
-                if (posisi == SHOW_HOME) {
-                    setAdapterUts(-1);
-                    photoView.setImageBitmap(originalPhoto);
-                } else if (posisi == SHOW_GRAYSCALE) {
-                    setBitmapGrayscaleEqualization();
-                    setAdapterUts(posisi);
-                } else if (posisi == SHOW_EQUALIZER) {
+                if (isPhotoSet) {
 
-                    getPointQuadraticbuzier();
-                    histogramBuzierVisualizer();
-                    setAdapterUts(posisi);
+                    if (posisi == SHOW_HOME) {
+                        setAdapterUts(-1);
+                        photoView.setImageBitmap(originalPhoto);
+                        bitmapAnalyzer();
+                        showPage(posisi);
+                    } else if (posisi == SHOW_GRAYSCALE) {
+                        setBitmapGrayscaleEqualization();
+                        setAdapterUts(posisi);
+                        showPage(posisi);
+                    } else if (posisi == SHOW_EQUALIZER) {
+                        getPointQuadraticbuzier();
+                        histogramBuzierVisualizer();
+                        setAdapterUts(posisi);
+                        showPage(posisi);
+                    } else if (posisi == SHOW_MEAN) {
+                        new FilterImage().execute(new Integer(SHOW_MEAN));
+                    } else if (posisi == SHOW_MEDIAN) {
+                        new FilterImage().execute(new Integer(SHOW_MEDIAN));
+                    } else if (posisi == SHOW_DIFFERENCE) {
+                        new FilterImage().execute(new Integer(SHOW_DIFFERENCE));
+                    } else if (posisi == SHOW_GRADIENT) {
+                        new FilterImage().execute(new Integer(SHOW_GRADIENT));
+                    }
+                    else  {
+                        setAdapterUts(posisi);
+                        showPage(posisi);
+                    }
                 }
-                else setAdapterUts(posisi);
-                showPage(posisi);
             }
         };
 
@@ -345,9 +371,6 @@ public class UtsActivity extends AppCompatActivity {
                             cs = new Collection(matrixBlackWhite, height, width);
                             cs.setThreshold(thresholdThinning);
                             cs.thinImage();
-//                            zhangSuen = new ZhangSuen(matrixBlackWhite,  height, width);
-//                            zhangSuen.thinImage();
-//                            zhangSuen.copyToMatrix(matrixBlackWhite);
 //
                             analyzeNumberThinningResult();
                             cs.copyToMatrix(matrixBlackWhite);
@@ -436,22 +459,35 @@ public class UtsActivity extends AppCompatActivity {
     }
 
     private void bitmapAnalyzer() {
+        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
+        height = bd.getBitmap().getHeight();
+        width = bd.getBitmap().getWidth();
+
         redPixel = new int[MAX_COLOR];
         greenPixel = new int[MAX_COLOR];
         bluePixel = new int[MAX_COLOR];
         grayPixel = new int[MAX_COLOR];
 
-        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
-        int height = bd.getBitmap().getHeight();
-        int width = bd.getBitmap().getWidth();
+        redPixel2 = new int[height][];
+        greenPixel2 = new int[height][];
+        bluePixel2 = new int[height][width];
+
 
         for (int i = 0; i < height; ++i) {
+            redPixel2[i] = new int[width];
+            greenPixel2[i] = new int[width];
+            bluePixel2[i] = new int[width];
+
             for (int j = 0; j < width; ++j) {
                 int pixel = bd.getBitmap().getPixel(j, i);
                 int red = Color.red(pixel);
                 int green = Color.green(pixel);
                 int blue = Color.blue(pixel);
                 int gray = ((red + green + blue) / 3) % 256;
+
+                redPixel2[i][j] = red;
+                greenPixel2[i][j] = green;
+                bluePixel2[i][j] = blue;
 
                 redPixel[red]++;
                 greenPixel[green]++;
@@ -506,7 +542,7 @@ public class UtsActivity extends AppCompatActivity {
                 new LinearLayoutManager(UtsActivity.this, LinearLayoutManager.HORIZONTAL, false);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
         mRecyclerView.setNestedScrollingEnabled(false);
-        recyclerUts = new RecyclerUts(UtsActivity.this, 7, clicked);
+        recyclerUts = new RecyclerUts(UtsActivity.this, 11, clicked);
         recyclerUts.setOnButtonYaListener(onButtonClickListener);
         mRecyclerView.setAdapter(recyclerUts);
         mRecyclerView.post(new Runnable() {
@@ -591,6 +627,8 @@ public class UtsActivity extends AppCompatActivity {
                 svHistogram.setVisibility(View.VISIBLE);
                 break;
             default:
+                statusPage = page;
+                linlaySubMenu.setVisibility(View.GONE);
                 break;
         }
     }
@@ -757,6 +795,27 @@ public class UtsActivity extends AppCompatActivity {
         }
     }
 
+    private void setBitmapResultMatrix2d() {
+        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
+        int height = bd.getBitmap().getHeight();
+        int width = bd.getBitmap().getWidth();
+        final Bitmap output = bd.getBitmap().copy(Bitmap.Config.RGB_565, true);
+
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j) {
+                int red = redPixel2[i][j];
+                int green = greenPixel2[i][j];
+                int blue = bluePixel2[i][j];
+
+                int newPixel = Color.rgb(
+                        red,
+                        green,
+                        blue);
+                output.setPixel(j, i, newPixel);
+            }
+        }
+        photoView.setImageBitmap(output);
+    }
 
     private void setBitmapNewValEqualization() {
 
@@ -1540,8 +1599,50 @@ public class UtsActivity extends AppCompatActivity {
         }
     }
 
+    private class FilterImage extends AsyncTask<Integer, Void, Integer> {
+        @Override
+        protected void onPreExecute() {
+            Log.d(TAG, "onPreExecute");
+            dialog = ProgressDialog.show(UtsActivity.this, "Loading",
+                    "Loading. Please wait...", true);
+            dialog.setCancelable(false);
+            showPage(SHOW_MAIN_PHOTO);
+        }
+
+        @Override
+        protected Integer doInBackground(Integer... buttonClicked) {
+            int value = buttonClicked[0].intValue();
+
+            OperatorFilter of = new OperatorFilter(redPixel2, greenPixel2, bluePixel2, height, width);
+
+            if (value == SHOW_MEAN) {
+                of.meanOperation();
+            } else if (value == SHOW_MEDIAN) {
+                of.medianOperation();
+            } else if (value == SHOW_DIFFERENCE) {
+                of.differenceOperation();
+            } else if (value == SHOW_GRADIENT) {
+                of.gradientOperation();
+            }
+
+            redPixel2 = of.getPixImageRed();
+            greenPixel2 = of.getPixImageGreen();
+            bluePixel2 = of.getPixImageBlue();
+
+            return value;
+        }
+
+        @Override
+        protected void onPostExecute(Integer a) {
+            Log.d(TAG, "onPostExecute");
+            dialog.dismiss();
+
+            setBitmapResultMatrix2d();
+            setAdapterUts(a);
+        }
+    }
+
     private class PredictUsingChainCode extends AsyncTask<Void, Void, String> {
-        ProgressDialog dialog;
         @Override
         protected void onPreExecute() {
             Log.d(TAG, "onPreExecute");
