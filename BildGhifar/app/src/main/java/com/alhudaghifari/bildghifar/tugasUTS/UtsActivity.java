@@ -109,6 +109,7 @@ public class UtsActivity extends AppCompatActivity {
     private int[] greenPixel = new int[MAX_COLOR];
     private int[] bluePixel = new int[MAX_COLOR];
     private int[] grayPixel = new int[MAX_COLOR];
+    private int[][] grayScaleValues;
 
     private int[][] redPixel2;
     private int[][] greenPixel2;
@@ -138,7 +139,8 @@ public class UtsActivity extends AppCompatActivity {
     private final int SHOW_MEDIAN = 7;
     private final int SHOW_DIFFERENCE = 8;
     private final int SHOW_GRADIENT = 9;
-    private final int SHOW_HOME = 10;
+    private final int SHOW_SOBEL = 10;
+    private final int SHOW_HOME = 11;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -298,6 +300,8 @@ public class UtsActivity extends AppCompatActivity {
                         new FilterImage().execute(new Integer(SHOW_DIFFERENCE));
                     } else if (posisi == SHOW_GRADIENT) {
                         new FilterImage().execute(new Integer(SHOW_GRADIENT));
+                    } else if (posisi == SHOW_SOBEL) {
+                        new FilterImage().execute(new Integer(SHOW_SOBEL));
                     }
                     else  {
                         setAdapterUts(posisi);
@@ -471,12 +475,13 @@ public class UtsActivity extends AppCompatActivity {
         redPixel2 = new int[height][];
         greenPixel2 = new int[height][];
         bluePixel2 = new int[height][width];
-
+        grayScaleValues = new int[height][];
 
         for (int i = 0; i < height; ++i) {
             redPixel2[i] = new int[width];
             greenPixel2[i] = new int[width];
             bluePixel2[i] = new int[width];
+            grayScaleValues[i] = new int[width];
 
             for (int j = 0; j < width; ++j) {
                 int pixel = bd.getBitmap().getPixel(j, i);
@@ -488,6 +493,7 @@ public class UtsActivity extends AppCompatActivity {
                 redPixel2[i][j] = red;
                 greenPixel2[i][j] = green;
                 bluePixel2[i][j] = blue;
+                grayScaleValues[i][j] = gray;
 
                 redPixel[red]++;
                 greenPixel[green]++;
@@ -542,7 +548,7 @@ public class UtsActivity extends AppCompatActivity {
                 new LinearLayoutManager(UtsActivity.this, LinearLayoutManager.HORIZONTAL, false);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
         mRecyclerView.setNestedScrollingEnabled(false);
-        recyclerUts = new RecyclerUts(UtsActivity.this, 11, clicked);
+        recyclerUts = new RecyclerUts(UtsActivity.this, 12, clicked);
         recyclerUts.setOnButtonYaListener(onButtonClickListener);
         mRecyclerView.setAdapter(recyclerUts);
         mRecyclerView.post(new Runnable() {
@@ -795,6 +801,25 @@ public class UtsActivity extends AppCompatActivity {
         }
     }
 
+    private void setBitmapGrayscale() {
+        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
+        int height = bd.getBitmap().getHeight();
+        int width = bd.getBitmap().getWidth();
+
+        final Bitmap output = bd.getBitmap().copy(Bitmap.Config.RGB_565, true);
+
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j) {
+                int newPixel = Color.rgb(
+                        grayScaleValues[i][j],
+                        grayScaleValues[i][j],
+                        grayScaleValues[i][j]);
+                output.setPixel(j, i, newPixel);
+            }
+        }
+        photoView.setImageBitmap(output);
+    }
+
     private void setBitmapResultMatrix2d() {
         BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
         int height = bd.getBitmap().getHeight();
@@ -825,6 +850,8 @@ public class UtsActivity extends AppCompatActivity {
 
         final Bitmap output = bd.getBitmap().copy(Bitmap.Config.RGB_565, true);
 
+        grayScaleValues = new int[height][width];
+
         for (int i = 0; i < height; ++i) {
             for (int j = 0; j < width; ++j) {
                 int pixel = bd.getBitmap().getPixel(j, i);
@@ -846,6 +873,9 @@ public class UtsActivity extends AppCompatActivity {
                 if (bluePixelChange[blue] > -1){
                     blueHasil = (double) bluePixelChange[blue];
                 }
+
+                int gray = (int) ((redHasil + greenHasil + blueHasil) / 3) % 256;
+                grayScaleValues[i][j] = gray;
 
                 int newPixel = Color.rgb(
                         (int)redHasil,
@@ -1613,21 +1643,38 @@ public class UtsActivity extends AppCompatActivity {
         protected Integer doInBackground(Integer... buttonClicked) {
             int value = buttonClicked[0].intValue();
 
-            OperatorFilter of = new OperatorFilter(redPixel2, greenPixel2, bluePixel2, height, width);
+            OperatorFilter of;
 
             if (value == SHOW_MEAN) {
+                of = new OperatorFilter(redPixel2, greenPixel2, bluePixel2, height, width);
                 of.meanOperation();
+                redPixel2 = of.getPixImageRed();
+                greenPixel2 = of.getPixImageGreen();
+                bluePixel2 = of.getPixImageBlue();
             } else if (value == SHOW_MEDIAN) {
+                of = new OperatorFilter(redPixel2, greenPixel2, bluePixel2, height, width);
                 of.medianOperation();
+                redPixel2 = of.getPixImageRed();
+                greenPixel2 = of.getPixImageGreen();
+                bluePixel2 = of.getPixImageBlue();
             } else if (value == SHOW_DIFFERENCE) {
+                of = new OperatorFilter(redPixel2, greenPixel2, bluePixel2, height, width);
                 of.differenceOperation();
+                redPixel2 = of.getPixImageRed();
+                greenPixel2 = of.getPixImageGreen();
+                bluePixel2 = of.getPixImageBlue();
             } else if (value == SHOW_GRADIENT) {
+                of = new OperatorFilter(redPixel2, greenPixel2, bluePixel2, height, width);
                 of.gradientOperation();
+                redPixel2 = of.getPixImageRed();
+                greenPixel2 = of.getPixImageGreen();
+                bluePixel2 = of.getPixImageBlue();
+            } else if (value == SHOW_SOBEL) {
+                of = new OperatorFilter(grayScaleValues, height, width);
+                of.runSobelOperation();
+                grayScaleValues = new int[height][width];
+                grayScaleValues = of.getPixImageGS();
             }
-
-            redPixel2 = of.getPixImageRed();
-            greenPixel2 = of.getPixImageGreen();
-            bluePixel2 = of.getPixImageBlue();
 
             return value;
         }
@@ -1637,7 +1684,9 @@ public class UtsActivity extends AppCompatActivity {
             Log.d(TAG, "onPostExecute");
             dialog.dismiss();
 
-            setBitmapResultMatrix2d();
+            if (a == SHOW_SOBEL) {
+                setBitmapGrayscale();
+            } else setBitmapResultMatrix2d();
             setAdapterUts(a);
         }
     }
