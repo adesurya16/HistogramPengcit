@@ -1,20 +1,13 @@
 package com.alhudaghifari.bildghifar.tugasUTS;
 
-//import java.awt.Color;
-import android.graphics.Color;
-import java.io.IOException;
-//import java.awt.image.BufferedImage;
-//import javax.imageio.ImageIO;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
 
 // 3 x 3
 public class OperatorFilter{
 
     private int width;
     private int height;
-//    public Color pixImage[][];
 
     private int pixImageRed[][];
     private int pixImageGreen[][];
@@ -26,34 +19,6 @@ public class OperatorFilter{
                     {{0, -1}, {1, -1}, {1, 0},
                      {1, 1},  {0, 1}, {-1, 1},
                      {-1, 0}, {-1, -1}};
-
-
-//    public OperatorFilter(BufferedImage img, int height, int width){
-//        this.width = width;
-//        this.height = height;
-//
-//        this.pixImage = new Color[height][];
-//        this.pixImageGS = new int[height][];
-//        for(int i=0;i<height;i++){
-//            this.pixImage[i] = new Color[width];
-//            this.pixImageGS[i] = new int[width];
-//
-//        }
-//        setColorPix(img);
-//    }
-//
-//    public OperatorFilter(Color[][] pix, int height, int width){
-//        this.width = width;
-//        this.height = height;
-//        this.pixImage = new Color[height][];
-//        this.pixImageGS = new int[height][];
-//        for(int i=0;i<height;i++){
-//            this.pixImage[i] = new Color[width];
-//            this.pixImageGS[i] = new int[width];
-//
-//        }
-//        setColorPix(pix);
-//    }
 
     public OperatorFilter(int[][] pixRed, int[][] pixGreen, int[][] pixBlue, int height, int width){
         this.width = width;
@@ -90,10 +55,6 @@ public class OperatorFilter{
         }
     }
 
-//    public Color[][] getPixImage(){
-//        return this.pixImage;
-//    }
-
     public int[][] getPixImageGS(){
         return this.pixImageGS;
     }
@@ -104,16 +65,6 @@ public class OperatorFilter{
 
     public int[][] getPixImageBlue(){ return this.pixImageBlue; }
 
-//    public static BufferedImage readImage(String file){
-//        BufferedImage img = null;
-//        try{
-//            img = ImageIO.read(new File(file));
-//        }catch(IOException e){
-//            e.printStackTrace();
-//        }
-//        return img;
-//    }
-
     public void initMatrixGS(){
         for(int i = 0;i < this.height;i++){
             for(int j = 0;j < this.width;j++){
@@ -123,28 +74,9 @@ public class OperatorFilter{
         }
     }
 
-//    public void setColorPix(BufferedImage img){
-//        // harus sama dengan height dan width yang diset awal
-//        // int width = img.getHeight();
-//        // int height = img.getWidth();
-//
-//        // this.pix = new Color[height][];
-//        for(int i = 0;i < this.height;i++){
-//            // pix[i] = new Color[width];
-//            for(int j = 0;j < this.width;j++){
-//
-//                Color c = new Color(img.getRGB(i, j));
-//                this.pixImage[i][j] = c;
-//            }
-//        }
-//    }
-
     public void setColorPixRed(int[][] pixRed){
         for(int i=0;i<this.height;i++){
             for(int j=0;j<this.width;j++){
-                // if(this.pixImage[i][j] != null && this.pixImage[i][j] != pix[i][j]){
-                //     System.out.println("beda");
-                // }
                 this.pixImageRed[i][j] = pixRed[i][j];
             }
         }
@@ -153,9 +85,6 @@ public class OperatorFilter{
     public void setColorPixGreen(int[][] pixGreen){
         for(int i=0;i<this.height;i++){
             for(int j=0;j<this.width;j++){
-                // if(this.pixImage[i][j] != null && this.pixImage[i][j] != pix[i][j]){
-                //     System.out.println("beda");
-                // }
                 this.pixImageRed[i][j] = pixGreen[i][j];
             }
         }
@@ -164,9 +93,6 @@ public class OperatorFilter{
     public void setColorPixBlue(int[][] pixBlue){
         for(int i=0;i<this.height;i++){
             for(int j=0;j<this.width;j++){
-                // if(this.pixImage[i][j] != null && this.pixImage[i][j] != pix[i][j]){
-                //     System.out.println("beda");
-                // }
                 this.pixImageRed[i][j] = pixBlue[i][j];
             }
         }
@@ -176,9 +102,6 @@ public class OperatorFilter{
         // harus sama dengan height dan width yang diset awal
         for(int i=0;i<this.height;i++){
             for(int j=0;j<this.width;j++){
-                // if(this.pixImage[i][j] != null && this.pixImage[i][j] != pix[i][j]){
-                //     System.out.println("beda");
-                // }
                 this.pixImageRed[i][j] = pixRed[i][j];
                 this.pixImageGreen[i][j] = pixGreen[i][j];
                 this.pixImageBlue[i][j] = pixBlue[i][j];
@@ -189,47 +112,10 @@ public class OperatorFilter{
     public void setColorPixGS(int[][] pix){
         for(int i=0;i<this.height;i++){
             for(int j=0;j<this.width;j++){
-                // if(this.pixImage[i][j] != null && this.pixImage[i][j] != pix[i][j]){
-                //     System.out.println("beda");
-                // }
                 this.pixImageGS[i][j] = pix[i][j];
             }
         }
     }
-
-//    public void toFileImageGS(String file){
-//        try{
-//            BufferedImage img = new BufferedImage(this.height, this.width, BufferedImage.TYPE_INT_RGB);
-//            File f = new File(file);
-//            for(int i = 0;i< this.width;i++){
-//                for(int j = 0;j<this.height;j++){
-//                    int c = this.pixImageGS[j][i];
-//                    int col = (c << 16) | (c << 8) | c;
-//                    img.setRGB(j, i, col);
-//                }
-//            }
-//            ImageIO.write(img, "PNG", f);
-//        }catch(IOException e){
-//            e.printStackTrace();
-//        }
-//    }
-
-//    public void toFileImage(String file){
-//        try{
-//            BufferedImage img = new BufferedImage(this.height, this.width, BufferedImage.TYPE_INT_RGB);
-//            File f = new File(file);
-//            for(int i = 0;i< this.width;i++){
-//                for(int j = 0;j<this.height;j++){
-//                    Color c = this.pixImage[j][i];
-//                    int col = (c.red() << 16) | (c.green() << 8) | c.blue();
-//                    img.setRGB(j, i, col);
-//                }
-//            }
-//            ImageIO.write(img, "PNG", f);
-//        }catch(IOException e){
-//            e.printStackTrace();
-//        }
-//    }
 
     public void runRobertOperation() {
 
@@ -449,11 +335,6 @@ public class OperatorFilter{
             resGreen[i] = new int[this.width];
             resBlue[i] = new int[this.width];
 
-            /**
-             *  {{0, -1}, {1, -1}, {1, 0},
-                 {1, 1},               {0, 1},
-                 {-1, 1}, {-1, 0}, {-1, -1}};
-             */
             for(int j=0;j<this.width;j++){
 //                Color c = this.pixImage[i][j];
                 int ii = i;
@@ -831,21 +712,4 @@ public class OperatorFilter{
         } 
         return max;
     }
-
-//    public static void main(String[] args){
-//        Scanner sc = new Scanner(System.in);
-//        String s = sc.nextLine();
-//        BufferedImage bI = OperatorFilter.readImage(s + ".png");
-//        OperatorFilter op = new OperatorFilter(bI, bI.getWidth(), bI.getHeight());
-//        // op.initMatrixGS();
-//        op.setColorPix(op.medianOperation());
-//        op.toFileImage(s + "OutMedian" + ".png");
-//        // op.setColorPix(op.gradientOperation());
-//        // op.toFileImage(s + "outGradient" + ".png");
-//        // op.setColorPix(op.differenceOperation());
-//        // op.toFileImage(s + "outDifference" + ".png");
-//        op.setColorPix(op.meanOperation());
-//        op.toFileImage(s + "outMean" + ".png");
-//        // op.toFileImageGS(s + "OutGrey" + ".png");
-//    }
 }
