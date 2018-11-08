@@ -231,6 +231,159 @@ public class OperatorFilter{
 //        }
 //    }
 
+    public void runRobertOperation() {
+
+        int[][] edgeColors = new int[width][height];
+        int maxGradient = -1;
+
+        for (int i = 1; i < width - 1; i++) {
+            for (int j = 1; j < height - 1; j++) {
+                int val00 = pixImageGS[j-1][i-1];
+                int val01 = pixImageGS[j][i-1];
+
+                int val10 = pixImageGS[j-1][i];
+                int val11 = pixImageGS[j][i];
+
+                int gx =  ((1 * val00) + (0 * val01))
+                        + ((0 * val10) + (-1 * val11));
+
+                int gy =  ((0 * val00) + (1 * val01))
+                        + ((-1 * val10) + (0 * val11));
+
+                double gval = Math.sqrt((gx * gx) + (gy * gy));
+                int g = (int) gval;
+
+                if(maxGradient < g) {
+                    maxGradient = g;
+                }
+
+                edgeColors[i][j] = g;
+            }
+        }
+
+        double scale = 255.0 / maxGradient;
+
+        pixImageGS = new int[height][width];
+
+        for (int i = 1; i < width - 1; i++) {
+            for (int j = 1; j < height - 1; j++) {
+                int edgeColor = edgeColors[i][j];
+                edgeColor = (int)(edgeColor * scale);
+                edgeColor = 0xff000000 | (edgeColor << 16) | (edgeColor << 8) | edgeColor;
+
+                pixImageGS[j][i] = edgeColor;
+            }
+        }
+    }
+
+    public void runFreiChenOperation() {
+        double squareRootTwo = 1.4142;
+        int[][] edgeColors = new int[width][height];
+        int maxGradient = -1;
+
+        for (int i = 1; i < width - 1; i++) {
+            for (int j = 1; j < height - 1; j++) {
+                int val00 = pixImageGS[j-1][i-1];
+                int val01 = pixImageGS[j][i-1];
+                int val02 =  pixImageGS[j+1][i-1];
+
+                int val10 = pixImageGS[j-1][i];
+                int val11 = pixImageGS[j][i];
+                int val12 =  pixImageGS[j+1][i];
+
+                int val20 = pixImageGS[j-1][i+1];
+                int val21 = pixImageGS[j][i+1];
+                int val22 = pixImageGS[j+1][i+1];
+
+                int gx = (int) (((-1 * val00) + (0 * val01) + (1 * val02))
+                        + ((-1 * squareRootTwo * val10) + (0 * val11) + (squareRootTwo * val12))
+                        + ((-1 * val20) + (0 * val21) + (1 * val22)));
+
+                int gy = (int) (((-1 * val00) + (-1 * squareRootTwo * val01) + (-1 * val02))
+                        + ((0 * val10) + (0 * val11) + (0 * val12))
+                        + ((1 * val20) + (squareRootTwo * val21) + (1 * val22)));
+
+
+                double gval = Math.sqrt((gx * gx) + (gy * gy));
+                int g = (int) gval;
+
+                if(maxGradient < g) {
+                    maxGradient = g;
+                }
+
+                edgeColors[i][j] = g;
+            }
+        }
+
+        double scale = 255.0 / maxGradient;
+
+        pixImageGS = new int[height][width];
+
+        for (int i = 1; i < width - 1; i++) {
+            for (int j = 1; j < height - 1; j++) {
+                int edgeColor = edgeColors[i][j];
+                edgeColor = (int)(edgeColor * scale);
+                edgeColor = 0xff000000 | (edgeColor << 16) | (edgeColor << 8) | edgeColor;
+
+                pixImageGS[j][i] = edgeColor;
+            }
+        }
+    }
+
+    public void runPrewitOperation() {
+
+        int[][] edgeColors = new int[width][height];
+        int maxGradient = -1;
+
+        for (int i = 1; i < width - 1; i++) {
+            for (int j = 1; j < height - 1; j++) {
+                int val00 = pixImageGS[j-1][i-1];
+                int val01 = pixImageGS[j][i-1];
+                int val02 =  pixImageGS[j+1][i-1];
+
+                int val10 = pixImageGS[j-1][i];
+                int val11 = pixImageGS[j][i];
+                int val12 =  pixImageGS[j+1][i];
+
+                int val20 = pixImageGS[j-1][i+1];
+                int val21 = pixImageGS[j][i+1];
+                int val22 = pixImageGS[j+1][i+1];
+
+                int gx =  ((-1 * val00) + (0 * val01) + (1 * val02))
+                        + ((-1 * val10) + (0 * val11) + (1 * val12))
+                        + ((-1 * val20) + (0 * val21) + (1 * val22));
+
+                int gy =  ((-1 * val00) + (-1 * val01) + (-1 * val02))
+                        + ((0 * val10) + (0 * val11) + (0 * val12))
+                        + ((1 * val20) + (1 * val21) + (1 * val22));
+
+
+                double gval = Math.sqrt((gx * gx) + (gy * gy));
+                int g = (int) gval;
+
+                if(maxGradient < g) {
+                    maxGradient = g;
+                }
+
+                edgeColors[i][j] = g;
+            }
+        }
+
+        double scale = 255.0 / maxGradient;
+
+        pixImageGS = new int[height][width];
+
+        for (int i = 1; i < width - 1; i++) {
+            for (int j = 1; j < height - 1; j++) {
+                int edgeColor = edgeColors[i][j];
+                edgeColor = (int)(edgeColor * scale);
+                edgeColor = 0xff000000 | (edgeColor << 16) | (edgeColor << 8) | edgeColor;
+
+                pixImageGS[j][i] = edgeColor;
+            }
+        }
+    }
+
     public void runSobelOperation() {
 
         int maxGval = 0;

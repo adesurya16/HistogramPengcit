@@ -27,17 +27,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alhudaghifari.bildghifar.R;
-import com.alhudaghifari.bildghifar.tugas2carigarismuka.LandingPageTugas2;
-import com.alhudaghifari.bildghifar.tugas3Equalizer.LandingPageTugas3Equalizer;
 import com.alhudaghifari.bildghifar.tugas4ChainCode.TemplateChainCode;
 import com.alhudaghifari.bildghifar.tugas5Thinning.ZhangSuen;
+import com.alhudaghifari.bildghifar.utils.OtsuThresholder;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 
-import java.io.IOException;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,6 +68,7 @@ public class UtsActivity extends AppCompatActivity {
 
     private Bitmap originalPhoto;
     private Bitmap output;
+    private byte[] bytePhoto;
 
     private ScrollView svEqualizer;
     private ScrollView svHistogram;
@@ -91,9 +91,6 @@ public class UtsActivity extends AppCompatActivity {
     private int statusPage;
     private int threshold = 128;
     private int thresholdThinning = 5;
-    private int thresholdLeft;
-    private int thresholdCenter;
-    private int thresholdRight;
 
     private ProgressBar progress_bar;
     private Collection cs;
@@ -114,6 +111,7 @@ public class UtsActivity extends AppCompatActivity {
     private int[][] redPixel2;
     private int[][] greenPixel2;
     private int[][] bluePixel2;
+    private int[][] pixel;
 
     private BarChart buzier_red_chart_hasil;
     private BarChart buzier_green_chart_hasil;
@@ -140,7 +138,10 @@ public class UtsActivity extends AppCompatActivity {
     private final int SHOW_DIFFERENCE = 8;
     private final int SHOW_GRADIENT = 9;
     private final int SHOW_SOBEL = 10;
-    private final int SHOW_HOME = 11;
+    private final int SHOW_PREWIT = 11;
+    private final int SHOW_FREI_CHEN = 12;
+    private final int SHOW_ROBERT = 13;
+    private final int SHOW_HOME = 14;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -279,10 +280,8 @@ public class UtsActivity extends AppCompatActivity {
                 if (isPhotoSet) {
 
                     if (posisi == SHOW_HOME) {
-                        setAdapterUts(-1);
                         photoView.setImageBitmap(originalPhoto);
                         bitmapAnalyzer();
-                        showPage(posisi);
                     } else if (posisi == SHOW_GRAYSCALE) {
                         setBitmapGrayscaleEqualization();
                         setAdapterUts(posisi);
@@ -302,6 +301,12 @@ public class UtsActivity extends AppCompatActivity {
                         new FilterImage().execute(new Integer(SHOW_GRADIENT));
                     } else if (posisi == SHOW_SOBEL) {
                         new FilterImage().execute(new Integer(SHOW_SOBEL));
+                    } else if (posisi == SHOW_PREWIT) {
+                        new FilterImage().execute(new Integer(SHOW_PREWIT));
+                    } else if (posisi == SHOW_FREI_CHEN) {
+                        new FilterImage().execute(new Integer(SHOW_FREI_CHEN));
+                    } else if (posisi == SHOW_ROBERT) {
+                        new FilterImage().execute(new Integer(SHOW_ROBERT));
                     }
                     else  {
                         setAdapterUts(posisi);
@@ -476,6 +481,7 @@ public class UtsActivity extends AppCompatActivity {
         greenPixel2 = new int[height][];
         bluePixel2 = new int[height][width];
         grayScaleValues = new int[height][];
+        pixel = new int[height][width];
 
         for (int i = 0; i < height; ++i) {
             redPixel2[i] = new int[width];
@@ -484,12 +490,13 @@ public class UtsActivity extends AppCompatActivity {
             grayScaleValues[i] = new int[width];
 
             for (int j = 0; j < width; ++j) {
-                int pixel = bd.getBitmap().getPixel(j, i);
-                int red = Color.red(pixel);
-                int green = Color.green(pixel);
-                int blue = Color.blue(pixel);
+                int pixel1 = bd.getBitmap().getPixel(j, i);
+                int red = Color.red(pixel1);
+                int green = Color.green(pixel1);
+                int blue = Color.blue(pixel1);
                 int gray = ((red + green + blue) / 3) % 256;
 
+                pixel[i][j] = pixel1;
                 redPixel2[i][j] = red;
                 greenPixel2[i][j] = green;
                 bluePixel2[i][j] = blue;
@@ -548,7 +555,7 @@ public class UtsActivity extends AppCompatActivity {
                 new LinearLayoutManager(UtsActivity.this, LinearLayoutManager.HORIZONTAL, false);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
         mRecyclerView.setNestedScrollingEnabled(false);
-        recyclerUts = new RecyclerUts(UtsActivity.this, 12, clicked);
+        recyclerUts = new RecyclerUts(UtsActivity.this, 15, clicked);
         recyclerUts.setOnButtonYaListener(onButtonClickListener);
         mRecyclerView.setAdapter(recyclerUts);
         mRecyclerView.post(new Runnable() {
@@ -676,6 +683,24 @@ public class UtsActivity extends AppCompatActivity {
         }
     }
 
+    private void bitmapAnalyzerForOtsu() {
+        int newVal;
+        redPixelHasil = new int[MAX_COLOR];
+        greenPixelHasil = new int[MAX_COLOR];
+        bluePixelHasil = new int[MAX_COLOR];
+        grayPixelHasil = new int[MAX_COLOR];
+
+        for (int i = 0; i < threshold; ++i) {
+            newVal = (MAX_COLOR - 1) / threshold * i % 256;
+            redPixelHasil[newVal] = redPixel[i];
+            greenPixelHasil[newVal] = greenPixel[i];
+            bluePixelHasil[newVal] = bluePixel[i];
+            grayPixelHasil[newVal] = grayPixel[i];
+        }
+        // Equalization from threshold result
+        equalizationPixel();
+    }
+
     private void bitmapAnalyzerUsingThreshold() {
         int newVal;
         redPixelHasil = new int[MAX_COLOR];
@@ -701,9 +726,6 @@ public class UtsActivity extends AppCompatActivity {
         bluePixelCumulativeHasil = new int[MAX_COLOR];
         grayPixelCumulativeHasil = new int[MAX_COLOR];
 
-        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
-        int height = bd.getBitmap().getHeight();
-        int width = bd.getBitmap().getWidth();
         // Red Pixel Equalization
         int cumulative = 0;
         int min = 0;
@@ -840,6 +862,37 @@ public class UtsActivity extends AppCompatActivity {
             }
         }
         photoView.setImageBitmap(output);
+    }
+
+    private void setGrayScaleValuesFromBitmap() {
+
+        grayScaleValues = new int[height][width];
+
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j) {
+                int red = Color.red(pixel[i][j]);
+                int green = Color.green(pixel[i][j]);
+                int blue = Color.blue(pixel[i][j]);
+
+                double redHasil = red;
+                if (redPixelChange[red] > -1){
+                    redHasil = (double) redPixelChange[red];
+                }
+
+                double greenHasil = green;
+                if (greenPixelChange[green] > -1){
+                    greenHasil = (double) greenPixelChange[green];
+                }
+
+                double blueHasil = blue;
+                if (bluePixelChange[blue] > -1){
+                    blueHasil = (double) bluePixelChange[blue];
+                }
+
+                int gray = (int) ((redHasil + greenHasil + blueHasil) / 3) % 256;
+                grayScaleValues[i][j] = gray;
+            }
+        }
     }
 
     private void setBitmapNewValEqualization() {
@@ -1670,10 +1723,13 @@ public class UtsActivity extends AppCompatActivity {
                 greenPixel2 = of.getPixImageGreen();
                 bluePixel2 = of.getPixImageBlue();
             } else if (value == SHOW_SOBEL) {
-                of = new OperatorFilter(grayScaleValues, height, width);
-                of.runSobelOperation();
-                grayScaleValues = new int[height][width];
-                grayScaleValues = of.getPixImageGS();
+                runOperator(SHOW_SOBEL);
+            } else if (value == SHOW_PREWIT) {
+                runOperator(SHOW_PREWIT);
+            } else if (value == SHOW_FREI_CHEN) {
+                runOperator(SHOW_FREI_CHEN);
+            } else if (value == SHOW_ROBERT) {
+                runOperator(SHOW_ROBERT);
             }
 
             return value;
@@ -1684,11 +1740,39 @@ public class UtsActivity extends AppCompatActivity {
             Log.d(TAG, "onPostExecute");
             dialog.dismiss();
 
-            if (a == SHOW_SOBEL) {
+            if (a == SHOW_SOBEL || a == SHOW_PREWIT || a == SHOW_FREI_CHEN || a == SHOW_ROBERT) {
                 setBitmapGrayscale();
             } else setBitmapResultMatrix2d();
-            setAdapterUts(a);
         }
+    }
+
+    private void runOperator(int type) {
+        OperatorFilter of;
+        OtsuThresholder otsuThresholder;
+        otsuThresholder = new OtsuThresholder();
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        originalPhoto.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        bytePhoto = stream.toByteArray();
+        byte[] monoData = new byte[bytePhoto.length];
+
+        Log.d(TAG, "threshold : " + threshold);
+        threshold = otsuThresholder.doThreshold(bytePhoto, monoData);
+        Log.d(TAG, "threshold : " + threshold);
+
+        initChangePixel();
+        bitmapAnalyzerForOtsu();
+        setGrayScaleValuesFromBitmap();
+
+        of = new OperatorFilter(grayScaleValues, height, width);
+
+        if (type == SHOW_SOBEL) of.runSobelOperation();
+        else if (type == SHOW_PREWIT) of.runPrewitOperation();
+        else if (type == SHOW_FREI_CHEN) of.runFreiChenOperation();
+        else if (type == SHOW_ROBERT) of.runRobertOperation();
+
+        grayScaleValues = new int[height][width];
+        grayScaleValues = of.getPixImageGS();
     }
 
     private class PredictUsingChainCode extends AsyncTask<Void, Void, String> {
