@@ -1,11 +1,14 @@
 package com.alhudaghifari.bildghifar.tugasUTS;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
 // 3 x 3
 public class OperatorFilter{
 
+    private static final String TAG = OperatorFilter.class.getSimpleName();
     private int width;
     private int height;
 
@@ -162,8 +165,13 @@ public class OperatorFilter{
         }
     }
 
-    public void runFreiChenOperation() {
-        double squareRootTwo = 1.4142;
+    public void runCustomOperation(double vval00, double vval01, double vval02,
+                                   double vval10, double vval11, double vval12,
+                                   double vval20, double vval21, double vval22) {
+
+        Log.d(TAG, "val00 : " + vval00 + " val01 : " + vval01 + " val02 : " + vval02 + "\n" +
+                "val10 : " + vval10 + " val11 : " + vval11 + " val12 : " + vval12 + "\n" +
+                "val20 : " + vval20 + " val21 : " + vval21 + " val22 : " + vval22 + "\n");
         int[][] edgeColors = new int[width][height];
         int maxGradient = -1;
 
@@ -181,14 +189,13 @@ public class OperatorFilter{
                 int val21 = pixImageGS[j][i+1];
                 int val22 = pixImageGS[j+1][i+1];
 
-                int gx = (int) (((-1 * val00) + (0 * val01) + (1 * val02))
-                        + ((-1 * squareRootTwo * val10) + (0 * val11) + (squareRootTwo * val12))
-                        + ((-1 * val20) + (0 * val21) + (1 * val22)));
+                int gx = (int) (((vval00 * val00) + (vval01 * val01) + (vval02 * val02))
+                        + ((vval10 * val10) + (vval11 * val11) + (vval12 * val12))
+                        + ((vval20 * val20) + (vval21 * val21) + (vval22 * val22)));
 
-                int gy = (int) (((-1 * val00) + (-1 * squareRootTwo * val01) + (-1 * val02))
-                        + ((0 * val10) + (0 * val11) + (0 * val12))
-                        + ((1 * val20) + (squareRootTwo * val21) + (1 * val22)));
-
+                int gy = (int) (((vval00 * val00) + (vval10 * val01) + (vval20 * val02))
+                        + ((vval01 * val10) + (vval11 * val11) + (vval21 * val12))
+                        + ((vval02 * val20) + (vval12 * val21) + (vval22 * val22)));
 
                 double gval = Math.sqrt((gx * gx) + (gy * gy));
                 int g = (int) gval;
@@ -242,6 +249,60 @@ public class OperatorFilter{
                 int gy =  ((-1 * val00) + (-1 * val01) + (-1 * val02))
                         + ((0 * val10) + (0 * val11) + (0 * val12))
                         + ((1 * val20) + (1 * val21) + (1 * val22));
+
+
+                double gval = Math.sqrt((gx * gx) + (gy * gy));
+                int g = (int) gval;
+
+                if(maxGradient < g) {
+                    maxGradient = g;
+                }
+
+                edgeColors[i][j] = g;
+            }
+        }
+
+        double scale = 255.0 / maxGradient;
+
+        pixImageGS = new int[height][width];
+
+        for (int i = 1; i < width - 1; i++) {
+            for (int j = 1; j < height - 1; j++) {
+                int edgeColor = edgeColors[i][j];
+                edgeColor = (int)(edgeColor * scale);
+                edgeColor = 0xff000000 | (edgeColor << 16) | (edgeColor << 8) | edgeColor;
+
+                pixImageGS[j][i] = edgeColor;
+            }
+        }
+    }
+
+    public void runFreiChenOperation() {
+        double squareRootTwo = 1.4142;
+        int[][] edgeColors = new int[width][height];
+        int maxGradient = -1;
+
+        for (int i = 1; i < width - 1; i++) {
+            for (int j = 1; j < height - 1; j++) {
+                int val00 = pixImageGS[j-1][i-1];
+                int val01 = pixImageGS[j][i-1];
+                int val02 =  pixImageGS[j+1][i-1];
+
+                int val10 = pixImageGS[j-1][i];
+                int val11 = pixImageGS[j][i];
+                int val12 =  pixImageGS[j+1][i];
+
+                int val20 = pixImageGS[j-1][i+1];
+                int val21 = pixImageGS[j][i+1];
+                int val22 = pixImageGS[j+1][i+1];
+
+                int gx = (int) (((-1 * val00) + (0 * val01) + (1 * val02))
+                        + ((-1 * squareRootTwo * val10) + (0 * val11) + (squareRootTwo * val12))
+                        + ((-1 * val20) + (0 * val21) + (1 * val22)));
+
+                int gy = (int) (((-1 * val00) + (-1 * squareRootTwo * val01) + (-1 * val02))
+                        + ((0 * val10) + (0 * val11) + (0 * val12))
+                        + ((1 * val20) + (squareRootTwo * val21) + (1 * val22)));
 
 
                 double gval = Math.sqrt((gx * gx) + (gy * gy));
