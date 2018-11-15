@@ -104,6 +104,14 @@ public class RecyclerUts extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 viewHolderSolution.mTextViewNamaIcon.setText("Robert");
                 break;
             case 14:
+                viewHolderSolution.mImageViewIcon.setImageResource(R.drawable.ic_blur_linear_white);
+                viewHolderSolution.mTextViewNamaIcon.setText("Custom Operator");
+                break;
+            case 15:
+                viewHolderSolution.mImageViewIcon.setImageResource(R.drawable.ic_face_white);
+                viewHolderSolution.mTextViewNamaIcon.setText("Face Detection");
+                break;
+            case 16:
                 viewHolderSolution.mImageViewIcon.setImageResource(R.drawable.ic_refresh_white);
                 viewHolderSolution.mTextViewNamaIcon.setText("Refresh");
                 break;

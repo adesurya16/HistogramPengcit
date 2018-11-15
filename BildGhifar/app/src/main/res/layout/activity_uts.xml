@@ -251,6 +251,157 @@
 
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/linlayCustomOperator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/et00"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:maxLines="1"
+                    android:hint="1"
+                    android:gravity="center"
+                    android:inputType="numberSigned|numberDecimal"
+                    android:layout_weight="1"/>
+
+                <EditText
+                    android:id="@+id/et01"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:maxLines="1"
+                    android:hint="1"
+                    android:gravity="center"
+                    android:inputType="numberSigned|numberDecimal"
+                    android:layout_weight="1"/>
+
+                <EditText
+                    android:id="@+id/et02"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:maxLines="1"
+                    android:hint="1"
+                    android:gravity="center"
+                    android:inputType="numberSigned|numberDecimal"
+                    android:layout_weight="1"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/et10"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:maxLines="1"
+                    android:hint="1"
+                    android:gravity="center"
+                    android:inputType="numberSigned|numberDecimal"
+                    android:layout_weight="1"/>
+
+                <EditText
+                    android:id="@+id/et11"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:maxLines="1"
+                    android:hint="1"
+                    android:gravity="center"
+                    android:inputType="numberSigned|numberDecimal"
+                    android:layout_weight="1"/>
+
+                <EditText
+                    android:id="@+id/et12"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:maxLines="1"
+                    android:hint="1"
+                    android:gravity="center"
+                    android:inputType="numberSigned|numberDecimal"
+                    android:layout_weight="1"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/et20"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:maxLines="1"
+                    android:hint="1"
+                    android:gravity="center"
+                    android:inputType="numberSigned|numberDecimal"
+                    android:layout_weight="1"/>
+
+                <EditText
+                    android:id="@+id/et21"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:maxLines="1"
+                    android:hint="1"
+                    android:gravity="center"
+                    android:inputType="numberSigned|numberDecimal"
+                    android:layout_weight="1"/>
+
+                <EditText
+                    android:id="@+id/et22"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:maxLines="1"
+                    android:hint="1"
+                    android:gravity="center"
+                    android:inputType="numberSigned|numberDecimal"
+                    android:layout_weight="1"/>
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnCustomOperation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/halfblue"
+                android:text="Commit"
+                android:textColor="@color/white_pollar"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"/>
+
+
+        </LinearLayout>
+
         <TextView
             android:id="@+id/tvPrediction"
             android:layout_width="wrap_content"
