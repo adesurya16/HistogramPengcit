@@ -17,6 +17,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -60,11 +62,22 @@ public class UtsActivity extends AppCompatActivity {
     private LinearLayout linlayJudul;
     private LinearLayout linlayThreshold;
     private LinearLayout linlayThresholdThinning;
+    private LinearLayout linlayCustomOperator;
 
     private RelativeLayout rellayMainPhoto;
 
     private ImageView ivCheckDone;
     private ImageView ivCheckEqualizer;
+
+    private EditText et00;
+    private EditText et01;
+    private EditText et02;
+    private EditText et10;
+    private EditText et11;
+    private EditText et12;
+    private EditText et20;
+    private EditText et21;
+    private EditText et22;
 
     private Bitmap originalPhoto;
     private Bitmap output;
@@ -95,7 +108,8 @@ public class UtsActivity extends AppCompatActivity {
     private ProgressBar progress_bar;
     private Collection cs;
 
-    ProgressDialog dialog;
+    private ProgressDialog dialog;
+    private Button btnCustomOperator;
 
     private BarChart redChart;
     private BarChart greenChart;
@@ -112,11 +126,22 @@ public class UtsActivity extends AppCompatActivity {
     private int[][] greenPixel2;
     private int[][] bluePixel2;
     private int[][] pixel;
+    private int[][] matrixBw;
 
     private BarChart buzier_red_chart_hasil;
     private BarChart buzier_green_chart_hasil;
     private BarChart buzier_blue_chart_hasil;
     private BarChart buzier_gray_chart_hasil;
+
+    private double val00;
+    private double val01;
+    private double val02;
+    private double val10;
+    private double val11;
+    private double val12;
+    private double val20;
+    private double val21;
+    private double val22;
 
     private ZhangSuen zhangSuen;
     private PredictCharUsingChainCode predictCharUsingChainCode;
@@ -141,7 +166,9 @@ public class UtsActivity extends AppCompatActivity {
     private final int SHOW_PREWIT = 11;
     private final int SHOW_FREI_CHEN = 12;
     private final int SHOW_ROBERT = 13;
-    private final int SHOW_HOME = 14;
+    private final int SHOW_CUSTOM_OPERATOR = 14;
+    private final int SHOW_FACE_DETECTION = 15;
+    private final int SHOW_HOME = 16;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,6 +180,17 @@ public class UtsActivity extends AppCompatActivity {
 
         linlaySubMenu = (LinearLayout) findViewById(R.id.linlaySubMenu);
         linlayJudul = (LinearLayout) findViewById(R.id.linlayJudul);
+        linlayCustomOperator = (LinearLayout) findViewById(R.id.linlayCustomOperator);
+        et00 = (EditText) findViewById(R.id.et00);
+        et01 = (EditText) findViewById(R.id.et01);
+        et02 = (EditText) findViewById(R.id.et02);
+        et10 = (EditText) findViewById(R.id.et10);
+        et11 = (EditText) findViewById(R.id.et11);
+        et12 = (EditText) findViewById(R.id.et12);
+        et20 = (EditText) findViewById(R.id.et20);
+        et21 = (EditText) findViewById(R.id.et21);
+        et22 = (EditText) findViewById(R.id.et22);
+        btnCustomOperator = (Button) findViewById(R.id.btnCustomOperation);
         rellayMainPhoto = (RelativeLayout) findViewById(R.id.rellayMainPhoto);
         svEqualizer = (ScrollView) findViewById(R.id.svEqualizer);
         svHistogram = (ScrollView) findViewById(R.id.svHistogram);
@@ -307,6 +345,10 @@ public class UtsActivity extends AppCompatActivity {
                         new FilterImage().execute(new Integer(SHOW_FREI_CHEN));
                     } else if (posisi == SHOW_ROBERT) {
                         new FilterImage().execute(new Integer(SHOW_ROBERT));
+                    } else if (posisi == SHOW_CUSTOM_OPERATOR) {
+                        showPage(SHOW_CUSTOM_OPERATOR);
+                    } else if (posisi == SHOW_FACE_DETECTION) {
+                        new DetectFace().execute();
                     }
                     else  {
                         setAdapterUts(posisi);
@@ -315,6 +357,36 @@ public class UtsActivity extends AppCompatActivity {
                 }
             }
         };
+
+        btnCustomOperator.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (et00.getText().toString().trim().isEmpty()) val00 = 1;
+                else val00 = Double.parseDouble(et00.getText().toString().trim());
+                if (et01.getText().toString().trim().isEmpty()) val01 = 1;
+                else val01 = Double.parseDouble(et01.getText().toString().trim());
+                if (et02.getText().toString().trim().isEmpty()) val02 = 1;
+                else val02 = Double.parseDouble(et02.getText().toString().trim());
+                if (et10.getText().toString().trim().isEmpty()) val10 = 1;
+                else val10 = Double.parseDouble(et10.getText().toString().trim());
+                if (et11.getText().toString().trim().isEmpty()) val11 = 1;
+                else val11 = Double.parseDouble(et11.getText().toString().trim());
+                if (et12.getText().toString().trim().isEmpty()) val12 = 1;
+                else val12 = Double.parseDouble(et12.getText().toString().trim());
+                if (et20.getText().toString().trim().isEmpty()) val20 = 1;
+                else val20 = Double.parseDouble(et20.getText().toString().trim());
+                if (et21.getText().toString().trim().isEmpty()) val21 = 1;
+                else val21 = Double.parseDouble(et21.getText().toString().trim());
+                if (et22.getText().toString().trim().isEmpty()) val22 = 1;
+                else val22 = Double.parseDouble(et22.getText().toString().trim());
+
+                Log.d(TAG, "val00 : " + val00 + " val01 : " + val01 + " val02 : " + val02 + "\n" +
+                                "val10 : " + val10 + " val11 : " + val11 + " val12 : " + val12 + "\n" +
+                                "val20 : " + val20 + " val21 : " + val21 + " val22 : " + val22 + "\n");
+
+                new FilterImage().execute(new Integer(SHOW_CUSTOM_OPERATOR));
+            }
+        });
 
         linlayJudul.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -555,7 +627,7 @@ public class UtsActivity extends AppCompatActivity {
                 new LinearLayoutManager(UtsActivity.this, LinearLayoutManager.HORIZONTAL, false);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
         mRecyclerView.setNestedScrollingEnabled(false);
-        recyclerUts = new RecyclerUts(UtsActivity.this, 15, clicked);
+        recyclerUts = new RecyclerUts(UtsActivity.this, 17, clicked);
         recyclerUts.setOnButtonYaListener(onButtonClickListener);
         mRecyclerView.setAdapter(recyclerUts);
         mRecyclerView.post(new Runnable() {
@@ -639,6 +711,11 @@ public class UtsActivity extends AppCompatActivity {
                 rellayMainPhoto.setVisibility(View.GONE);
                 svHistogram.setVisibility(View.VISIBLE);
                 break;
+            case SHOW_CUSTOM_OPERATOR:
+                linlaySubMenu.setVisibility(View.VISIBLE);
+                tvJudulMenu.setText("Custom Operator");
+                linlayCustomOperator.setVisibility(View.VISIBLE);
+                break;
             default:
                 statusPage = page;
                 linlaySubMenu.setVisibility(View.GONE);
@@ -646,6 +723,220 @@ public class UtsActivity extends AppCompatActivity {
         }
     }
 
+    ///** =========== kode untuk FACE DETECTION - start ============= **///
+    ///** =========== kode untuk FACE DETECTION - start ============= **///
+
+    private int sumOfRowColValue;
+    private int[] sumHeight;
+    private int[] sumWidth;
+
+    private class DetectFace extends AsyncTask<Void, Void, String> {
+        @Override
+        protected void onPreExecute() {
+            Log.d(TAG, "onPreExecute");
+            dialog = ProgressDialog.show(UtsActivity.this, "Loading",
+                    "Loading. Please wait...", true);
+            dialog.setCancelable(false);
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            Log.d(TAG, "doInBackground");
+//            imageToYCbCrOperation();
+            imageSkinRgbOperation();
+            findMinimumBounding();
+            return "";
+        }
+
+        @Override
+        protected void onPostExecute(String a) {
+            Log.d(TAG, "onPostExecute");
+            dialog.dismiss();
+            setImageToYCbCr();
+        }
+    }
+
+    private void findMinimumBounding() {
+        double row_rt = sumOfRowColValue / height;
+        double col_rt = sumOfRowColValue / width;
+        double ht = 0.66 * row_rt;
+        double vt = 0.43 * col_rt;
+        int row_new[] = new int[height];
+        int col_new[] = new int[width];
+        int x_start = 0;
+        int x_end = 0;
+        int y_start = 0;
+        int y_end = 0;
+        int x1 = height;
+        int x2 = 0;
+        int y1 = width;
+        int y2 = 0;
+        int val;
+
+        for (int i=0;i<height;i++) {
+            if (sumHeight[i] >= ht)
+                row_new[i] = 1;
+            else
+                row_new[i] = 0;
+        }
+
+        for (int i=0;i<width;i++) {
+            if (sumWidth[i] >= vt)
+                col_new[i] = 1;
+            else
+                col_new[i] = 0;
+        }
+
+        for (int i=0;i<height;i++) {
+            for (int j=0;j<width;j++) {
+                if (row_new[i] == 1 &&
+                        col_new[j] == 1) {
+                    if (i < x1) x1 = i;
+                    if (i > x2) x2 = i;
+                    if (j < y1) y1 = j;
+                    if (j > y2) y2 = j;
+
+                    x_start = x1;
+                    x_end = x2;
+                    y_start = y1;
+                    y_end = y2;
+                }
+            }
+        }
+
+        Log.d(TAG, "height : " + height + " width : " + width);
+        Log.d(TAG, "X_START : " + x_start + " x_end : " + x_end);
+        Log.d(TAG, "Y_START : " + y_start + " y_end : " + y_end);
+
+        for (int i=0;i<height;i++) {
+            for (int j=0;j<width;j++) {
+                if ((i > y_start && i < y_start + 5 &&
+                        j > x_start && j < x_end))
+                    val = Color.rgb(
+                            200,
+                            0,
+                            0);
+                else if (i > y_end - 15 && i < y_end - 10 &&
+                        j > x_start && j < x_end)
+                    val = Color.rgb(
+                            200,
+                            0,
+                            0);
+                else if ((j == x_start || j == x_end) &&
+                        i > y_start && i < y_end - 10)
+                    val = Color.rgb(
+                            200,
+                            0,
+                            0);
+                else val = matrixBw[i][j];
+                output.setPixel(j, i, val);
+            }
+        }
+    }
+
+    // dari paper https://ieeexplore.ieee.org/abstract/document/6982471
+    private void imageSkinRgbOperation() {
+        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
+        height = bd.getBitmap().getHeight();
+        width = bd.getBitmap().getWidth();
+        int val;
+        sumOfRowColValue = 0;
+        sumHeight = new int[height];
+        sumWidth = new int[width];
+
+        matrixBw = new int[height][width];
+        output = bd.getBitmap().copy(Bitmap.Config.RGB_565, true);
+
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j) {
+                int r = redPixel2[i][j];
+                int g = greenPixel2[i][j];
+                int b = bluePixel2[i][j];
+
+                // Under flashlight or daylight called lateral illumination:
+                //if (r > 20 && g > 210 && b > 170 && Math.abs(r-g) < 15 &&
+                //      r > g && g > b)
+
+                // For uniform daylight illumination:
+                if (r > 95 && g > 40 && b > 20 && r > g &&
+                        r > b && Math.abs(r-g) > 15 &&
+                        (Math.max(Math.max(r,g), b) - Math.min(Math.min(r,g), b)) > 15)
+                    val = Color.rgb(
+                            255,
+                            255,
+                            255);
+                else
+                    val = Color.rgb(
+                            0,
+                            0,
+                            0);
+
+                sumOfRowColValue += pixel[i][j];
+                matrixBw[i][j] = val;
+                sumHeight[i] += pixel[i][j];
+                sumWidth[j] += pixel[i][j];
+            }
+        }
+    }
+
+    private void imageToYCbCrOperation() {
+        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
+        int height = bd.getBitmap().getHeight();
+        int width = bd.getBitmap().getWidth();
+
+        output = bd.getBitmap().copy(Bitmap.Config.RGB_565, true);
+
+        // dari paper https://ieeexplore.ieee.org/abstract/document/6982471
+        double tetha = 2.53;
+        double costetha = Math.cos(tetha);
+        double sintetha = Math.sin(tetha);
+        double Cx = 109.38;
+        double Cy = 152.02;
+        double ecx = 2.41;
+        double ecy = 2.53;
+        double a = 25.39;
+        double b = 14.03;
+        int val;
+
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j) {
+
+                int r = redPixel2[i][j];
+                int g = greenPixel2[i][j];
+                int blue = bluePixel2[i][j];
+
+                int Y = (int)(0.299*r+0.587*g+0.114*blue);
+                int Cb=(int)(128-0.169*r-0.332*g+0.500*blue);
+                int Cr =(int)(128+0.500*r-0.419*g-0.081*blue);
+
+                double CbMinCx = Cb - Cx;
+                double CrMinCy = Cr - Cy;
+                double x = costetha * CbMinCx + sintetha * CrMinCy;
+                double y = (-1*sintetha*CbMinCx) + costetha * CrMinCy;
+                double equation1 = ((x - ecx) * (x - ecx)) / (a * a);
+                double equation2 = ((y - ecy) * (y - ecy)) / (b * b);
+
+                Log.d(TAG, "equation : " + (int)(equation1 + equation2));
+
+                if ((int) (equation1 + equation2) == 1)
+                    val = Color.rgb(
+                            255,
+                            255,
+                            255);
+                else
+                    val = (Y<<16) | (Cb<<8) | Cr;
+
+                output.setPixel(j, i, val);
+            }
+        }
+    }
+
+    private void setImageToYCbCr() {
+        photoView.setImageBitmap(output);
+    }
+
+    ///** =========== kode untuk FACE DETECTION - END ============= **///
+    ///** =========== kode untuk FACE DETECTION - END ============= **///
 
     /// =========== kode untuk brightness - start ============= //
 
@@ -1681,7 +1972,7 @@ public class UtsActivity extends AppCompatActivity {
             }
         }
     }
-
+    
     private class FilterImage extends AsyncTask<Integer, Void, Integer> {
         @Override
         protected void onPreExecute() {
@@ -1730,6 +2021,8 @@ public class UtsActivity extends AppCompatActivity {
                 runOperator(SHOW_FREI_CHEN);
             } else if (value == SHOW_ROBERT) {
                 runOperator(SHOW_ROBERT);
+            } else if (value == SHOW_CUSTOM_OPERATOR) {
+                runOperator(SHOW_CUSTOM_OPERATOR);
             }
 
             return value;
@@ -1740,7 +2033,7 @@ public class UtsActivity extends AppCompatActivity {
             Log.d(TAG, "onPostExecute");
             dialog.dismiss();
 
-            if (a == SHOW_SOBEL || a == SHOW_PREWIT || a == SHOW_FREI_CHEN || a == SHOW_ROBERT) {
+            if (a == SHOW_SOBEL || a == SHOW_PREWIT || a == SHOW_FREI_CHEN || a == SHOW_ROBERT || a == SHOW_CUSTOM_OPERATOR) {
                 setBitmapGrayscale();
             } else setBitmapResultMatrix2d();
         }
@@ -1770,6 +2063,9 @@ public class UtsActivity extends AppCompatActivity {
         else if (type == SHOW_PREWIT) of.runPrewitOperation();
         else if (type == SHOW_FREI_CHEN) of.runFreiChenOperation();
         else if (type == SHOW_ROBERT) of.runRobertOperation();
+        else if (type == SHOW_CUSTOM_OPERATOR) of.runCustomOperation(val00, val01, val02,
+                                                                    val10, val11, val12,
+                                                                    val20, val21, val22);
 
         grayScaleValues = new int[height][width];
         grayScaleValues = of.getPixImageGS();
