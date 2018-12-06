@@ -744,7 +744,7 @@ public class UtsActivity extends AppCompatActivity {
             Log.d(TAG, "doInBackground");
 //            imageToYCbCrOperation();
             imageSkinRgbOperation();
-            findMinimumBoundingMatrixBW(initListFromMatrix(this.matrixBw));
+            findMinimumBoundingInmatrixBw(initListFromMatrix(matrixBw));
             return "";
         }
 
@@ -756,44 +756,49 @@ public class UtsActivity extends AppCompatActivity {
         }
     }
 
-    private ArrayList<Point> initListFromMatrix(int[][] matBW){
-        Arraylist<Point> pListResult = new ArrayList<Point>();
+    private ArrayList<point> initListFromMatrix(int[][] matBW){
+        ArrayList<point> pListResult = new ArrayList<point>();
         pListResult.clear();
+        int white = Color.rgb(
+                255,
+                255,
+                255);
         for(int i = 0; i < this.height; i++){
             for(int j = 0; j < this.width;j++){
-                if (matBW[i][j] == 1){
-                    pListResult.add(new Point(i, j));
+                if (matBW[i][j] == white){
+                    pListResult.add(new point(i, j));
                 }
             }
         }
         return pListResult;
     }
 
-    private void findMinimumBoundingInmatrixBw(ArrayList<Point> pList){
-        x_start = -1;
-        x_end = this.height;
-        y_start = -1;
-        y_end = this.width;
-        for(Point p : pList){
-            if (p.x == -1){
+    private void findMinimumBoundingInmatrixBw(ArrayList<point> pList){
+        int y_start = -1;
+        int y_end = this.height;
+        int x_start = -1;
+        int x_end = this.width;
+        int val;
+        for(point p : pList){
+            if (x_start == -1){
                 x_start = p.x;
             }else if(p.x < x_start){
                 x_start = p.x;
             }
 
-            if (p.x == this.height){
+            if (x_end == this.width){
                 x_end = p.x;
             }else if(p.x > x_end){
                 x_end = p.x;
             }
 
-            if (p.y == -1){
+            if (y_start == -1){
                 y_start = p.y;
             }else if(p.y < y_start){
                 y_start = p.y;
             }
 
-            if(p.y == this.width){
+            if(y_end == this.height){
                 y_end = p.y;
             }else if(p.y > y_end){
                 y_end = p.y;
@@ -808,27 +813,49 @@ public class UtsActivity extends AppCompatActivity {
         y_start -= 1;
         y_end += 1;
 
+        int temp;
+        temp = y_start;
+        y_start = x_start;
+        x_start = temp;
+
+        temp = y_end;
+        y_end = x_end;
+        x_end = temp;
+
         for (int i=0;i<height;i++) {
             for (int j=0;j<width;j++) {
-                if ((i > y_start && i < y_start + 5 &&
-                        j > x_start && j < x_end))
-                    val = Color.rgb(
-                            200,
-                            0,
-                            0);
-                else if (i > y_end - 15 && i < y_end - 10 &&
+//                if ((i > y_start && i < y_start + 5 &&
+//                        j > x_start && j < x_end))
+//                    val = Color.rgb(
+//                            200,
+//                            0,
+//                            0);
+//                else if (i > y_end + 15 && i < y_end + 10 &&
+//                        j > x_start && j < x_end)
+//                    val = Color.rgb(
+//                            200,
+//                            0,
+//                            0);
+                if ((i == y_start || i == y_end) &&
                         j > x_start && j < x_end)
                     val = Color.rgb(
                             200,
                             0,
                             0);
                 else if ((j == x_start || j == x_end) &&
-                        i > y_start && i < y_end - 10)
+                        i > y_start && i < y_end)
                     val = Color.rgb(
                             200,
                             0,
                             0);
+//                if ((i == y_start || i == y_end) && (j == x_start || j == x_end) ){
+//                    val = Color.rgb(
+//                            200,
+//                            0,
+//                            0);
+//                }
                 else val = matrixBw[i][j];
+
                 output.setPixel(j, i, val);
             }
         }
@@ -1426,6 +1453,10 @@ public class UtsActivity extends AppCompatActivity {
     private class point{
         public int x;
         public int y;
+        public point(int x, int y){
+            this.x = x;
+            this.y = y;
+        }
         public point(){
             this.x = 0;
             this.y = 0;
