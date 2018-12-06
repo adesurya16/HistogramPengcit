@@ -744,7 +744,7 @@ public class UtsActivity extends AppCompatActivity {
             Log.d(TAG, "doInBackground");
 //            imageToYCbCrOperation();
             imageSkinRgbOperation();
-            findMinimumBounding();
+            findMinimumBoundingMatrixBW(initListFromMatrix(this.matrixBw));
             return "";
         }
 
@@ -753,6 +753,84 @@ public class UtsActivity extends AppCompatActivity {
             Log.d(TAG, "onPostExecute");
             dialog.dismiss();
             setImageToYCbCr();
+        }
+    }
+
+    private ArrayList<Point> initListFromMatrix(int[][] matBW){
+        Arraylist<Point> pListResult = new ArrayList<Point>();
+        pListResult.clear();
+        for(int i = 0; i < this.height; i++){
+            for(int j = 0; j < this.width;j++){
+                if (matBW[i][j] == 1){
+                    pListResult.add(new Point(i, j));
+                }
+            }
+        }
+        return pListResult;
+    }
+
+    private void findMinimumBoundingInmatrixBw(ArrayList<Point> pList){
+        x_start = -1;
+        x_end = this.height;
+        y_start = -1;
+        y_end = this.width;
+        for(Point p : pList){
+            if (p.x == -1){
+                x_start = p.x;
+            }else if(p.x < x_start){
+                x_start = p.x;
+            }
+
+            if (p.x == this.height){
+                x_end = p.x;
+            }else if(p.x > x_end){
+                x_end = p.x;
+            }
+
+            if (p.y == -1){
+                y_start = p.y;
+            }else if(p.y < y_start){
+                y_start = p.y;
+            }
+
+            if(p.y == this.width){
+                y_end = p.y;
+            }else if(p.y > y_end){
+                y_end = p.y;
+            }
+        }
+
+        // jangan dipojok banget ntar error
+
+        x_start -= 1;
+        x_end += 1;
+
+        y_start -= 1;
+        y_end += 1;
+
+        for (int i=0;i<height;i++) {
+            for (int j=0;j<width;j++) {
+                if ((i > y_start && i < y_start + 5 &&
+                        j > x_start && j < x_end))
+                    val = Color.rgb(
+                            200,
+                            0,
+                            0);
+                else if (i > y_end - 15 && i < y_end - 10 &&
+                        j > x_start && j < x_end)
+                    val = Color.rgb(
+                            200,
+                            0,
+                            0);
+                else if ((j == x_start || j == x_end) &&
+                        i > y_start && i < y_end - 10)
+                    val = Color.rgb(
+                            200,
+                            0,
+                            0);
+                else val = matrixBw[i][j];
+                output.setPixel(j, i, val);
+            }
         }
     }
 
@@ -912,7 +990,7 @@ public class UtsActivity extends AppCompatActivity {
                 double CbMinCx = Cb - Cx;
                 double CrMinCy = Cr - Cy;
                 double x = costetha * CbMinCx + sintetha * CrMinCy;
-                double y = (-1*sintetha*CbMinCx) + costetha * CrMinCy;
+                double y = (-1*sintetha*CbMinCx) + costetha * CrMinCy;  
                 double equation1 = ((x - ecx) * (x - ecx)) / (a * a);
                 double equation2 = ((y - ecy) * (y - ecy)) / (b * b);
 
