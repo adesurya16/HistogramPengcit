@@ -744,7 +744,10 @@ public class UtsActivity extends AppCompatActivity {
             Log.d(TAG, "doInBackground");
 //            imageToYCbCrOperation();
             imageSkinRgbOperation();
-            findMinimumBoundingInmatrixBw(initListFromMatrix(matrixBw));
+//            findMinimumBoundingInmatrixBw(initListFromMatrix(matrixBw));
+
+            SkinningField sf = new SkinningField(redPixel2, greenPixel2, bluePixel2, matrixBw, height, width);
+            outToFile(sf.getMarkedObjectToBW());
             return "";
         }
 
@@ -771,6 +774,16 @@ public class UtsActivity extends AppCompatActivity {
             }
         }
         return pListResult;
+    }
+
+    private void outToFile(int mat[][]){
+        int val;
+        for(int i = 0;i < this.height; i++){
+            for(int j = 0; j< this.width; j++){
+                val = mat[i][j];
+                output.setPixel(j, i, val);
+            }
+        }
     }
 
     private void findMinimumBoundingInmatrixBw(ArrayList<point> pList){
