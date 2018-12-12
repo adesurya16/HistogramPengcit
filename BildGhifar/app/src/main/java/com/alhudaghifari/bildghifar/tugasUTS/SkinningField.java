@@ -26,8 +26,10 @@ public class SkinningField {
             0,
             0,
             0);
+    final int threshold = 1000;
 
     private ArrayList<ObjSkin> pListObjSkin;
+    private ArrayList<point> pList;
 
     private int[][] redPixel;
     private int[][] bluePixel;
@@ -89,6 +91,8 @@ public class SkinningField {
                 this.matrixBW[i][j] = matrixBW[i][j];
             }
         }
+
+        setObjectSkin();
     }
 
     public int[][] getGreenPixel() {
@@ -136,21 +140,21 @@ public class SkinningField {
         }
     }
 
-    public void getDeletedPointSkin(ArrayList<point> pList, int px, int py){
+    public void getDeletedPointSkin(int px, int py){
         // pList harus udah clear dipanggilan pertama
-        if ((px >= 0 && px < this.height) && (py >= 0 && py < this.width)){
+//        if ((px >= 0 && px < this.height) && (py >= 0 && py < this.width)){
             if (this.matrixBW[px][py] == whiteVal){
                 pList.add(new point(px, py));
                 this.matrixBW[px][py] = blackVal;
                 for(int i=0;i < this.iterationDirections.length - 1 ;i++){
                     int dx = px + iterationDirections[i][1];
                     int dy = py + iterationDirections[i][0];
-                    if ((dx >= 0 && dx < this.height) && (dy >= 0 && dx < this.width)){
-                        getDeletedPointSkin(pList, dx, dy);
+                    if ((dx >= 0 && dx < this.height) && (dy >= 0 && dy < this.width)){
+                        getDeletedPointSkin(dx, dy);
                     }
                 }
             }
-        }
+//        }
     }
 
     public int[][] getMatrixFromListPoint(ArrayList<point> pList){
@@ -188,10 +192,13 @@ public class SkinningField {
             for(int j = 0;j<this.width;j++){
                 int x = i;
                 int y = j;
-                ArrayList<point> toDelete = new ArrayList<>();
+//                ArrayList<point> toDelete = new ArrayList<>();
                 if (this.matrixBW[x][y] == whiteVal){
-                    getDeletedPointSkin(toDelete, x, y);
-                    this.pListObjSkin.add(new ObjSkin(toDelete, this.height, this.width));
+                    pList = new ArrayList<>();
+                    getDeletedPointSkin(x, y);
+                    if(pList.size() > threshold) {
+                        this.pListObjSkin.add(new ObjSkin(pList, this.height, this.width));
+                    }
                 }
             }
         }
@@ -215,10 +222,10 @@ public class SkinningField {
                 // per component
                 ArrayList<Component> pComp = p.getComponentList();
                 for(Component c: pComp){
-                    boundingObject(matBWTmp, redVal, c.Xmax, c.Xmin, c.Ymax, c.Ymin);
+                    boundingObject(matBWTmp, blueVal, c.Xmax, c.Xmin, c.Ymax, c.Ymin);
                 }
             }else{
-                boundingObject(matBWTmp, blueVal, p.Xmax, p.Xmin, p.Ymax, p.Ymin);
+//                boundingObject(matBWTmp, blueVal, p.Xmax, p.Xmin, p.Ymax, p.Ymin);
             }
         }
         return matBWTmp;
@@ -227,7 +234,7 @@ public class SkinningField {
     public void boundingObject(int mat[][], int val, int xmax, int xmin, int ymax, int ymin){
         for(int i = xmin; i <xmin+1;i++){
             for(int j = ymin; j< ymin+1;j++){
-                if((i == xmin || i == xmax ) && (j == ymin || j == ymax) ){
+                if((i == xmin || i == xmax ) || (j == ymin || j == ymax) ){
                     mat[i][j] = val;
                 }
             }
@@ -249,10 +256,10 @@ public class SkinningField {
                 // per component
                 ArrayList<Component> pComp = p.getComponentList();
                 for(Component c: pComp){
-                    boundingObject(matRGBTmp, redVal, c.Xmax, c.Xmin, c.Ymax, c.Ymin);
+                    boundingObject(matRGBTmp, blueVal, c.Xmax, c.Xmin, c.Ymax, c.Ymin);
                 }
             }else{
-                boundingObject(matRGBTmp, blueVal, p.Xmax, p.Xmin, p.Ymax, p.Ymin);
+//                boundingObject(matRGBTmp, blueVal, p.Xmax, p.Xmin, p.Ymax, p.Ymin);
             }
         }
         return matRGBTmp;

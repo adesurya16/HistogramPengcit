@@ -2252,6 +2252,7 @@ public class UtsActivity extends AppCompatActivity {
         int height = bd.getBitmap().getHeight();
         int width = bd.getBitmap().getWidth();
 
+
         output = output.copy(Bitmap.Config.RGB_565, true);
 
         for (int i = 0; i < height; ++i) {

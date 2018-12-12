@@ -60,12 +60,12 @@ public class Component {
     public void initMatrixFromList(ArrayList<point> pList){
         for(int i=0;i<this.height;i++){
             for(int j=0;j<this.width;j++){
-                this.matrixBW[i][j] = 0;
+                this.matrixBW[i][j] = blackVal;
             }
         }
 
         for(point p: pList){
-            this.matrixBW[p.x][p.y] = 1;
+            this.matrixBW[p.x][p.y] = whiteVal;
         }
     }
 

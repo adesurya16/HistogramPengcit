@@ -29,6 +29,9 @@ public class ObjSkin {
     private int height;
     private int width;
 
+    private boolean isHole;
+    private ArrayList<point> pList;
+
     // bouded point
     public int Xmax;
     public int Ymax;
@@ -55,6 +58,7 @@ public class ObjSkin {
         this.width = width;
 
         getBoundedPoint();
+        detectHoleToList();
     }
 
     public ArrayList<Integer> getChainCodeList(){
@@ -152,15 +156,21 @@ public class ObjSkin {
             matBWTmp[i] = new int[this.width];
         }
         copyToMatrix(matBWTmp);
-        for(int i = this.Xmin;i<this.Xmax;i++){
-            for(int j = this.Ymin;j < this.Ymax;j++){
+        for(int i = this.Xmin;i<=this.Xmax;i++){
+            for(int j = this.Ymin;j <= this.Ymax;j++){
                 int x = i;
                 int y = j;
-                ArrayList<point> toDelete = new ArrayList<>();
-                boolean isHole = true;
                 if (this.matrixBW[x][y] == blackVal){
-                    getDeletedPointSkinComponent(isHole, toDelete, x, y);
-                    if (isHole) this.componentList.add(new Component(toDelete, this.height, this.width));
+                    // System.out.println("current hole");
+                    isHole = true;
+                    pList = new ArrayList<>();
+                    getDeletedPointSkinComponent(x, y);
+                    if (isHole) {
+                        this.componentList.add(new Component(pList, this.height, this.width));
+                        // System.out.println("NEW component");
+                    }else {
+                        // System.out.println("NOT component");
+                    }
                 }
             }
         }
@@ -169,42 +179,41 @@ public class ObjSkin {
 
 
 
-    public void getDeletedPointSkinComponent(boolean isHole, ArrayList<point> pList, int px, int py){
+    public void getDeletedPointSkinComponent(int px, int py){
         // pList harus udah clear dipanggilan pertama
-        if ((px >= this.Xmin && px < this.Xmax) && (py >= this.Ymin && py < this.Ymax)){
+
             if (this.matrixBW[px][py] == blackVal){
                 pList.add(new point(px, py));
                 this.matrixBW[px][py] = whiteVal;
                 for(int i=0;i < this.iterationDirections.length - 1 ;i++){
                     int dx = px + iterationDirections[i][1];
                     int dy = py + iterationDirections[i][0];
-                    if ((px >= this.Xmin && px < this.Xmax) && (py >= this.Ymin && py < this.Ymax)){
-                        getDeletedPointSkinComponent(isHole, pList, dx, dy);
+                    if ((dx >= this.Xmin && dx <= this.Xmax) && (dy >= this.Ymin && dy <= this.Ymax)){
+                        getDeletedPointSkinComponent(dx, dy);
                     }else {
                         isHole = false;
                     }
                 }
             }
-        }else{
-            isHole = false;
         }
     }
 
     public boolean IsFaceDetected(){
-        int isEye = 0;
-        int isNose = 0;
-        int isMouth = 0;
-        for(Component p: this.componentList){
-            if (p.isEye()) {
-                isEye++;
-            }else if (p.isNose()){
-                isNose++;
-            }else if(p.isMouth()){
-                isNose++;
-            }
-        }
-        if(isEye == 2 && isNose == 1 && isMouth == 1){
-            return true;
-        }else return false;
+        return true;
+//        int isEye = 0;
+//        int isNose = 0;
+//        int isMouth = 0;
+//        for(Component p: this.componentList){
+//            if (p.isEye()) {
+//                isEye++;
+//            }else if (p.isNose()){
+//                isNose++;
+//            }else if(p.isMouth()){
+//                isNose++;
+//            }
+//        }
+//        if(isEye == 2 && isNose == 1 && isMouth == 1){
+//            return true;
+//        }else return false;
     }
 }
