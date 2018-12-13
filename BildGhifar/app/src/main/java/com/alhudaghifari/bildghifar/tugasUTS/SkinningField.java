@@ -1,6 +1,7 @@
 package com.alhudaghifari.bildghifar.tugasUTS;
 
 import android.graphics.Color;
+import android.util.Log;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -89,6 +90,8 @@ public class SkinningField {
                 this.matrixBW[i][j] = matrixBW[i][j];
             }
         }
+
+        setObjectSkin();
     }
 
     public int[][] getGreenPixel() {
@@ -136,21 +139,29 @@ public class SkinningField {
         }
     }
 
+    long lalala = 0;
+
     public void getDeletedPointSkin(ArrayList<point> pList, int px, int py){
         // pList harus udah clear dipanggilan pertama
-        if ((px >= 0 && px < this.height) && (py >= 0 && py < this.width)){
+
             if (this.matrixBW[px][py] == whiteVal){
-                pList.add(new point(px, py));
+//                if (lalala < 500) {
+                    pList.add(new point(px, py));
+//                    Log.d(SkinningField.class.getSimpleName(), "lala : " + lalala + " px : " + px
+//                            + " py : " + py);
+                    lalala++;
+//                }
                 this.matrixBW[px][py] = blackVal;
                 for(int i=0;i < this.iterationDirections.length - 1 ;i++){
                     int dx = px + iterationDirections[i][1];
                     int dy = py + iterationDirections[i][0];
                     if ((dx >= 0 && dx < this.height) && (dy >= 0 && dx < this.width)){
+                        if (lalala <1000)
                         getDeletedPointSkin(pList, dx, dy);
                     }
                 }
             }
-        }
+
     }
 
     public int[][] getMatrixFromListPoint(ArrayList<point> pList){
@@ -173,7 +184,7 @@ public class SkinningField {
 
         return matrixBWTmp;
     }
-
+    ArrayList<point> toDelete;
     public void setObjectSkin(){
         this.pListObjSkin.clear();
 
@@ -183,12 +194,11 @@ public class SkinningField {
         }
 
         copyToMatrix(matBWTmp);
-
         for(int i = 0;i<this.height;i++){
             for(int j = 0;j<this.width;j++){
                 int x = i;
                 int y = j;
-                ArrayList<point> toDelete = new ArrayList<>();
+                toDelete = new ArrayList<>();
                 if (this.matrixBW[x][y] == whiteVal){
                     getDeletedPointSkin(toDelete, x, y);
                     this.pListObjSkin.add(new ObjSkin(toDelete, this.height, this.width));

@@ -1030,7 +1030,7 @@ public class UtsActivity extends AppCompatActivity {
                 double CbMinCx = Cb - Cx;
                 double CrMinCy = Cr - Cy;
                 double x = costetha * CbMinCx + sintetha * CrMinCy;
-                double y = (-1*sintetha*CbMinCx) + costetha * CrMinCy;  
+                double y = (-1*sintetha*CbMinCx) + costetha * CrMinCy;
                 double equation1 = ((x - ecx) * (x - ecx)) / (a * a);
                 double equation2 = ((y - ecy) * (y - ecy)) / (b * b);
 

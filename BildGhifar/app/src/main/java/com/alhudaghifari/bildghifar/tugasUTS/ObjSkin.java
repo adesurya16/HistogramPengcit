@@ -55,6 +55,7 @@ public class ObjSkin {
         this.width = width;
 
         getBoundedPoint();
+        detectHoleToList();
     }
 
     public ArrayList<Integer> getChainCodeList(){
