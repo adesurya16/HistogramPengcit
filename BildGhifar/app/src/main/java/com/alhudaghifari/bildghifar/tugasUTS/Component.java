@@ -32,6 +32,10 @@ public class Component {
     public int Xmin;
     public int Ymin;
 
+    public boolean isEye;
+    public boolean isMouth;
+    public boolean isNose;
+
     private ArrayList<point> pAreaComponent;
     private int[][] matrixBW;
     private ArrayList<Integer> chainCodeList;
@@ -49,7 +53,9 @@ public class Component {
         initMatrixFromList(pList);
         this.height = height;
         this.width = width;
-
+        isEye = false;
+        isMouth = false;
+        isNose = false;
         getBoundedPoint();
     }
 
@@ -60,12 +66,12 @@ public class Component {
     public void initMatrixFromList(ArrayList<point> pList){
         for(int i=0;i<this.height;i++){
             for(int j=0;j<this.width;j++){
-                this.matrixBW[i][j] = 0;
+                this.matrixBW[i][j] = blackVal;
             }
         }
 
         for(point p: pList){
-            this.matrixBW[p.x][p.y] = 1;
+            this.matrixBW[p.x][p.y] = whiteVal;
         }
     }
 
