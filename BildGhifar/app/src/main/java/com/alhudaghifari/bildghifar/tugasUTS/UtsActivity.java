@@ -2,12 +2,18 @@ package com.alhudaghifari.bildghifar.tugasUTS;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -37,8 +43,13 @@ import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -143,7 +154,10 @@ public class UtsActivity extends AppCompatActivity {
     private double val21;
     private double val22;
 
-    private ZhangSuen zhangSuen;
+    private boolean isFaceDetectionSeledted = false;
+
+    private String mTakePhotoPath;
+
     private PredictCharUsingChainCode predictCharUsingChainCode;
 
     private boolean isOpen = false;
@@ -273,8 +287,17 @@ public class UtsActivity extends AppCompatActivity {
                 Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
                 originalPhoto = BitmapFactory.decodeStream(imageStream);
 
-                selectedImage = getResizedBitmap(selectedImage, 400);// 400 is for example, replace with desired size
+                selectedImage = getResizedBitmap(selectedImage, 300);// 400 is for example, replace with desired size
                 originalPhoto = selectedImage;
+
+//                String[] filePath = { MediaStore.Images.Media.DATA };
+//                Cursor cursor = getContentResolver().query(imageUri, filePath, null, null, null);
+//                cursor.moveToFirst();
+//                mTakePhotoPath = cursor.getString(cursor.getColumnIndex(filePath[0]));
+//
+//                reducePhotoSize();
+//                Uri photoUri = Uri.fromFile( new File(mTakePhotoPath));
+//                Picasso.get().load(photoUri).into(photoView);
 
                 photoView.setImageBitmap(selectedImage);
                 tvPrediction.setText("Prediction : ");
@@ -283,6 +306,7 @@ public class UtsActivity extends AppCompatActivity {
                 output = selectedImage.copy(Bitmap.Config.RGB_565, true);
                 bitmapAnalyzer();
                 isPhotoSet = true;
+
             } catch (Exception e) {
                 e.printStackTrace();
                 Toast.makeText(UtsActivity.this, "foto ga ada gan", Toast.LENGTH_SHORT).show();
@@ -348,7 +372,11 @@ public class UtsActivity extends AppCompatActivity {
                     } else if (posisi == SHOW_CUSTOM_OPERATOR) {
                         showPage(SHOW_CUSTOM_OPERATOR);
                     } else if (posisi == SHOW_FACE_DETECTION) {
-                        new DetectFace().execute();
+                        isFaceDetectionSeledted = true;
+//                        new FilterImage().execute(new Integer(SHOW_MEDIAN));
+
+//                        if (isFaceDetectionSeledted)
+                            new DetectFace().execute();
                     }
                     else  {
                         setAdapterUts(posisi);
@@ -756,6 +784,7 @@ public class UtsActivity extends AppCompatActivity {
             Log.d(TAG, "onPostExecute");
             dialog.dismiss();
             setImageToYCbCr();
+            isFaceDetectionSeledted = false;
         }
     }
 
@@ -2158,6 +2187,7 @@ public class UtsActivity extends AppCompatActivity {
             if (a == SHOW_SOBEL || a == SHOW_PREWIT || a == SHOW_FREI_CHEN || a == SHOW_ROBERT || a == SHOW_CUSTOM_OPERATOR) {
                 setBitmapGrayscale();
             } else setBitmapResultMatrix2d();
+
         }
     }
 
@@ -2324,4 +2354,150 @@ public class UtsActivity extends AppCompatActivity {
 
     ///** =========== kode untuk thinning - start ============= **///
 
+    // reducing photo image
+
+
+    private void reducePhotoSize() {
+        Log.d(TAG,"call reducePhotoSize");
+        Bitmap scaledBitmap = null;
+        // Get the dimensions of the bitmap
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+        Bitmap bmp = BitmapFactory.decodeFile(mTakePhotoPath, bmOptions);
+
+        int actualHeight = bmOptions.outHeight;
+        int actualWidth = bmOptions.outWidth;
+
+        //max Height and width values of the compressed image is taken as 816x612
+
+        float maxHeight = 100.0f;
+        float maxWidth = 212.0f;
+        float imgRatio = actualWidth / actualHeight;
+        float maxRatio = maxWidth / maxHeight;
+
+        //width and height values are set maintaining the aspect ratio of the image
+
+        if (actualHeight > maxHeight || actualWidth > maxWidth) {
+            if (imgRatio < maxRatio) {               imgRatio = maxHeight / actualHeight;                actualWidth = (int) (imgRatio * actualWidth);               actualHeight = (int) maxHeight;             } else if (imgRatio > maxRatio) {
+                imgRatio = maxWidth / actualWidth;
+                actualHeight = (int) (imgRatio * actualHeight);
+                actualWidth = (int) maxWidth;
+            } else {
+                actualHeight = (int) maxHeight;
+                actualWidth = (int) maxWidth;
+            }
+        }
+
+        // setting inSampleSize value allows to load a scaled down version of the original image
+        bmOptions.inSampleSize = calculateInSampleSize(bmOptions, actualWidth, actualHeight);
+
+        // inJustDecodeBounds set to false to load the actual bitmap
+        bmOptions.inJustDecodeBounds = false;
+
+        // this options allow android to claim the bitmap memory if it runs low on memory
+        bmOptions.inPurgeable = true;
+        bmOptions.inInputShareable = true;
+        bmOptions.inTempStorage = new byte[16 * 1024];
+
+        try {
+            //load the bitmap from its path
+            bmp = BitmapFactory.decodeFile(mTakePhotoPath, bmOptions);
+        } catch (OutOfMemoryError exception) {
+            exception.printStackTrace();
+
+        }
+        try {
+            scaledBitmap = Bitmap.createBitmap(actualWidth, actualHeight,Bitmap.Config.ARGB_8888);
+        } catch (OutOfMemoryError exception) {
+            exception.printStackTrace();
+        }
+
+        float ratioX = actualWidth / (float) bmOptions.outWidth;
+        float ratioY = actualHeight / (float) bmOptions.outHeight;
+        float middleX = actualWidth / 2.0f;
+        float middleY = actualHeight / 2.0f;
+
+        Matrix scaleMatrix = new Matrix();
+        scaleMatrix.setScale(ratioX, ratioY, middleX, middleY);
+
+        Canvas canvas = new Canvas(scaledBitmap);
+        canvas.setMatrix(scaleMatrix);
+        canvas.drawBitmap(bmp, middleX - bmp.getWidth() / 2, middleY - bmp.getHeight() / 2, new Paint(Paint.FILTER_BITMAP_FLAG));
+
+        // check the rotation of the image and display it properly
+        ExifInterface exif;
+        try {
+            exif = new ExifInterface(mTakePhotoPath);
+
+            int orientation = exif.getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION, 0);
+            Log.d("EXIF", "Exif: " + orientation);
+            Matrix matrix = new Matrix();
+            if (orientation == 6) {
+                matrix.postRotate(90);
+                Log.d("EXIF", "Exif: " + orientation);
+            } else if (orientation == 3) {
+                matrix.postRotate(180);
+                Log.d("EXIF", "Exif: " + orientation);
+            } else if (orientation == 8) {
+                matrix.postRotate(270);
+                Log.d("EXIF", "Exif: " + orientation);
+            }
+            scaledBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0,
+                    scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix,
+                    true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        FileOutputStream out = null;
+        String filename = getFilename();
+        try {
+            out = new FileOutputStream(filename);
+
+            //write the compressed bitmap at the destination specified by filename.
+            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
+
+        Log.d(TAG,"Dimension of the view and bitmap : \n" +
+                "\n photoW : " + photoW +
+                "\n photoH : " + photoH);
+
+        mTakePhotoPath = filename;
+        Log.d(TAG,"fileName photo reduced : " + mTakePhotoPath);
+    }
+
+    public String getFilename() {
+        File file = new File(Environment.getExternalStorageDirectory().getPath(), "CitraImg/Images");
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        String uriSting = (file.getAbsolutePath() + "/CitraImg_" + System.currentTimeMillis() + ".jpg");
+        return uriSting;
+    }
+
+    public int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+            final int heightRatio = Math.round((float) height/ (float) reqHeight);
+            final int widthRatio = Math.round((float) width / (float) reqWidth);
+            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
+        }
+        final float totalPixels = width * height;
+        final float totalReqPixelsCap = reqWidth * reqHeight * 2;
+        while (totalPixels / (inSampleSize * inSampleSize) > totalReqPixelsCap) {
+            inSampleSize++;
+        }
+
+        return inSampleSize;
+    }
 }
