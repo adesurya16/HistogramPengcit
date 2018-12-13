@@ -232,8 +232,8 @@ public class SkinningField {
     }
 
     public void boundingObject(int mat[][], int val, int xmax, int xmin, int ymax, int ymin){
-        for(int i = xmin; i <xmin+1;i++){
-            for(int j = ymin; j< ymin+1;j++){
+        for(int i = xmin; i <xmax+1;i++){
+            for(int j = ymin; j< ymax+1;j++){
                 if((i == xmin || i == xmax ) || (j == ymin || j == ymax) ){
                     mat[i][j] = val;
                 }
