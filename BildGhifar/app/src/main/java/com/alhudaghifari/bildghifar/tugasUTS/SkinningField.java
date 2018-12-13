@@ -222,7 +222,7 @@ public class SkinningField {
                 // per component
                 ArrayList<Component> pComp = p.getComponentList();
                 for(Component c: pComp){
-                    boundingObject(matBWTmp, blueVal, c.Xmax, c.Xmin, c.Ymax, c.Ymin);
+                    if (c.isEye) boundingObject(matBWTmp, blueVal, c.Xmax, c.Xmin, c.Ymax, c.Ymin);
                 }
             }else{
 //                boundingObject(matBWTmp, blueVal, p.Xmax, p.Xmin, p.Ymax, p.Ymin);
@@ -256,7 +256,7 @@ public class SkinningField {
                 // per component
                 ArrayList<Component> pComp = p.getComponentList();
                 for(Component c: pComp){
-                    boundingObject(matRGBTmp, blueVal, c.Xmax, c.Xmin, c.Ymax, c.Ymin);
+                    if (c.isEye) boundingObject(matRGBTmp, blueVal, c.Xmax, c.Xmin, c.Ymax, c.Ymin);
                 }
             }else{
 //                boundingObject(matRGBTmp, blueVal, p.Xmax, p.Xmin, p.Ymax, p.Ymin);
