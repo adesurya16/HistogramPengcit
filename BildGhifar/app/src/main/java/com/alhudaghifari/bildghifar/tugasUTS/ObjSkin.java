@@ -60,7 +60,6 @@ public class ObjSkin {
 
         getBoundedPoint();
         detectHoleToList();
-
         findEyes();
     }
 
@@ -198,7 +197,6 @@ public class ObjSkin {
                     }
                 }
             }
-        }
     }
 
     public void findEyes(){

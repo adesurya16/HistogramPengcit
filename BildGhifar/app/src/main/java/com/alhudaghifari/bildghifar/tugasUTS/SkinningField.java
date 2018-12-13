@@ -1,6 +1,7 @@
 package com.alhudaghifari.bildghifar.tugasUTS;
 
 import android.graphics.Color;
+import android.util.Log;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -144,7 +145,11 @@ public class SkinningField {
         // pList harus udah clear dipanggilan pertama
 //        if ((px >= 0 && px < this.height) && (py >= 0 && py < this.width)){
             if (this.matrixBW[px][py] == whiteVal){
-                pList.add(new point(px, py));
+//                if (lalala < 500) {
+                    pList.add(new point(px, py));
+//                    Log.d(SkinningField.class.getSimpleName(), "lala : " + lalala + " px : " + px
+//                            + " py : " + py);
+//                }
                 this.matrixBW[px][py] = blackVal;
                 for(int i=0;i < this.iterationDirections.length - 1 ;i++){
                     int dx = px + iterationDirections[i][1];
@@ -154,7 +159,6 @@ public class SkinningField {
                     }
                 }
             }
-//        }
     }
 
     public int[][] getMatrixFromListPoint(ArrayList<point> pList){
@@ -177,7 +181,7 @@ public class SkinningField {
 
         return matrixBWTmp;
     }
-
+    ArrayList<point> toDelete;
     public void setObjectSkin(){
         this.pListObjSkin.clear();
 
@@ -187,7 +191,6 @@ public class SkinningField {
         }
 
         copyToMatrix(matBWTmp);
-
         for(int i = 0;i<this.height;i++){
             for(int j = 0;j<this.width;j++){
                 int x = i;
