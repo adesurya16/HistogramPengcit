@@ -218,14 +218,14 @@ public class SkinningField {
         }
 
         copyToMatrix(matBWTmp);
-        Log.d("skin","list of skin : " + pListObjSkin.size());
+//        Log.d("skin","list of skin : " + pListObjSkin.size());
         for(ObjSkin p: this.pListObjSkin){
             if(p.IsFaceDetected()){
 
                 boundingObject(matBWTmp, redVal, p.Xmax, p.Xmin, p.Ymax, p.Ymin);
                 // per component
                 ArrayList<Component> pComp = p.getComponentList();
-                Log.d("comp", "getMarkedObjectToBW List Comp: " + pComp.size());
+//                Log.d("comp", "getMarkedObjectToBW List Comp: " + pComp.size());
                 for(Component c: pComp){
                     if (c.isEye) boundingObject(matBWTmp, blueVal, c.Xmax, c.Xmin, c.Ymax, c.Ymin);
                 }

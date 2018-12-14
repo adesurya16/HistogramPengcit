@@ -1,6 +1,7 @@
 package com.alhudaghifari.bildghifar.tugasUTS;
 
 import android.graphics.Color;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -44,7 +45,7 @@ public class ObjSkin {
     private ArrayList<Integer> chainCodeList;
     private ArrayList<Component> componentList;
 
-    public ObjSkin(ArrayList<point> pList, int height, int width){
+    public ObjSkin(ArrayList<point> pList2, int height, int width){
         this.pAreaSkinList = new ArrayList<>();
         this.componentList = new ArrayList<>();
         this.matrixBW = new int[height][];
@@ -52,9 +53,9 @@ public class ObjSkin {
             this.matrixBW[i] = new int[width];
         }
 
-        this.pAreaSkinList.addAll(pList);
+        this.pAreaSkinList.addAll(pList2);
 
-        initMatrixFromList(pList);
+        initMatrixFromList(pList2);
         this.height = height;
         this.width = width;
 
@@ -89,14 +90,15 @@ public class ObjSkin {
         }
     }
 
-    public void initMatrixFromList(ArrayList<point> pList){
+    public void initMatrixFromList(ArrayList<point> pListRes){
         for(int i=0;i<this.height;i++){
             for(int j=0;j<this.width;j++){
                 this.matrixBW[i][j] = blackVal;
             }
         }
 
-        for(point p: pList){
+        for(point p: pListRes){
+
             this.matrixBW[p.x][p.y] = whiteVal;
         }
     }
@@ -158,15 +160,19 @@ public class ObjSkin {
             matBWTmp[i] = new int[this.width];
         }
         copyToMatrix(matBWTmp);
+        Log.d("detect", "detect hole");
         for(int i = this.Xmin;i<=this.Xmax;i++){
             for(int j = this.Ymin;j <= this.Ymax;j++){
                 int x = i;
                 int y = j;
                 if (this.matrixBW[x][y] == blackVal){
+                    Log.d("detectnew", "detect new hole");
+
                     // System.out.println("current hole");
                     isHole = true;
                     pList = new ArrayList<>();
                     getDeletedPointSkinComponent(x, y);
+                    Log.d("comp","complist : " + pList.size());
                     if (isHole) {
                         this.componentList.add(new Component(pList, this.height, this.width));
                         // System.out.println("NEW component");
@@ -201,13 +207,17 @@ public class ObjSkin {
 
     public void findEyes(){
         // System.out.println("eye detection");
+        Log.d("XX :","(Xmax,Xmin) : " + "(" + Xmax + ", " + Xmin + ")");
+        Log.d("YY :","(Ymax,Ymin) : " + "(" + Ymax + ", " + Ymin +")");
+        Log.d("list Component", "size of component" + componentList.size());
         ArrayList<Component> pList2 = new ArrayList<>();
-        int batas = this.Ymin + ((this.Ymax - this.Ymin) / 3);
+        int batas = this.Xmin + ((this.Xmax - this.Xmin) / 2);
         for(Component p : this.componentList){
-            if (p.Ymax < batas){
+            if (p.Xmax < batas){
                 pList2.add(p);
             }
         }
+        Log.d("mata","mata : " + pList2.size());
 //        System.out.println(pList2.size());
 
         ArrayList<Component> pList2Sorted = new ArrayList<>();
@@ -219,7 +229,7 @@ public class ObjSkin {
                 if (jmax == -1){
                     pMax = p;
                     jmax = j;
-                }else if(p.Ymax > pMax.Ymax){
+                }else if(p.Xmax > pMax.Xmax){
                     pMax = p;
                     jmax = j;
                 }
@@ -234,9 +244,9 @@ public class ObjSkin {
             // pList2Sorted.get(i).isEye = true;
             // int idx1 = this.componentList.indexOf(pList2Sorted.get(i));
             // this.componentList.get(idx1).isEye = true;
-
+            Log.d("nilai Y", "Y : " + pList2Sorted.get(i).Xmax);
             // bisa tambahin chain code
-            if( Math.abs((double)pList2Sorted.get(i).Ymax - (double)pList2Sorted.get(i + 1).Ymax) < 10){
+            if( Math.abs((double)pList2Sorted.get(i).Xmax - (double)pList2Sorted.get(i + 1).Xmax) < 10){
                 pList2Sorted.get(i).isEye = true;
                 int idx1 = this.componentList.indexOf(pList2Sorted.get(i));
                 this.componentList.get(idx1).isEye = true;
