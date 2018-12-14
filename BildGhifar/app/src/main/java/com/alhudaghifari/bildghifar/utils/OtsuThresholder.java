@@ -29,7 +29,9 @@ public class OtsuThresholder {
         return threshold;
     }
 
-    public int doThreshold(byte[] srcData, byte[] monoData)
+    public int
+
+    doThreshold(byte[] srcData, byte[] monoData)
     {
         int ptr;
 

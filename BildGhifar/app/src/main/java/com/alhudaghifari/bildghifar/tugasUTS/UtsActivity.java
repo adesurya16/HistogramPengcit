@@ -287,7 +287,7 @@ public class UtsActivity extends AppCompatActivity {
                 Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
                 originalPhoto = BitmapFactory.decodeStream(imageStream);
 
-                selectedImage = getResizedBitmap(selectedImage, 300);// 400 is for example, replace with desired size
+                selectedImage = getResizedBitmap(selectedImage, 400);// 400 is for example, replace with desired size
                 originalPhoto = selectedImage;
 
 //                String[] filePath = { MediaStore.Images.Media.DATA };
@@ -343,6 +343,7 @@ public class UtsActivity extends AppCompatActivity {
 
                     if (posisi == SHOW_HOME) {
                         photoView.setImageBitmap(originalPhoto);
+                        output = originalPhoto;
                         bitmapAnalyzer();
                     } else if (posisi == SHOW_GRAYSCALE) {
                         setBitmapGrayscaleEqualization();
@@ -372,11 +373,12 @@ public class UtsActivity extends AppCompatActivity {
                     } else if (posisi == SHOW_CUSTOM_OPERATOR) {
                         showPage(SHOW_CUSTOM_OPERATOR);
                     } else if (posisi == SHOW_FACE_DETECTION) {
-                        isFaceDetectionSeledted = true;
-//                        new FilterImage().execute(new Integer(SHOW_MEDIAN));
+                        Bitmap bitmap = ((BitmapDrawable) photoView.getDrawable()).getBitmap();
+                        Bitmap bitmap2 = getResizedBitmap(bitmap, 150);// 400 is for example, replace with desired size
+                        output = bitmap2.copy(Bitmap.Config.RGB_565, true);
+                        bitmapAnalyzer();
 
-//                        if (isFaceDetectionSeledted)
-                            new DetectFace().execute();
+                        new DetectFace().execute();
                     }
                     else  {
                         setAdapterUts(posisi);
@@ -568,9 +570,8 @@ public class UtsActivity extends AppCompatActivity {
     }
 
     private void bitmapAnalyzer() {
-        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
-        height = bd.getBitmap().getHeight();
-        width = bd.getBitmap().getWidth();
+        height = output.getHeight();
+        width = output.getWidth();
 
         redPixel = new int[MAX_COLOR];
         greenPixel = new int[MAX_COLOR];
@@ -590,7 +591,7 @@ public class UtsActivity extends AppCompatActivity {
             grayScaleValues[i] = new int[width];
 
             for (int j = 0; j < width; ++j) {
-                int pixel1 = bd.getBitmap().getPixel(j, i);
+                int pixel1 = output.getPixel(j, i);
                 int red = Color.red(pixel1);
                 int green = Color.green(pixel1);
                 int blue = Color.blue(pixel1);
@@ -770,7 +771,7 @@ public class UtsActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(Void... voids) {
             Log.d(TAG, "doInBackground");
-//            imageToYCbCrOperation();
+            imageToYCbCrOperation();
             imageSkinRgbOperation();
 //            findMinimumBoundingInmatrixBw(initListFromMatrix(matrixBw));
 
@@ -983,16 +984,14 @@ public class UtsActivity extends AppCompatActivity {
 
     // dari paper https://ieeexplore.ieee.org/abstract/document/6982471
     private void imageSkinRgbOperation() {
-        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
-        height = bd.getBitmap().getHeight();
-        width = bd.getBitmap().getWidth();
+        height = output.getHeight();
+        width = output.getWidth();
         int val;
         sumOfRowColValue = 0;
         sumHeight = new int[height];
         sumWidth = new int[width];
 
         matrixBw = new int[height][width];
-        output = bd.getBitmap().copy(Bitmap.Config.RGB_565, true);
 
         for (int i = 0; i < height; ++i) {
             for (int j = 0; j < width; ++j) {
@@ -1005,8 +1004,7 @@ public class UtsActivity extends AppCompatActivity {
                 //      r > g && g > b)
 
                 // For uniform daylight illumination:
-                if (r > 95 && g > 40 && b > 20 && r > g &&
-                        r > b && Math.abs(r-g) > 15 &&
+                if (r > 95 && g > 40 && b > 20 && r > g && r > b && Math.abs(r-g) > 15 &&
                         (Math.max(Math.max(r,g), b) - Math.min(Math.min(r,g), b)) > 15)
                     val = Color.rgb(
                             255,
@@ -1027,11 +1025,8 @@ public class UtsActivity extends AppCompatActivity {
     }
 
     private void imageToYCbCrOperation() {
-        BitmapDrawable bd = (BitmapDrawable) photoView.getDrawable();
-        int height = bd.getBitmap().getHeight();
-        int width = bd.getBitmap().getWidth();
-
-        output = bd.getBitmap().copy(Bitmap.Config.RGB_565, true);
+        height = output.getHeight();
+        width = output.getWidth();
 
         // dari paper https://ieeexplore.ieee.org/abstract/document/6982471
         double tetha = 2.53;
