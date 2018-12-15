@@ -107,11 +107,20 @@ public class Component {
             }
         }
 
-        x_start -= 1;
-        x_end += 1;
+        if (x_start - 1 >= 0){
+            x_start -= 1;
+        }
 
-        y_start -= 1;
-        y_end += 1;
+        if (x_start + 1 < this.height){
+            x_end += 1;            
+        }
+
+        if (y_start - 1 >= 0){
+            y_start -= 1;
+        }
+        if (y_start + 1 < this.width){
+            y_end += 1;
+        }
 
         this.Xmin = x_start;
         this.Xmax = x_end;
@@ -124,15 +133,4 @@ public class Component {
 
     }
 
-    public boolean isEye(){
-        return false;
-    }
-
-    public boolean isNose(){
-        return false;
-    }
-
-    public boolean isMouth(){
-        return false;
-    }
 }

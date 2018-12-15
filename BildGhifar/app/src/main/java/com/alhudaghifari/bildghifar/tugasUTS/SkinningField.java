@@ -5,6 +5,7 @@ import android.util.Log;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class SkinningField {
     final int redVal = Color.rgb(
@@ -31,6 +32,7 @@ public class SkinningField {
 
     private ArrayList<ObjSkin> pListObjSkin;
     private ArrayList<point> pList;
+    private Stack<point> floodFillStack;
 
     private int[][] redPixel;
     private int[][] bluePixel;
@@ -44,6 +46,8 @@ public class SkinningField {
 
     public SkinningField(int redPx[][], int greenPx[][], int bluePx[][], int matrixBW[][], int height, int width){
         this.pListObjSkin = new ArrayList<>();
+        this.floodFillStack = new Stack<>();
+
         // init
         this.redPixel = new int[height][];
         for(int i=0;i<height;i++){
@@ -141,6 +145,27 @@ public class SkinningField {
         }
     }
 
+    public void getDeletedPointSkinUsingStack(int px, int py){
+        this.floodFillStack.push(new point(px, py));
+        while(!floodFillStack.empty()){
+            point p = this.floodFillStack.peek();
+            this.floodFillStack.pop();
+            if (this.matrixBW[p.x][p.y] == whiteVal){
+                // System.out.println(p.x + ", " + p.y);
+                pList.add(p);
+                this.matrixBW[p.x][p.y] = blackVal;
+                for(int i=0;i < this.iterationDirections.length - 1 ;i++){
+                    int dx = p.x + iterationDirections[i][1];
+                    int dy = p.y + iterationDirections[i][0];
+                    if ((dx >= 0 && dx < this.height) && (dy >= 0 && dy < this.width)){
+                        this.floodFillStack.push(new point(dx, dy));
+                        // this.matrixBW[dx][dy] = blackVal;
+                    }
+                }
+            }
+        }
+    }
+
     public void getDeletedPointSkin(int px, int py){
         // pList harus udah clear dipanggilan pertama
 //        if ((px >= 0 && px < this.height) && (py >= 0 && py < this.width)){
@@ -181,7 +206,7 @@ public class SkinningField {
 
         return matrixBWTmp;
     }
-    ArrayList<point> toDelete;
+    // ArrayList<point> toDelete;
     public void setObjectSkin(){
         this.pListObjSkin.clear();
 
@@ -191,6 +216,7 @@ public class SkinningField {
         }
 
         copyToMatrix(matBWTmp);
+        int obji = 0;
         for(int i = 0;i<this.height;i++){
             for(int j = 0;j<this.width;j++){
                 int x = i;
@@ -198,10 +224,12 @@ public class SkinningField {
 //                ArrayList<point> toDelete = new ArrayList<>();
                 if (this.matrixBW[x][y] == whiteVal){
                     pList = new ArrayList<>();
-                    getDeletedPointSkin(x, y);
-                    Log.d("newobj","new object detect : " + pList.size());
+                    getDeletedPointSkinUsingStack(x, y);
                     if(pList.size() > threshold) {
-                        this.pListObjSkin.add(new ObjSkin(pList, this.height, this.width));
+                        obji++;
+                        Log.d("newobj","object skin ke  " + obji + " ,size : " + pList.size());
+                        ObjSkin obj = new ObjSkin(pList, this.height, this.width);
+                        this.pListObjSkin.add(obj);
                     }
                 }
             }
@@ -237,9 +265,9 @@ public class SkinningField {
     }
 
     public void boundingObject(int mat[][], int val, int xmax, int xmin, int ymax, int ymin){
-        for(int i = xmin; i <xmax+1;i++){
-            for(int j = ymin; j< ymax+1;j++){
-                if((i == xmin || i == xmax ) || (j == ymin || j == ymax) ){
+        for(int i = xmin; i <xmax;i++){
+            for(int j = ymin; j< ymax;j++){
+                if((i == xmin || i == xmax - 1) || (j == ymin || j == ymax - 1) ){
                     mat[i][j] = val;
                 }
             }
