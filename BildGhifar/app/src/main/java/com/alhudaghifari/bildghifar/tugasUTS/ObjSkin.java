@@ -34,6 +34,9 @@ public class ObjSkin {
     private boolean isHole;
     private ArrayList<point> pList;
     private Stack<point> floodFillStack;
+    public Component LeftEye;
+    public Component RightEye;
+    public boolean isEyeFound;
 
     // bouded point
     public int Xmax;
@@ -48,7 +51,9 @@ public class ObjSkin {
     private ArrayList<Component> componentList;
 
     public ObjSkin(ArrayList<point> pList2, int height, int width){
-
+        this.LeftEye = null;
+        this.RightEye = null;
+        isEyeFound = false;
         this.height = height;
         this.width = width;
         floodFillStack = new Stack<>();
@@ -68,6 +73,7 @@ public class ObjSkin {
         getBoundedPoint();
         detectHoleToList();
         findEyes();
+        findMouth();
     }
 
     public ArrayList<Integer> getChainCodeList(){
@@ -250,6 +256,9 @@ public class ObjSkin {
         Log.d("XX :","(Xmax,Xmin) : " + "(" + Xmax + ", " + Xmin + ")");
         Log.d("YY :","(Ymax,Ymin) : " + "(" + Ymax + ", " + Ymin +")");
         Log.d("list Component", "size of component" + componentList.size());
+
+        int jarakmata = (int)(this.Ymax - this.Ymin) / 2;
+
         ArrayList<Component> pList2 = new ArrayList<>();
         int batas = this.Xmin + ((this.Xmax - this.Xmin) / 3);
         for(Component p : this.componentList){
@@ -280,25 +289,105 @@ public class ObjSkin {
         }
 //        System.out.println(pList2Sorted.size());
 
-        for(int i=0;i<pList2Sorted.size() - 1 ;i++){
+
+        // perlu diubah
+        for(int i=0;i<pList2Sorted.size()-1 ;i++){
+            for(int j = i;j < pList2Sorted.size();j++){
             // pList2Sorted.get(i).isEye = true;
             // int idx1 = this.componentList.indexOf(pList2Sorted.get(i));
             // this.componentList.get(idx1).isEye = true;
-//            Log.d("nilai Y", "Y : " + pList2Sorted.get(i).Xmax);
+
             // bisa tambahin chain code
-            Component c1 = pList2Sorted.get(i);
-            Component c2 = pList2Sorted.get(i + 1);
-            if( (Math.abs((double)c1.Xmax - (double)c2.Xmax) < 10) && (Math.abs(c1.pAreaComponent.size() - c2.pAreaComponent.size()) < 100) && ((c1.Ymax < c2.Ymin) || (c1.Ymin > c2.Ymax)) ){
-                pList2Sorted.get(i).isEye = true;
-                int idx1 = this.componentList.indexOf(pList2Sorted.get(i));
-                this.componentList.get(idx1).isEye = true;
-                // System.out.println(this.componentList.indexOf(pList2Sorted.get(i)));
-                pList2Sorted.get(i + 1).isEye = true;
-                int idx2 = this.componentList.indexOf(pList2Sorted.get(i + 1));
-                this.componentList.get(idx2).isEye = true;
-                // System.out.println(this.componentList.indexOf(pList2Sorted.get(i + 1)));
-                break;
+                Component c1 = pList2Sorted.get(i);
+                Component c2 = pList2Sorted.get(j + 1);
+                
+                if( (Math.abs(c1.Xmax - c2.Xmax) < 20) && (Math.abs(c1.pAreaComponent.size() - c2.pAreaComponent.size()) < 100) && ((c1.Ymax < c2.Ymin) || (c1.Ymin > c2.Ymax)) 
+                ){
+                    if (c1.Ymax < c2.Ymin)
+                    {
+                        this.LeftEye = c1;
+                        this.RightEye = c2;
+                    }else{
+                        this.LeftEye = c2;
+                        this.RightEye = c1;
+                    }
+                    int mid = Ymin + ((Ymax - Ymin) / 2);
+                    this.LeftEye.printBounded();
+                    this.RightEye.printBounded();
+                    if( Math.abs(this.RightEye.Ymin - this.LeftEye.Ymin) < jarakmata && (this.LeftEye.Ymin < mid && this.LeftEye.Ymax < mid) && (this.RightEye.Ymin > mid && this.RightEye.Ymax > mid)){
+                        // && (Math.abs(c1.Xmax - c2.Xmin) < jarakmata) || (Math.abs(c1.Xmin - c2.Xmax) < jarakmata)
+                    c1.isEye = true;
+                    // System.out.println(this.componentList.indexOf(pList2Sorted.get(i)));
+                    c2.isEye = true;
+                    isEyeFound = true;
+                    // System.out.println(this.componentList.indexOf(pList2Sorted.get(i + 1)));
+                        
+                    }else{
+                        this.LeftEye = null;
+                        this.RightEye = null;
+                    }
+
+                    
+                    
+
+                    break;
+                }
             }
+            if (isEyeFound) break;
+        }
+    }
+
+
+    // perlu diubah
+    public void findMouth(){
+        if (this.isEyeFound){
+            
+            int Ymax = this.Ymax;
+        int Ymin = this.Ymin;
+        int Xmax = this.Xmax;
+        int Xmin = this.Xmin;
+        int sel = Ymax-Ymin;
+        Xmax = Xmin + sel;
+        int jarakatas = 0;
+        // jarak min y 2 mata
+        int selYmata = 0;
+        if (this.LeftEye.Xmin < this.RightEye.Xmin){
+            selXmata = this.LeftEye.Xmin - Xmin;
+        }else{
+            selXmata = this.RightEye.Xmin - Xmin;
+        }
+        // dapet 1
+        int XmaxMouth = Xmax - selXmata + ((LeftEye.Xmax - LeftEye.Xmin)*2);
+
+        // cari center mata
+        int centerMataKiri = this.LeftEye.Ymin + ((this.LeftEye.Ymax - this.LeftEye.Ymin) / 2);
+        int centerMataKanan = this.RightEye.Ymin + ((this.RightEye.Ymax - this.RightEye.Ymin) / 2);
+        int jarakcentermata = centerMataKanan - centerMataKiri;
+
+        // dapet 2
+        int YminMouth = centerMataKiri;
+        // System.out.println("xminmouth : " + XminMouth);
+        int YmaxMouth = centerMataKanan;
+
+        // dapet 1
+        int XminMouth = XmaxMouth - ((LeftEye.Xmax - LeftEye.Xmin)*4);
+        ArrayList<point> pListMouth = new ArrayList<>();
+        for(int i = YminMouth;i < YmaxMouth;i++){
+            for(int j = XminMouth;j < XmaxMouth;j++){
+                // System.out.println(i + ", " + j);
+                pListMouth.add(new point(i,j));
+            }
+        }
+        // System.out.println("max min mouth");
+        // System.out.println(XmaxMouth + ", " + XminMouth);
+        // System.out.println(YmaxMouth + ", " + YminMouth);
+
+        Component cmouth = new Component(pListMouth, this.height, this.width);
+        cmouth.isMouth = true;
+        // cmouth.printBounded();
+        this.componentList.add(cmouth);
+        }else{
+            // System.out.println("tidak ada mata");
         }
     }
 
@@ -311,7 +400,7 @@ public class ObjSkin {
             if (p.isMouth) isMouth++;
             if (p.isNose) isNose++;
         }
-        if(isEye == 2){
+        if(isEye == 2 && isMouth == 1){
             return true;
         }else return false;
 //        int isEye = 0;

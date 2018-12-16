@@ -261,7 +261,7 @@ public class SkinningField {
                 ArrayList<Component> pComp = p.getComponentList();
 //                Log.d("comp", "getMarkedObjectToBW List Comp: " + pComp.size());
                 for(Component c: pComp){
-                    if (c.isEye) boundingObject(matBWTmp, blueVal, c.Xmax, c.Xmin, c.Ymax, c.Ymin);
+                    if (c.isEye || c.isMouth) boundingObject(matBWTmp, blueVal, c.Xmax, c.Xmin, c.Ymax, c.Ymin);
                 }
             }else{
 //                boundingObject(matBWTmp, blueVal, p.Xmax, p.Xmin, p.Ymax, p.Ymin);
@@ -271,6 +271,11 @@ public class SkinningField {
     }
 
     public void boundingObject(int mat[][], int val, int xmax, int xmin, int ymax, int ymin){
+        if (val == redVal){
+            int sel = (xmax-xmin);
+            ymax = ymin + sel;
+        }
+
         for(int i = xmin; i <xmax;i++){
             for(int j = ymin; j< ymax;j++){
                 if((i == xmin || i == xmax - 1) || (j == ymin || j == ymax - 1) ){
@@ -295,7 +300,7 @@ public class SkinningField {
                 // per component
                 ArrayList<Component> pComp = p.getComponentList();
                 for(Component c: pComp){
-                    if (c.isEye) boundingObject(matRGBTmp, blueVal, c.Xmax, c.Xmin, c.Ymax, c.Ymin);
+                    if (c.isEye || c.isMouth) boundingObject(matRGBTmp, blueVal, c.Xmax, c.Xmin, c.Ymax, c.Ymin);
                 }
             }else{
 //                boundingObject(matRGBTmp, blueVal, p.Xmax, p.Xmin, p.Ymax, p.Ymin);
