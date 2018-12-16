@@ -154,6 +154,27 @@ public class UtsActivity extends AppCompatActivity {
     private double val21;
     private double val22;
 
+    final int redVal = Color.rgb(
+            200,
+            0,
+            0);
+    final int greenVal = Color.rgb(
+            0,
+            200,
+            0);
+    final int blueVal = Color.rgb(
+            0,
+            0,
+            200);
+    final int whiteVal = Color.rgb(
+            255,
+            255,
+            255);
+    final int blackVal = Color.rgb(
+            0,
+            0,
+            0);
+
     private boolean isFaceDetectionSeledted = false;
 
     private String mTakePhotoPath;
@@ -287,7 +308,7 @@ public class UtsActivity extends AppCompatActivity {
                 Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
                 originalPhoto = BitmapFactory.decodeStream(imageStream);
 
-//                selectedImage = getResizedBitmap(selectedImage, 400);// 400 is for example, replace with desired size
+                selectedImage = getResizedBitmap(selectedImage, 700);// 400 is for example, replace with desired size
                 originalPhoto = selectedImage;
 
 //                String[] filePath = { MediaStore.Images.Media.DATA };
@@ -818,7 +839,10 @@ public class UtsActivity extends AppCompatActivity {
         for(int i = 0;i < this.height; i++){
             for(int j = 0; j< this.width; j++){
                 val = mat[i][j];
-                output.setPixel(j, i, val);
+                if (val == redVal || val == greenVal || val == blueVal) {
+                    output.setPixel(j, i, val);
+                } else
+                    output.setPixel(j, i, pixel[i][j]);
             }
         }
     }
