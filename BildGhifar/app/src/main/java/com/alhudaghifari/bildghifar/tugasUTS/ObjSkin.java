@@ -36,6 +36,7 @@ public class ObjSkin {
     private Stack<point> floodFillStack;
     public Component LeftEye;
     public Component RightEye;
+    private Component mouth;
     public boolean isEyeFound;
 
     // bouded point
@@ -74,6 +75,7 @@ public class ObjSkin {
         detectHoleToList();
         findEyes();
         findMouth();
+        findNose();
     }
 
     public ArrayList<Integer> getChainCodeList(){
@@ -189,7 +191,7 @@ public class ObjSkin {
             for(int j = this.Ymin;j < this.Ymax;j++){
                 int x = i;
                 int y = j;
-                Log.d("valbw","val : " + this.matrixBW[i][j]);
+//                Log.d("valbw","val : " + this.matrixBW[i][j]);
                 if (this.matrixBW[x][y] == blackVal){
                     Log.d("detectnew", "detect new hole");
 
@@ -299,7 +301,7 @@ public class ObjSkin {
 
             // bisa tambahin chain code
                 Component c1 = pList2Sorted.get(i);
-                Component c2 = pList2Sorted.get(j + 1);
+                Component c2 = pList2Sorted.get(j);
                 
                 if( (Math.abs(c1.Xmax - c2.Xmax) < 20) && (Math.abs(c1.pAreaComponent.size() - c2.pAreaComponent.size()) < 100) && ((c1.Ymax < c2.Ymin) || (c1.Ymin > c2.Ymax)) 
                 ){
@@ -312,8 +314,8 @@ public class ObjSkin {
                         this.RightEye = c1;
                     }
                     int mid = Ymin + ((Ymax - Ymin) / 2);
-                    this.LeftEye.printBounded();
-                    this.RightEye.printBounded();
+//                    this.LeftEye.printBounded();
+//                    this.RightEye.printBounded();
                     if( Math.abs(this.RightEye.Ymin - this.LeftEye.Ymin) < jarakmata && (this.LeftEye.Ymin < mid && this.LeftEye.Ymax < mid) && (this.RightEye.Ymin > mid && this.RightEye.Ymax > mid)){
                         // && (Math.abs(c1.Xmax - c2.Xmin) < jarakmata) || (Math.abs(c1.Xmin - c2.Xmax) < jarakmata)
                     c1.isEye = true;
@@ -337,58 +339,76 @@ public class ObjSkin {
         }
     }
 
-
     // perlu diubah
     public void findMouth(){
-        if (this.isEyeFound){
-            
+        if (this.isEyeFound) {
             int Ymax = this.Ymax;
-        int Ymin = this.Ymin;
-        int Xmax = this.Xmax;
-        int Xmin = this.Xmin;
-        int sel = Ymax-Ymin;
-        Xmax = Xmin + sel;
-        int jarakatas = 0;
-        // jarak min y 2 mata
-        int selYmata = 0;
-        if (this.LeftEye.Xmin < this.RightEye.Xmin){
-            selXmata = this.LeftEye.Xmin - Xmin;
-        }else{
-            selXmata = this.RightEye.Xmin - Xmin;
-        }
-        // dapet 1
-        int XmaxMouth = Xmax - selXmata + ((LeftEye.Xmax - LeftEye.Xmin)*2);
-
-        // cari center mata
-        int centerMataKiri = this.LeftEye.Ymin + ((this.LeftEye.Ymax - this.LeftEye.Ymin) / 2);
-        int centerMataKanan = this.RightEye.Ymin + ((this.RightEye.Ymax - this.RightEye.Ymin) / 2);
-        int jarakcentermata = centerMataKanan - centerMataKiri;
-
-        // dapet 2
-        int YminMouth = centerMataKiri;
-        // System.out.println("xminmouth : " + XminMouth);
-        int YmaxMouth = centerMataKanan;
-
-        // dapet 1
-        int XminMouth = XmaxMouth - ((LeftEye.Xmax - LeftEye.Xmin)*4);
-        ArrayList<point> pListMouth = new ArrayList<>();
-        for(int i = XminMouth;i < XmaxMouth;i++){
-            for(int j = YminMouth;j < YmaxMouth;j++){
-                // System.out.println(i + ", " + j);
-                pListMouth.add(new point(i,j));
+            int Ymin = this.Ymin;
+            int Xmax = this.Xmax;
+            int Xmin = this.Xmin;
+            int sel = Ymax-Ymin;
+            Xmax = Xmin + sel;
+            int jarakatas = 0;
+            // jarak min y 2 mata
+            int selXmata = 0;
+            if (this.LeftEye.Xmin < this.RightEye.Xmin){
+                selXmata = this.LeftEye.Xmin - Xmin;
+            }else{
+                selXmata = this.RightEye.Xmin - Xmin;
             }
-        }
-        // System.out.println("max min mouth");
-        // System.out.println(XmaxMouth + ", " + XminMouth);
-        // System.out.println(YmaxMouth + ", " + YminMouth);
+            // dapet 1
+            int XmaxMouth = Xmax - selXmata + ((LeftEye.Xmax - LeftEye.Xmin)*2);
 
-        Component cmouth = new Component(pListMouth, this.height, this.width);
-        cmouth.isMouth = true;
-        // cmouth.printBounded();
-        this.componentList.add(cmouth);
-        }else{
+            // cari center mata
+            int centerMataKiri = this.LeftEye.Ymin + ((this.LeftEye.Ymax - this.LeftEye.Ymin) / 2);
+            int centerMataKanan = this.RightEye.Ymin + ((this.RightEye.Ymax - this.RightEye.Ymin) / 2);
+            int jarakcentermata = centerMataKanan - centerMataKiri;
+
+            // dapet 2
+            int YminMouth = centerMataKiri;
+            // System.out.println("xminmouth : " + XminMouth);
+            int YmaxMouth = centerMataKanan;
+
+            // dapet 1
+            int XminMouth = XmaxMouth - ((LeftEye.Xmax - LeftEye.Xmin)*4);
+            ArrayList<point> pListMouth = new ArrayList<>();
+            for(int i = XminMouth;i < XmaxMouth;i++){
+                for(int j = YminMouth;j < YmaxMouth;j++){
+                    // System.out.println(i + ", " + j);
+                    pListMouth.add(new point(i,j));
+                }
+            }
+            // System.out.println("max min mouth");
+            // System.out.println(XmaxMouth + ", " + XminMouth);
+            // System.out.println(YmaxMouth + ", " + YminMouth);
+
+            Component cmouth = new Component(pListMouth, this.height, this.width);
+            cmouth.isMouth = true;
+            this.mouth = cmouth;
+            this.componentList.add(cmouth);
+        } else {
             // System.out.println("tidak ada mata");
         }
+    }
+
+    private void findNose() {
+        int lengthMouth = mouth.Ymax - mouth.Ymin;
+
+        int YmaxNose = mouth.Ymax - (lengthMouth / 4);
+        int YminNose = mouth.Ymin + (lengthMouth / 4);
+        int XmaxNose = mouth.Xmin - 5;
+        int XminNose = LeftEye.Xmax;
+
+        ArrayList<point> pListNose = new ArrayList<>();
+        for(int i = XminNose;i < XmaxNose;i++){
+            for(int j = YminNose;j < YmaxNose;j++) {
+                pListNose.add(new point(i,j));
+            }
+        }
+
+        Component cNose = new Component(pListNose, this.height, this.width);
+        cNose.isNose = true;
+        this.componentList.add(cNose);
     }
 
     public boolean IsFaceDetected(){

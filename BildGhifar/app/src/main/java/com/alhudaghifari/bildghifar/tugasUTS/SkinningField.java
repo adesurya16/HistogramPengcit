@@ -262,6 +262,7 @@ public class SkinningField {
 //                Log.d("comp", "getMarkedObjectToBW List Comp: " + pComp.size());
                 for(Component c: pComp){
                     if (c.isEye || c.isMouth) boundingObject(matBWTmp, blueVal, c.Xmax, c.Xmin, c.Ymax, c.Ymin);
+                    else if (c.isNose) boundingObject(matBWTmp, greenVal, c.Xmax, c.Xmin, c.Ymax, c.Ymin);
                 }
             }else{
 //                boundingObject(matBWTmp, blueVal, p.Xmax, p.Xmin, p.Ymax, p.Ymin);
