@@ -372,8 +372,8 @@ public class ObjSkin {
         // dapet 1
         int XminMouth = XmaxMouth - ((LeftEye.Xmax - LeftEye.Xmin)*4);
         ArrayList<point> pListMouth = new ArrayList<>();
-        for(int i = YminMouth;i < YmaxMouth;i++){
-            for(int j = XminMouth;j < XmaxMouth;j++){
+        for(int i = XminMouth;i < XmaxMouth;i++){
+            for(int j = YminMouth;j < YmaxMouth;j++){
                 // System.out.println(i + ", " + j);
                 pListMouth.add(new point(i,j));
             }
