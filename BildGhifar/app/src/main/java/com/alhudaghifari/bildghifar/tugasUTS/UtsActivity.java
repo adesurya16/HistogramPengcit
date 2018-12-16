@@ -287,7 +287,7 @@ public class UtsActivity extends AppCompatActivity {
                 Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
                 originalPhoto = BitmapFactory.decodeStream(imageStream);
 
-                selectedImage = getResizedBitmap(selectedImage, 400);// 400 is for example, replace with desired size
+//                selectedImage = getResizedBitmap(selectedImage, 400);// 400 is for example, replace with desired size
                 originalPhoto = selectedImage;
 
 //                String[] filePath = { MediaStore.Images.Media.DATA };
@@ -373,10 +373,10 @@ public class UtsActivity extends AppCompatActivity {
                     } else if (posisi == SHOW_CUSTOM_OPERATOR) {
                         showPage(SHOW_CUSTOM_OPERATOR);
                     } else if (posisi == SHOW_FACE_DETECTION) {
-                        Bitmap bitmap = ((BitmapDrawable) photoView.getDrawable()).getBitmap();
-                        Bitmap bitmap2 = getResizedBitmap(bitmap, 150);// 400 is for example, replace with desired size
-                        output = bitmap2.copy(Bitmap.Config.RGB_565, true);
-                        bitmapAnalyzer();
+//                        Bitmap bitmap = ((BitmapDrawable) photoView.getDrawable()).getBitmap();
+//                        Bitmap bitmap2 = getResizedBitmap(bitmap, 150);// 400 is for example, replace with desired size
+//                        output = bitmap2.copy(Bitmap.Config.RGB_565, true);
+//                        bitmapAnalyzer();
 
                         new DetectFace().execute();
                     }
@@ -771,9 +771,16 @@ public class UtsActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(Void... voids) {
             Log.d(TAG, "doInBackground");
-            imageToYCbCrOperation();
+//            imageToYCbCrOperation();
             imageSkinRgbOperation();
 //            findMinimumBoundingInmatrixBw(initListFromMatrix(matrixBw));
+            int v = Color.rgb(
+                    0,
+                    0,
+                    0);
+            Log.d("blackval","actvity black val : " + v);
+            Log.d("blackval","actvity 0 23  : " + matrixBw[0][23]);
+            Log.d("blackval","actvity 110 223 : " + matrixBw[110][223]);
 
             SkinningField sf = new SkinningField(redPixel2, greenPixel2, bluePixel2, matrixBw, height, width);
             outToFile(sf.getMarkedObjectToBW());
@@ -1058,7 +1065,7 @@ public class UtsActivity extends AppCompatActivity {
                 double equation1 = ((x - ecx) * (x - ecx)) / (a * a);
                 double equation2 = ((y - ecy) * (y - ecy)) / (b * b);
 
-                Log.d(TAG, "equation : " + (int)(equation1 + equation2));
+//                Log.d(TAG, "equation : " + (int)(equation1 + equation2));
 
                 if ((int) (equation1 + equation2) == 1)
                     val = Color.rgb(

@@ -36,7 +36,7 @@ public class Component {
     public boolean isMouth;
     public boolean isNose;
 
-    private ArrayList<point> pAreaComponent;
+    public ArrayList<point> pAreaComponent;
     private int[][] matrixBW;
     private ArrayList<Integer> chainCodeList;
 
@@ -44,15 +44,16 @@ public class Component {
     public Component(ArrayList<point> pList, int height, int width){
         this.pAreaComponent = new ArrayList<>();
         this.chainCodeList = new ArrayList<>();
-        this.matrixBW = new int[height][];
-        for(int i = 0; i < height; i++){
-            this.matrixBW[i] = new int[width];
-        }
+//        this.matrixBW = new int[height][width];
+//        for(int i = 0; i < height; i++){
+//            this.matrixBW[i] = new int[width];
+//        }
 
         pAreaComponent.addAll(pList);
-        initMatrixFromList(pList);
         this.height = height;
         this.width = width;
+//        initMatrixFromList(pList);
+
         isEye = false;
         isMouth = false;
         isNose = false;

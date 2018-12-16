@@ -94,8 +94,14 @@ public class SkinningField {
         for(int i=0;i<height;i++){
             for(int j=0;j<width;j++){
                 this.matrixBW[i][j] = matrixBW[i][j];
+
+
             }
         }
+        Log.d("blackval","blackval in matrixbw skinfield 0 23 : "+ this.matrixBW[0][23]);
+
+
+        Log.d("blackval","blackval in skinning field : "+ blackVal);
 
         setObjectSkin();
     }
