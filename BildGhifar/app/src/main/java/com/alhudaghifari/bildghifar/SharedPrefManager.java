@@ -26,6 +26,7 @@ public class SharedPrefManager extends Application {
 
     private static final String KEY_IS_IMG_ANALYZED = "isImgAnlyzd";
     private static final String KEY_TOTAL_CHAIN_CODE = "totalchaincode";
+    private static final String KEY_FACE_RECOGNITION = "facename";
 
     /**
      * constructor session manager wajib mengirim context aktivitas
@@ -82,6 +83,20 @@ public class SharedPrefManager extends Application {
 
     public int getTotalChainCode() {
         return pref.getInt(KEY_TOTAL_CHAIN_CODE, 0);
+    }
+
+    public void setFaceName(String value) {
+        editor = pref.edit();
+        editor.putString(KEY_FACE_RECOGNITION, value);
+
+        // commit changes
+        editor.commit();
+
+        Log.d(TAG, "face name modified!");
+    }
+
+    public String getFaceName() {
+        return pref.getString(KEY_FACE_RECOGNITION, "");
     }
 
 }

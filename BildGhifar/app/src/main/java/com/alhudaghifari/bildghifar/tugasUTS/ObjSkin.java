@@ -1,7 +1,10 @@
 package com.alhudaghifari.bildghifar.tugasUTS;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
+
+import com.alhudaghifari.bildghifar.SharedPrefManager;
 
 import java.util.ArrayList;
 import java.util.Stack;
@@ -38,26 +41,30 @@ public class ObjSkin {
     public Component RightEye;
     private Component mouth;
     public boolean isEyeFound;
-
+    public boolean isMouthFound = false;
+    private double normalization;
     // bouded point
     public int Xmax;
     public int Ymax;
     public int Xmin;
     public int Ymin;
 
-
     private ArrayList<point> pAreaSkinList;
     private int[][] matrixBW;
     private ArrayList<Integer> chainCodeList;
     private ArrayList<Component> componentList;
 
-    public ObjSkin(ArrayList<point> pList2, int height, int width){
+    private Context context;
+
+    public ObjSkin(ArrayList<point> pList2, int height, int width, Context context){
         this.LeftEye = null;
         this.RightEye = null;
         isEyeFound = false;
         this.height = height;
         this.width = width;
         floodFillStack = new Stack<>();
+
+        this.context = context;
 
         this.pAreaSkinList = new ArrayList<>();
         this.componentList = new ArrayList<>();
@@ -76,6 +83,8 @@ public class ObjSkin {
         findEyes();
         findMouth();
         findNose();
+        detectEyeDistance();
+        recognizeFace();
     }
 
     public ArrayList<Integer> getChainCodeList(){
@@ -84,6 +93,10 @@ public class ObjSkin {
 
     public ArrayList<Component> getComponentList() {
         return componentList;
+    }
+
+    public double getNormalization() {
+        return normalization;
     }
 
     public void setMatrixBW(int mBW[][]){
@@ -386,29 +399,85 @@ public class ObjSkin {
             cmouth.isMouth = true;
             this.mouth = cmouth;
             this.componentList.add(cmouth);
+            isMouthFound = true;
         } else {
             // System.out.println("tidak ada mata");
         }
     }
 
     private void findNose() {
-        int lengthMouth = mouth.Ymax - mouth.Ymin;
+        if (isMouthFound) {
+            int lengthMouth = mouth.Ymax - mouth.Ymin;
 
-        int YmaxNose = mouth.Ymax - (lengthMouth / 4);
-        int YminNose = mouth.Ymin + (lengthMouth / 4);
-        int XmaxNose = mouth.Xmin - 5;
-        int XminNose = LeftEye.Xmax;
+            int YmaxNose = mouth.Ymax - (lengthMouth / 4);
+            int YminNose = mouth.Ymin + (lengthMouth / 4);
+            int XmaxNose = mouth.Xmin - 5;
+            int XminNose = (LeftEye.Xmax > RightEye.Xmax) ? LeftEye.Xmax : RightEye.Xmax;
 
-        ArrayList<point> pListNose = new ArrayList<>();
-        for(int i = XminNose;i < XmaxNose;i++){
-            for(int j = YminNose;j < YmaxNose;j++) {
-                pListNose.add(new point(i,j));
+            ArrayList<point> pListNose = new ArrayList<>();
+            for(int i = XminNose;i < XmaxNose;i++){
+                for(int j = YminNose;j < YmaxNose;j++) {
+                    pListNose.add(new point(i,j));
+                }
+            }
+
+            Component cNose = new Component(pListNose, this.height, this.width);
+            cNose.isNose = true;
+            this.componentList.add(cNose);
+        }
+    }
+
+    private void detectEyeDistance() {
+        if (IsFaceDetected()) {
+            int centerYLeftEye = this.LeftEye.Ymax - this.LeftEye.Ymin;
+            int centerXLeftEye = this.LeftEye.Xmax - this.LeftEye.Xmin;
+            int centerYRightEye = this.RightEye.Ymax - this.RightEye.Ymin;
+            int centerXRightEye = this.RightEye.Xmax - this.RightEye.Xmin;
+
+            double eyeDistance = Math.sqrt( ((centerYRightEye - centerYLeftEye) * (centerYRightEye - centerYLeftEye)) +
+                    ((centerXRightEye - centerXLeftEye) * (centerXRightEye - centerXLeftEye)));
+            Log.d("ObjSkin", "detectEyeDistance - eyeDistance : " + eyeDistance);
+
+            // normalisasi
+            // source : https://reference.wolfram.com/language/ref/NormalizedSquaredEuclideanDistance.html
+            // [{a,b}, {x,y}]
+            // [{centerXLeftEye, centerYLeftEye}, {centerXRightEye, centerYRightEye}]
+            double aa = Math.abs(Math.pow((centerXLeftEye + (0.5 * ((-1 * centerXLeftEye) - centerYLeftEye)) - centerXRightEye +
+                    ((centerXRightEye + centerYRightEye)/2)),2));
+            double bb = Math.abs(Math.pow((centerYLeftEye + (0.5 * ((-1 * centerXLeftEye) - centerYLeftEye)) - centerYRightEye +
+                    ((centerXRightEye + centerYRightEye)/2)),2));
+            double c = Math.abs(Math.pow((centerXLeftEye + (0.5 * ((-1 * centerXLeftEye) - centerYLeftEye))),2));
+            double d = Math.abs(Math.pow((centerYLeftEye + (0.5 * ((-1 * centerXLeftEye) - centerYLeftEye))),2));
+            double e = Math.abs(Math.pow((centerXRightEye + (0.5 * ((-1 * centerXRightEye) - centerYRightEye))),2));
+            double f = Math.abs(Math.pow((centerYRightEye + (0.5 * ((-1 * centerXRightEye) - centerYRightEye))),2));
+
+            normalization = (aa + bb) / (2 * (c + d + e + f));
+            Log.d("ObjSkin", "detectEyeDistance - normalization : " + normalization);
+
+
+            // cara 2
+            // cari center mata
+            int centerMataKiri = this.LeftEye.Ymin + ((this.LeftEye.Ymax - this.LeftEye.Ymin) / 2);
+            int centerMataKanan = this.RightEye.Ymin + ((this.RightEye.Ymax - this.RightEye.Ymin) / 2);
+            int jarakcentermata = centerMataKanan - centerMataKiri;
+            Log.d("ObjSkin","detectEyeDistance - centerMataKiri : " + centerMataKiri);
+            Log.d("ObjSkin","detectEyeDistance - centerMatakanan : " + centerMataKanan);
+            Log.d("ObjSkin","detectEyeDistance - jarakCenterMata : " + jarakcentermata);
+        }
+    }
+
+    private void recognizeFace() {
+        if (IsFaceDetected()) {
+            FaceRecognition faceRecognition = new FaceRecognition();
+            SharedPrefManager sharedPrefManager = new SharedPrefManager(context);
+            String savedName = sharedPrefManager.getFaceName();
+
+            if (savedName.equals("")) {
+                sharedPrefManager.setFaceName(faceRecognition.recognizeFace(normalization));
+            } else {
+                sharedPrefManager.setFaceName(savedName + ", " + faceRecognition.recognizeFace(normalization));
             }
         }
-
-        Component cNose = new Component(pListNose, this.height, this.width);
-        cNose.isNose = true;
-        this.componentList.add(cNose);
     }
 
     public boolean IsFaceDetected(){

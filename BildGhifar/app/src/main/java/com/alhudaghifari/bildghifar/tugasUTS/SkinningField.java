@@ -1,5 +1,6 @@
 package com.alhudaghifari.bildghifar.tugasUTS;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
 
@@ -41,12 +42,15 @@ public class SkinningField {
 
     private int width;
     private int height;
+    private Context context;
 
     private final int iterationDirections[][] = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}};
 
-    public SkinningField(int redPx[][], int greenPx[][], int bluePx[][], int matrixBW[][], int height, int width){
+    public SkinningField(int redPx[][], int greenPx[][], int bluePx[][], int matrixBW[][], int height, int width, Context context){
         this.pListObjSkin = new ArrayList<>();
         this.floodFillStack = new Stack<>();
+
+        this.context = context;
 
         // init
         this.redPixel = new int[height][];
@@ -234,7 +238,7 @@ public class SkinningField {
                     if(pList.size() > threshold) {
                         obji++;
                         Log.d("newobj","object skin ke  " + obji + " ,size : " + pList.size());
-                        ObjSkin obj = new ObjSkin(pList, this.height, this.width);
+                        ObjSkin obj = new ObjSkin(pList, this.height, this.width, context);
                         this.pListObjSkin.add(obj);
                     }
                 }
@@ -279,12 +283,15 @@ public class SkinningField {
 
         for(int i = xmin; i <xmax;i++){
             for(int j = ymin; j< ymax;j++){
-                if((i == xmin || i == xmax - 1) || (j == ymin || j == ymax - 1) ){
+                if(((i == xmin || i == xmax - 1) || (j == ymin || j == ymax - 1)) &&
+                        (i >= 0 && j >=0) && (i < height && j < width)) {
                     mat[i][j] = val;
                 }
             }
         }
     }
+
+
 
     public int[][] getmarkedObjectToRGBvalue(){
         int[][] matRGBTmp = new int[this.height][];

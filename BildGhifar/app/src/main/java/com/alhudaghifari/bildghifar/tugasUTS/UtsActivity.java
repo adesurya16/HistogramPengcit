@@ -35,6 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alhudaghifari.bildghifar.R;
+import com.alhudaghifari.bildghifar.SharedPrefManager;
 import com.alhudaghifari.bildghifar.tugas4ChainCode.TemplateChainCode;
 import com.alhudaghifari.bildghifar.tugas5Thinning.ZhangSuen;
 import com.alhudaghifari.bildghifar.utils.OtsuThresholder;
@@ -105,6 +106,7 @@ public class UtsActivity extends AppCompatActivity {
     private TextView tvSeekBarCenter;
     private TextView tvSeekBarRight;
     private TextView tvJudulThresholdThinning;
+    private TextView tvFacePrediction;
 
     private SeekBar seekBarThreshold;
     private SeekBar seekBarLeft;
@@ -180,6 +182,7 @@ public class UtsActivity extends AppCompatActivity {
     private String mTakePhotoPath;
 
     private PredictCharUsingChainCode predictCharUsingChainCode;
+    private SharedPrefManager sharedPrefManager;
 
     private boolean isOpen = false;
     private boolean isHistogramOpened = false;
@@ -237,6 +240,7 @@ public class UtsActivity extends AppCompatActivity {
         tvSeekBarLeft = (TextView) findViewById(R.id.tvSeekBarLeft);
         tvSeekBarCenter = (TextView) findViewById(R.id.tvSeekBarCenter);
         tvSeekBarRight = (TextView) findViewById(R.id.tvSeekBarRight);
+        tvFacePrediction = (TextView) findViewById(R.id.tvFacePrediction);
         tvJudulThresholdThinning = (TextView) findViewById(R.id.tvJudulThresholdThinning);
         tvThresholdThinning = (TextView) findViewById(R.id.tvThresholdThinning);
         seekBarThreshold = (SeekBar) findViewById(R.id.seekBarThreshold);
@@ -266,6 +270,7 @@ public class UtsActivity extends AppCompatActivity {
         buzier_blue_chart_hasil = (BarChart) findViewById(R.id.buzier_blue_chart_hasil);
         buzier_gray_chart_hasil = (BarChart) findViewById(R.id.buzier_gray_chart_hasil);
 
+        sharedPrefManager = new SharedPrefManager(UtsActivity.this);
 
         initializeListener();
 
@@ -365,6 +370,7 @@ public class UtsActivity extends AppCompatActivity {
                     if (posisi == SHOW_HOME) {
                         photoView.setImageBitmap(originalPhoto);
                         output = originalPhoto;
+                        showPage(SHOW_HOME);
                         bitmapAnalyzer();
                     } else if (posisi == SHOW_GRAYSCALE) {
                         setBitmapGrayscaleEqualization();
@@ -398,8 +404,10 @@ public class UtsActivity extends AppCompatActivity {
 //                        Bitmap bitmap2 = getResizedBitmap(bitmap, 150);// 400 is for example, replace with desired size
 //                        output = bitmap2.copy(Bitmap.Config.RGB_565, true);
 //                        bitmapAnalyzer();
-
+                        sharedPrefManager.setFaceName("");
+                        tvFacePrediction.setText("siapa ya kira-kira");
                         new DetectFace().execute();
+                        showPage(SHOW_FACE_DETECTION);
                     }
                     else  {
                         setAdapterUts(posisi);
@@ -699,6 +707,7 @@ public class UtsActivity extends AppCompatActivity {
         tvJudulThresholdThinning.setVisibility(View.GONE);
         svEqualizer.setVisibility(View.GONE);
         tvPrediction.setVisibility(View.GONE);
+        tvFacePrediction.setVisibility(View.GONE);
 
         if (isOpen && page == statusPage) {
             page = SHOW_HOME;
@@ -766,6 +775,10 @@ public class UtsActivity extends AppCompatActivity {
                 tvJudulMenu.setText("Custom Operator");
                 linlayCustomOperator.setVisibility(View.VISIBLE);
                 break;
+            case SHOW_FACE_DETECTION:
+                linlaySubMenu.setVisibility(View.GONE);
+                tvFacePrediction.setVisibility(View.VISIBLE);
+                break;
             default:
                 statusPage = page;
                 linlaySubMenu.setVisibility(View.GONE);
@@ -781,6 +794,8 @@ public class UtsActivity extends AppCompatActivity {
     private int[] sumWidth;
 
     private class DetectFace extends AsyncTask<Void, Void, String> {
+        private SkinningField sf;
+
         @Override
         protected void onPreExecute() {
             Log.d(TAG, "onPreExecute");
@@ -803,7 +818,7 @@ public class UtsActivity extends AppCompatActivity {
             Log.d("blackval","actvity 0 23  : " + matrixBw[0][23]);
             Log.d("blackval","actvity 110 223 : " + matrixBw[110][223]);
 
-            SkinningField sf = new SkinningField(redPixel2, greenPixel2, bluePixel2, matrixBw, height, width);
+            sf = new SkinningField(redPixel2, greenPixel2, bluePixel2, matrixBw, height, width, UtsActivity.this);
             outToFile(sf.getMarkedObjectToBW());
             return "";
         }
@@ -813,6 +828,9 @@ public class UtsActivity extends AppCompatActivity {
             Log.d(TAG, "onPostExecute");
             dialog.dismiss();
             setImageToYCbCr();
+            String nama = sharedPrefManager.getFaceName();
+            if (nama.equals("")) nama = "I don't know who the h*ll is this";
+            tvFacePrediction.setText("Prediksi muka : " + nama);
             isFaceDetectionSeledted = false;
         }
     }
